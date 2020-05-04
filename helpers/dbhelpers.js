@@ -1,5 +1,5 @@
 const db = require("../db.js");
-const apiConfig = require("../apiConfig.js");
+const apiConfig = require("../apiconfig.js");
 
 const rgxIsInt = /^[0-9]+$/;
 const DEFAULT_LIMIT = 100;
