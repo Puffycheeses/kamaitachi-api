@@ -785,3 +785,7 @@ describe("Tierlist Data Checks", function(){
         expect(response.body.success).toBe(false);
     });
 });
+
+afterAll(async () => {
+    await db.close(); // do it.
+});
