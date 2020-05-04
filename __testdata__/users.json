@@ -1,0 +1,197 @@
+[
+{
+        "username" : "zkldi",
+        "displayname" : "zkldi+",
+        "password" : "zkldi_is_super_cool",
+        "email" : "someone@example.com",
+        "id" : 1,
+        "settings" : {
+                "nsfwsplashes" : true,
+                "invisible" : false,
+                "noTracking" : true
+        },
+        "rivals" : [
+                {
+                        "name" : "IIDXBOYZ",
+                        "game" : "iidx",
+                        "desc" : "da boyz. da boyz forever",
+                        "rivals" : [
+                                15,
+                                22
+                        ],
+                        "default" : true
+                },
+                {
+                        "name" : "MAIMAISQUAD",
+                        "game" : "maimai",
+                        "desc" : "ohyeah",
+                        "rivals" : [
+                                7,
+                                10
+                        ],
+                        "default" : false
+                }
+        ],
+        "friends" : [
+                1,
+				2
+        ],
+        "socialmedia" : {
+                "discord" : "zkldi#2965",
+                "twitter" : "",
+                "github" : "zkldi",
+                "steam" : "",
+                "youtube" : "",
+                "twitch" : ""
+        },
+        "integrations" : {
+                "mm" : {
+                        "token" : "x",
+                        "authStatus" : true,
+                        "username" : "x"
+                },
+                "flo" : {
+                        "authStatus" : false,
+                        "refreshToken" : "x",
+                        "token" : "x"
+                }
+        },
+        "lastSeen" : 1588338116219,
+        "about" : "![](https://kamaitachi.xyz/static/images/logos/octillery.gif)\r\n",
+        "xp" : 258900,
+        "custompfp" : true,
+        "custombanner" : true,
+        "achievements" : [ ],
+        "ratings" : {
+                "iidx" : {
+                        "SP" : 12.75793039572415,
+                        "DP" : 2.9767964994597604
+                },
+                "maimai" : {
+                        "Single" : 13.542221891227507
+                },
+                "sdvx" : {
+                        "Single" : 19.167682678866974
+                },
+                "jubeat" : {
+
+                },
+                "popn" : {
+
+                },
+                "museca" : {
+                        "Single" : 19.90258989138993
+                },
+                "osumania" : {
+                        "4K" : 2.3000149547123065,
+                        "5K" : 0,
+                        "7K" : 0,
+                        "6K" : 0
+                },
+                "osuctb" : {
+
+                },
+                "osustd" : {
+
+                },
+                "osutaiko" : {
+
+                },
+                "ddr" : {
+                        "SP" : 1.612392307094027,
+                        "DP" : 4.656469836966025
+                },
+                "bms" : {
+
+                }
+        },
+        "userclass" : "DEV",
+        "permissions" : {
+                "admin" : true
+        },
+        "clan" : "FOUR"
+},
+{
+        "username" : "altuser",
+        "displayname" : "altuser",
+        "password" : "future_employers_should_consider_hiring_zkldi",
+        "email" : "someoneelse@example.com",
+        "id" : 2,
+        "settings" : {
+                "nsfwsplashes" : true,
+                "invisible" : false,
+                "noTracking" : true
+        },
+        "rivals" : [],
+        "friends" : [],
+        "socialmedia" : {
+                "discord" : "",
+                "twitter" : "",
+                "github" : "",
+                "steam" : "",
+                "youtube" : "",
+                "twitch" : ""
+        },
+        "integrations" : {
+                "mm" : {
+                        "token" : null,
+                        "authStatus" : false,
+                        "username" : null
+                },
+                "flo" : {
+                        "authStatus" : false,
+                        "refreshToken" : null,
+                        "token" : null
+                }
+        },
+        "lastSeen" : 3176708633264,
+        "about" : "![](https://kamaitachi.xyz/static/images/logos/octillery.gif)\r\n",
+        "xp" : 40000,
+        "custompfp" : true,
+        "custombanner" : true,
+        "achievements" : [ ],
+        "ratings" : {
+                "iidx" : {
+                        "SP" : 11.7,
+                        "DP" : 3.9
+                },
+                "maimai" : {
+                        "Single" : 10.5
+                },
+                "sdvx" : {
+                        "Single" : 19.1
+                },
+                "jubeat" : {
+
+                },
+                "popn" : {
+
+                },
+                "museca" : {
+                        "Single" : 100.4
+                },
+                "osumania" : {
+                        "4K" : 2.3000149547123065
+                },
+                "osuctb" : {
+
+                },
+                "osustd" : {
+
+                },
+                "osutaiko" : {
+
+                },
+                "ddr" : {
+                        "SP" : 1.612392307094027,
+                        "DP" : 4.656469836966025
+                },
+                "bms" : {
+
+                }
+        },
+        "userclass" : null,
+        "permissions" : {},
+        "clan" : null
+}
+]

@@ -1,0 +1,35 @@
+{
+  "name": "kamaitachi-api",
+  "version": "1.0.0",
+  "description": "The public API for Kamaitachi",
+  "main": "main.js",
+  "scripts": {
+    "test": "jest --runInBand --detectOpenHandles --bail=1  "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zkldi/kamaitachi-api.git"
+  },
+  "keywords": [
+    "rhythm-game",
+    "api",
+    "statistics"
+  ],
+  "author": "zkldi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zkldi/kamaitachi-api/issues"
+  },
+  "homepage": "https://github.com/zkldi/kamaitachi-api#readme",
+  "devDependencies": {
+    "jest": "^25.5.3",
+    "supertest": "^4.0.2"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongo-sanitize": "^1.1.0",
+    "mongodb": "^3.5.7",
+    "monk": "^7.2.0",
+    "string-similarity": "^4.0.1"
+  }
+}

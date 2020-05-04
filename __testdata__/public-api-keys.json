@@ -1,0 +1,5 @@
+[
+	{"assignedTo": 1, "expireTime": 3176708633264, "apiKey": "admin", "permissions": {}},
+	{"assignedTo": 2, "expireTime": 0, "apiKey": "expire", "permissions": {}},
+	{"assignedTo": 2, "expireTime": 3176708633264, "apiKey": "altuser", "permissions": {}}
+]

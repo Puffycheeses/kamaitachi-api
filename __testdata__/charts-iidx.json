@@ -1,0 +1,22 @@
+[
+{  "playtype" : "SP", "difficulty" : "ANOTHER", "bpm" : "123", "id" : 0,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 290 }, "level" : "3" },
+{  "playtype" : "DP", "difficulty" : "HYPER", "bpm" : "123", "id" : 0,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 321 }, "level" : "4" },
+{  "playtype" : "SP", "difficulty" : "HYPER", "bpm" : "123", "id" : 0,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 261 }, "level" : "3" },
+{  "playtype" : "DP", "difficulty" : "NORMAL", "bpm" : "123", "id" : 0,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 259 }, "level" : "3" },
+{  "playtype" : "SP", "difficulty" : "NORMAL", "bpm" : "123", "id" : 0,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 204 }, "level" : "2" },
+{  "playtype" : "DP", "difficulty" : "ANOTHER", "bpm" : "102", "id" : 1,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 137 }, "level" : "9" },
+{  "playtype" : "SP", "difficulty" : "ANOTHER", "bpm" : "102", "id" : 1,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 137 }, "level" : "9" },
+{  "playtype" : "DP", "difficulty" : "HYPER", "bpm" : "102", "id" : 1,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 137 }, "level" : "1" },
+{  "playtype" : "SP", "difficulty" : "HYPER", "bpm" : "102", "id" : 1,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 137 }, "level" : "1" },
+{  "playtype" : "DP", "difficulty" : "NORMAL", "bpm" : "102", "id" : 1,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 137 }, "level" : "1" },
+{  "playtype" : "SP", "difficulty" : "NORMAL", "bpm" : "102", "id" : 1,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 137 }, "level" : "1" },
+{  "playtype" : "DP", "difficulty" : "ANOTHER", "bpm" : "159-167", "id" : 2,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 631 }, "level" : "9" },
+{  "playtype" : "SP", "difficulty" : "ANOTHER", "bpm" : "159-167", "id" : 2,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 609 }, "level" : "7" },
+{  "playtype" : "DP", "difficulty" : "HYPER", "bpm" : "159-167", "id" : 2,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 556 }, "level" : "9" },
+{  "playtype" : "SP", "difficulty" : "HYPER", "bpm" : "159-167", "id" : 2,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 508 }, "level" : "6" },
+{  "playtype" : "DP", "difficulty" : "NORMAL", "bpm" : "159-167", "id" : 2,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 409 }, "level" : "4" },
+{  "playtype" : "SP", "difficulty" : "NORMAL", "bpm" : "159-167", "id" : 2,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 442 }, "level" : "5" },
+{  "playtype" : "DP", "difficulty" : "ANOTHER", "bpm" : "157", "id" : 3,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 475 }, "level" : "8" },
+{  "playtype" : "SP", "difficulty" : "ANOTHER", "bpm" : "157", "id" : 3,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 454 }, "level" : "6" },
+{  "playtype" : "DP", "difficulty" : "HYPER", "bpm" : "157", "id" : 3,  "indicators" : { "bss" : false, "cn" : false, "hbss" : false, "hcn" : false }, "notedata" : { "notecount" : 392 }, "level" : "6" }
+]

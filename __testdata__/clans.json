@@ -1,0 +1,8 @@
+[
+{  "foundedTime" : 1585959464028, "name" : "New, Rival Conga Line", "motd" : "No Clan Description", "clanID" : "Vibe", "founderID" : 3, "members" : [ { "userID" : 3, "joinTime" : 1585959464028, "status" : "Founder" }, { "userID" : 10, "joinTime" : 1586051201194, "status" : "Member" }, { "userID" : 7, "joinTime" : 1587346506809, "status" : "Member" } ], "xp" : 510425, "outgoingInvites" : [ ] },
+{  "foundedTime" : 1585962945908, "name" : "Group Four", "motd" : "hi", "clanID" : "FOUR", "founderID" : 1, "members" : [ { "userID" : 1, "joinTime" : 1585962945908, "status" : "Founder" } ], "xp" : 262310, "outgoingInvites" : [ ] },
+{  "foundedTime" : 1586897345144, "name" : "UwU", "motd" : "UwU", "clanID" : "UwU", "founderID" : 11, "members" : [ { "userID" : 11, "joinTime" : 1586897345144, "status" : "Founder" } ], "xp" : 11197, "outgoingInvites" : [ ] },
+{  "foundedTime" : 1588099862047, "name" : "69Gakuen", "motd" : "No Clan Description", "clanID" : "Gk", "founderID" : 58, "members" : [ { "userID" : 58, "joinTime" : 1588099862047, "status" : "Founder" } ], "xp" : 14087, "outgoingInvites" : [ ] },
+{  "foundedTime" : 1588144679906, "name" : "Void's Girl Clan", "motd" : "arrow smashers", "clanID" : "girl", "founderID" : 5, "members" : [ { "userID" : 5, "joinTime" : 1588144679906, "status" : "Founder" }, { "userID" : 49, "joinTime" : 1588145084196, "status" : "Member" }, { "userID" : 51, "joinTime" : 1588209693908, "status" : "Member" } ], "xp" : 48197, "outgoingInvites" : [ ] },
+{  "foundedTime" : 1588558627794, "name" : "bms", "motd" : "bms", "clanID" : "bms", "founderID" : 50, "members" : [ { "userID" : 50, "joinTime" : 1588558627794, "status" : "Founder" } ], "xp" : 394610, "outgoingInvites" : [ 39, 28, 27, 12, 29 ] }
+]
