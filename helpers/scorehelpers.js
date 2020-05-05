@@ -1,7 +1,7 @@
 const db = require("../db.js");
 
 const ALLOWED_SORT_CRITERIA = ["timeAchieved","timeAdded","scoreData.score","scoreData.percent","calculatedData.rating","calculatedData.notability","xp"];
-const SCOREDATA_KEYS = ["difficulty","grade","lamp"];
+const SCOREDATA_KEYS = ["playtype","difficulty","grade","lamp"];
 const MAX_SCORE_LIMIT = 100;
 
 async function GetScoresWithQuery(query){
@@ -96,7 +96,7 @@ async function GetScoresWithQuery(query){
     }
     let scores = [];
     
-    if (query.unique){
+    if (query.unique && query.unique !== "false"){
         queryOBJ.isScorePB = true;
         scores = await db.get("scores").find(queryObj, {fields: {_id: 0}, limit : scoreLimit, skip: start, sort : sortCriteria });
         for (const score of scores) {
@@ -125,9 +125,9 @@ async function GetScoresWithQuery(query){
         scores = await db.get("scores").find(queryObj, {fields: {_id: 0}, limit : scoreLimit, skip: start, sort : sortCriteria });
     }
 
-    let scoreBody = {scores}
+    let scoreBody = {items: scores}
     if (scores.length !== 0){
-        scoreBody.newStartPoint = start + scoreLimit;
+        scoreBody.nextStartPoint = start + scoreLimit;
     }
 
     return scoreBody;
