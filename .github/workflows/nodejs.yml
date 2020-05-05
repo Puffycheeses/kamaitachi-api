@@ -1,13 +1,10 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
 name: Node.js CI
 
 on:
   push:
-    branches: [ staging ]
+    branches: [ staging, master ]
   pull_request:
-    branches: [ staging ]
+    branches: [ staging, master ]
 
 jobs:
   build:
@@ -16,7 +13,13 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x]
+        node-version: [12.x]
+
+    services:
+      mongodb:
+        image: mongo:4.2.2
+        ports:
+        - 27017:27017
 
     steps:
     - uses: actions/checkout@v2
