@@ -27,21 +27,9 @@ router.get("/query", async function(req,res){
 
     return res.status(200).json({
         success: true,
-        description: "Successfully retrieved " + scores.length + " scores.",
+        description: "Successfully retrieved " + scoreBody.items.length + " scores.",
         body: scoreBody
     })
 });
-
-router.get("/best", async function(req,res){
-    req.query.sortCriteria = "calculatedData.rating";
-    let scoreBody = await scoreHelpers.GetScoresWithQuery(req.query);
-
-    return res.status(200).json({
-        success: true,
-        description: "Successfully retrieved " + scores.length + "scores.",
-        body: scoreBody
-    })
-});
-
 
 module.exports = router;
