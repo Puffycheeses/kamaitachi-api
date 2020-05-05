@@ -14,7 +14,7 @@ router.get("/", async function(req,res){
         success: true,
         description: "Successfully found user '" + req.params.userID + "'",
         body: {
-            user: user
+            item: user
         }
     });
 });

@@ -5,7 +5,7 @@ const userHelpers = require("../../../../../helpers/userhelpers.js");
 
 // mounted on /api/v1/users/:userID/imports
 
-const MAX_RETURNS = 25;
+const MAX_RETURNS = 100;
 router.get("/", async function(req,res){
     let user = await userHelpers.GetUser(req.params.userID);
 
