@@ -77,7 +77,7 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
     // critical modifier: exact
     // returns only one item that exactly matches the query
     // if none, returns 404.
-    if (query.exact === "true"){
+    if (query.exact && query.exact !== "false"){
         if (Object.keys(queryObj).length === 0){
             return {
                 statusCode: 400,
