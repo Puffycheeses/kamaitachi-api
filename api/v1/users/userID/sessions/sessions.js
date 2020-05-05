@@ -9,7 +9,7 @@ const dbHelpers = require("../../../../../helpers/dbhelpers.js");
 
 router.use(middlewares.RequireExistingUser);
 
-const MAX_RETURNS = 25;
+const MAX_RETURNS = 100;
 router.get("/", async function(req,res){
 
     let user = await userHelpers.GetUser(req.params.userID);
@@ -25,14 +25,7 @@ router.get("/", async function(req,res){
     return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
-router.patch("/change-name", middlewares.RequireUserKeyMatch, async function(req,res){
-    if (!req.query.sessionID){
-        return res.status(400).json({
-            success: false,
-            description: "No sessionID provided."
-        });
-    }
-
+router.patch("/:sessionID/change-name", middlewares.RequireUserKeyMatch, async function(req,res){
     if (!req.query.name){
         return res.status(400).json({
             success: false,
@@ -46,7 +39,7 @@ router.patch("/change-name", middlewares.RequireUserKeyMatch, async function(req
         });
     }
 
-    let session = await db.get("sessions").findOne({sessionID: req.query.sessionID});
+    let session = await db.get("sessions").findOne({sessionID: req.params.sessionID});
 
     if (!session){
         return res.status(404).json({
@@ -75,14 +68,7 @@ router.patch("/change-name", middlewares.RequireUserKeyMatch, async function(req
 });
 
 // TODO, NOT COPY PASTE THIS, LOL.
-router.patch("/change-desc", middlewares.RequireUserKeyMatch, async function(req,res){
-    if (!req.query.sessionID){
-        return res.status(400).json({
-            success: false,
-            description: "No sessionID provided."
-        });
-    }
-
+router.patch("/:sessionID/change-desc", middlewares.RequireUserKeyMatch, async function(req,res){
     if (!req.query.desc){
         return res.status(400).json({
             success: false,
@@ -96,7 +82,7 @@ router.patch("/change-desc", middlewares.RequireUserKeyMatch, async function(req
         });
     }
 
-    let session = await db.get("sessions").findOne({sessionID: req.query.sessionID});
+    let session = await db.get("sessions").findOne({sessionID: req.params.sessionID});
 
     if (!session){
         return res.status(404).json({
