@@ -9,11 +9,11 @@ const app = require('../../server.js');
 const supertest = require('supertest');
 let request;
 let server;
-const db = require("../../testingdb.js"); 
+const db = require("../../__jesthelpers/testingdb.js"); 
 const config = require("../../config/config.js");
 const jestHelpers = require("../../__jesthelpers/jesthelpers.js");
 
-const testingDBInitialiser = require("../../testingdbinitialiser.js");
+const testingDBInitialiser = require("../../__jesthelpers/testingdbinitialiser.js");
 
 // Crucial managers for supertest
 // without this, supertest will leave the latest request completely open
@@ -784,4 +784,8 @@ describe("Tierlist Data Checks", function(){
         expect(response.status).toBe(404);
         expect(response.body.success).toBe(false);
     });
+});
+
+afterAll(async () => {
+    await db.close(); // do it.
 });

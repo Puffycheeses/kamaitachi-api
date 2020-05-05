@@ -1,7 +1,8 @@
 # we dont actually need all this stuff its just
 # what git recommends for projects using node.js - zkldi
 
-client/static/vendor
+scripts
+
 
 # Logs
 logs
