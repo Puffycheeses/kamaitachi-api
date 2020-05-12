@@ -7,8 +7,6 @@ const similarity = require("string-similarity");
 
 // mounted on /api/v1/users
 
-router.use(middlewares.RequireExistingUser);
-
 const MAX_USER_RETURN_LIMIT = 100;
 const ALLOWED_SORT_CRITERIA = ["id","xp","username","displayname"];
 
@@ -185,7 +183,6 @@ router.get("/search", async function(req,res){
 });
 
 // mounts
-
 const userIDRouter = require("./userID/userID.js");
 router.use("/:userID", userIDRouter);
 
