@@ -101,6 +101,8 @@ router.get("/online", async function(req,res){
 
         start = parseInt(req.query.start);
     }
+    
+    let curTime = Date.now();
 
     let onlineUsers = await db.get("users").find({
         lastSeen: {
