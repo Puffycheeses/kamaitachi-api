@@ -68,7 +68,7 @@ describe("Initialisation", function(){
       
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
-        expect(response.body.version.major).toBe(1);
+        expect(response.body.body.version.major).toBe(1);
     });
     
     test('API Core With Expired Key', async function() {
@@ -668,7 +668,7 @@ describe("Clan Tests", function(){
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
-        expect(response.body.body.clan.clanID).toBe("FOUR");
+        expect(response.body.body.item.clanID).toBe("FOUR");
     });
 
     test("Check non-existent clan", async function(){

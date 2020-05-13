@@ -12,7 +12,8 @@ const validKeys = {
         service: "string",
         game: "string",
         playtype: "string",
-        userID: "integer"
+        userID: "integer",
+        highlight: "boolean"
     },
     "notifications": {
         title: "string",
@@ -36,6 +37,7 @@ const validKeys = {
         tierlistID: "string",
         default: "boolean",
         game: "string",
+        playtype: "string"
     },
     "songs": {
         id: "integer",

@@ -13,12 +13,7 @@ router.get("/", async function(req,res){
     let scoreCount = await db.get("scores").count({game: req.params.game});
     let songCount = await db.get("songs-" + req.params.game).count({});
     let chartCount = await db.get("charts-" + req.params.game).count({});
-    let players = {}
     let game = req.params.game;
-    for (const playtype of config.validPlaytypes[req.params.game]) {
-        let pCount = await userHelpers.GetPlayersOnGame(game, playtype);
-        players[playtype] = pCount;
-    }
 
     let gameObj = {
         game: game,
@@ -39,8 +34,7 @@ router.get("/", async function(req,res){
     let gameStats = {
         scoreCount: scoreCount,
         songCount: songCount,
-        chartCount: chartCount,
-        players
+        chartCount: chartCount
     }
 
     return res.status(200).json({

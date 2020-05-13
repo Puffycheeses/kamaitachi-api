@@ -15,7 +15,6 @@ router.get("/", async function(req,res){
         let scoreCount = await db.get("scores").count({game: game});
         let songCount = await db.get("songs-" + game).count({});
         let chartCount = await db.get("charts-" + game).count({});
-        let players = await userHelpers.GetPlayersOnGame(game);
 
         totalScoreCount += scoreCount;
         totalSongCount += songCount;
@@ -27,8 +26,7 @@ router.get("/", async function(req,res){
             gameHuman: config.GameToHuman(game),
             scoreCount: scoreCount,
             songCount: songCount,
-            chartCount: chartCount,
-            players: players
+            chartCount: chartCount
         }
         gamesObj[game] = gameObj;
     }

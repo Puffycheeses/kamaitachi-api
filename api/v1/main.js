@@ -3,15 +3,21 @@ const router = express.Router({mergeParams: true});
 
 // mounted on /api/v1
 
+const MAJOR_VER = 1;
+const MINOR_VER = 0;
+const PATCH_VER = 0;
+
 router.get("/", async function(req,res){
     return res.status(200).json({
         success: true,
-        version: {
-            major: 1,
-            minor: 0,
-            patch: 0
+        body: {
+            version: {
+                major: MAJOR_VER,
+                minor: MINOR_VER,
+                patch: PATCH_VER
+            }
         },
-        description: "Server Status OK"
+        description: "Server Status OK. Running kamaitachi-api v" + [MAJOR_VER,MINOR_VER,PATCH_VER].join(".")
     });
 });
 
