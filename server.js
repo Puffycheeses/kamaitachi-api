@@ -1,9 +1,17 @@
 const db = require("./db.js");
 const express = require("express");
 const middlewares = require("./middlewares.js");
+const cookieParser = require('cookie-parser');
 
 const app = express();
 app.set("trust proxy", 1);
+
+// allow cors requests from kamaitachi.xyz
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "https://kamaitachi.xyz");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 // prettyprint json for those in browsers who don't use chrome
 // ffx comes with a great json viewer, but of course, chrome is BIG
@@ -11,6 +19,8 @@ app.set("trust proxy", 1);
 app.set("json spaces", 4);
 
 // crucial middleware; these are in this order for a very important reason.
+app.use(cookieParser());
+
 app.use(middlewares.RequireAPIKey);
 
 app.use(middlewares.LogRequest);
