@@ -21,7 +21,7 @@ router.get("/", async function(req,res){
         success: true,
         description: "Found clan " + clan.name + " [" + clan.clanID + "].",
         body: {
-            clan
+            item: clan
         }
     });
 });
@@ -122,7 +122,10 @@ router.delete("/disband", middlewares.RequireClanFounder, async function(req,res
 
     return res.status(200).json({
         success: true,
-        description: "Successfully destroyed clan " + clan.clanID + "."
+        description: "Successfully destroyed clan " + clan.clanID + ".",
+        body: {
+            deletedClanID: clan.clanID
+        }
     })
 });
 
