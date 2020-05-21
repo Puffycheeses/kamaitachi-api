@@ -71,7 +71,7 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
 
     let settings = {
         fields: {_id: 0},
-        sort: defaultSort
+        sort: {[defaultSort]: query.sort === "asc" ? 1 : -1}
     }
 
     // critical modifier: exact
