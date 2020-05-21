@@ -15,7 +15,7 @@ async function RequireAPIKey(req,res,next)
     }
     
     let key = await db.get("public-api-keys").findOne({apiKey: givenKey});
-
+    
     if (!key || key.expireTime < Date.now()){
         return res.status(401).json({
             success: false,
