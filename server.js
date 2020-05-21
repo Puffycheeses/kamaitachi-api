@@ -19,6 +19,10 @@ app.use(function(req, res, next) {
 // pls use ffx :).
 app.set("json spaces", 4);
 
+// enable reading json bodies
+// limit them so as not to choke the api
+app.use(express.json({limit:"1mb"}));
+
 // crucial middleware; these are in this order for a very important reason.
 app.use(cookieParser());
 
