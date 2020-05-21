@@ -8,6 +8,34 @@ const apiConfig = require("../../../apiconfig.js");
 // mounted on /api/v1/leaderboards
 
 const RETURN_LIMIT = 100;
+
+router.get("/", async function(req,res){
+    let leaderboardData = {};
+
+    for (const game of config.supportedGames) {
+        leaderboardData[game] = {};
+
+        for (const pt of config.validPlaytypes[game]) {
+            let leaderboardInfo = await db.get("users").find({}, 
+                {
+                    fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
+                    sort: {["ratings." + game + "." + pt]: -1},
+                    limit: RETURN_LIMIT
+                }
+            );
+
+            leaderboardInfo = leaderboardInfo.filter(e => e.ratings[game] && e.ratings[game][pt] > 0.001);
+            leaderboardData[game][pt] = leaderboardInfo;
+        }
+    }
+
+    return res.status(200).json({
+        success: true,
+        description: "Found leaderboards for " + config.supportedGames.length + " games.",
+        body: leaderboardData
+    });
+});
+
 router.get("/games/:game", async function(req,res){
 
     let playtype = req.query.playtype ? req.query.playtype : config.defaultPlaytype[req.params.game];

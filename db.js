@@ -3,7 +3,7 @@ const url = process.env.NODE_ENV === "production" ? 'localhost:27017/kamaitachid
 const db = monk(url);
 
 db.then(() => {
-    console.log("Connected correctly to " + process.env.NODE_ENV + " db");
+    console.log("Connected correctly to " + url);
 });
 
 module.exports = db;

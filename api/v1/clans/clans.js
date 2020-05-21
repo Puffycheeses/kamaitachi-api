@@ -8,7 +8,7 @@ router.get("/", async function(req,res){
     let dbRes = await dbHelpers.FancyDBQuery(
         "clans",
         req.query,
-        true,
+        true
     );
 
     return res.status(dbRes.statusCode).json(dbRes.body);

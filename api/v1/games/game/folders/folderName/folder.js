@@ -55,7 +55,7 @@ router.get("/scores", async function(req,res){
     let users = []
 
     for (const userID of userIDs) {
-        let user = await userHelpers.GetUser(req.query.userID);
+        let user = await userHelpers.GetUser(userID);
         if (!user){
             return res.status(404).json({
                 success: false,
@@ -83,7 +83,7 @@ router.get("/scores", async function(req,res){
             "scoreData.playtype": c.playtype,
             "scoreData.difficulty": c.difficulty
         })
-    )});
+    )}, {fields: {_id: 0}});
 
     let items = {
         scores: folderScores,

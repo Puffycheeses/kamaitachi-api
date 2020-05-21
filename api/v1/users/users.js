@@ -1,13 +1,12 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
 const middlewares = require("../../../middlewares.js");
+const db = require("../../../db.js");
 const userHelpers = require("../../../helpers/userhelpers.js");
 const apiConfig = require("../../../apiconfig.js");
 const similarity = require("string-similarity");
 
 // mounted on /api/v1/users
-
-router.use(middlewares.RequireExistingUser);
 
 const MAX_USER_RETURN_LIMIT = 100;
 const ALLOWED_SORT_CRITERIA = ["id","xp","username","displayname"];
@@ -102,6 +101,8 @@ router.get("/online", async function(req,res){
 
         start = parseInt(req.query.start);
     }
+    
+    let curTime = Date.now();
 
     let onlineUsers = await db.get("users").find({
         lastSeen: {
@@ -185,7 +186,6 @@ router.get("/search", async function(req,res){
 });
 
 // mounts
-
 const userIDRouter = require("./userID/userID.js");
 router.use("/:userID", userIDRouter);
 
