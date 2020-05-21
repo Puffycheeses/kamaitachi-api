@@ -64,7 +64,7 @@ describe("Initialisation", function(){
     });
     
     test('API Core With Valid Key', async function() {
-        let response = await request.get('/api/v1?key=admin')
+        let response = await request.get('/v1?key=admin')
       
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -72,14 +72,14 @@ describe("Initialisation", function(){
     });
     
     test('API Core With Expired Key', async function() {
-        let response = await request.get('/api/v1?key=expire')
+        let response = await request.get('/v1?key=expire')
       
         expect(response.status).toBe(401);
         expect(response.body.success).toBe(false);
     });
     
     test('API Core With No Key', async function() {
-        let response = await request.get('/api/v1')
+        let response = await request.get('/v1')
       
         expect(response.status).toBe(401);
         expect(response.body.success).toBe(false);
@@ -110,7 +110,7 @@ describe("Game Meta Tests", function(){
     });
 
     test('Games check', async function() {
-        let response = await request.get('/api/v1/games?key=admin');
+        let response = await request.get('/v1/games?key=admin');
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
         expect(response.body.body.totalSongCount).toBe(20);
@@ -119,7 +119,7 @@ describe("Game Meta Tests", function(){
 
     for (const game of config.supportedGames) {
         test("Presence of " + game, async function(){
-            let response = await request.get('/api/v1/games?key=admin');
+            let response = await request.get('/v1/games?key=admin');
             expect(game in response.body.body.gameStats).toBe(true);
         });
     }
@@ -132,7 +132,7 @@ describe("Specific Game Tests", function(){
 
     for (const game of config.supportedGames) {
         test("Presence of gamedata for " + game, async function(){
-            let response = await request.get("/api/v1/games/" + game + "?key=admin");
+            let response = await request.get("/v1/games/" + game + "?key=admin");
             expect(response.status).toBe(200);
             expect(response.body.success).toBe(true);
             expect(response.body.body.gameInfo.game).toBe(game);
@@ -149,7 +149,7 @@ describe("Valid Song Query Tests", function(){
     });
 
     test("Default pagination query", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin");
+        let response = await request.get("/v1/games/iidx/songs?key=admin");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -160,7 +160,7 @@ describe("Valid Song Query Tests", function(){
     });
 
     test("Pagination query with custom limit", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&limit=5");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&limit=5");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -169,7 +169,7 @@ describe("Valid Song Query Tests", function(){
     });
 
     test("Pagination query with custom start", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&start=17");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&start=17");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -178,7 +178,7 @@ describe("Valid Song Query Tests", function(){
     });
 
     test("Pagination query with custom start and limit", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&start=17&limit=2");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&start=17&limit=2");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -190,7 +190,7 @@ describe("Valid Song Query Tests", function(){
 
     
     test("Exact Title Query", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&exact=true&title=GAMBOL");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&exact=true&title=GAMBOL");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -203,7 +203,7 @@ describe("Valid Song Query Tests", function(){
     });
 
     test("Exact Artist Query", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&exact=true&artist=SLAKE");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&exact=true&artist=SLAKE");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -216,7 +216,7 @@ describe("Valid Song Query Tests", function(){
     });
 
     test("Exact Genre Query", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&exact=true&genre=BIG BEAT");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&exact=true&genre=BIG BEAT");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -230,7 +230,7 @@ describe("Valid Song Query Tests", function(){
 
     // default sort criteria is tested in default pagination tests
     test("Custom Sort Criteria", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&sortCriteria=title");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&sortCriteria=title");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -247,105 +247,105 @@ describe("Invalid Song Queries", function(){
     // we reject nested queries, viz. we reject queries where any keys' value is an object.
     // see middlewares.js for more information on this security.
     test("Reject nested query", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&title=GAMBOL&title=OTHERKEY");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&title=GAMBOL&title=OTHERKEY");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Err on exact query with no match", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&title=TITLETHATDOESNTEXIST&exact=true");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&title=TITLETHATDOESNTEXIST&exact=true");
 
         expect(response.status).toBe(404);
         expect(response.body.success).toBe(false);
     });
     
     test("Reject query with invalid int in int param", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&id=asdf");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&id=asdf");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Reject query with NaN in int param", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&id=NaN");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&id=NaN");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Reject query with undefined in int param", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&id=undefined");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&id=undefined");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Reject query with float in int param", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&id=1.5");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&id=1.5");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Reject query with negative in int param", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&id=-1");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&id=-1");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Reject query with excessive limit", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&limit=200");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&limit=200");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Reject query with negative int start", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&start=-1");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&start=-1");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Reject query with float start", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&start=1.5");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&start=1.5");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Reject query with string start", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&start=hello");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&start=hello");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Reject query with negative int limit", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&limit=-1");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&limit=-1");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Reject query with float limit", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&limit=1.5");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&limit=1.5");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Reject query with string limit", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&limit=hello");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&limit=hello");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Reject exact query with no information", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs?key=admin&exact=true");
+        let response = await request.get("/v1/games/iidx/songs?key=admin&exact=true");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
@@ -354,7 +354,7 @@ describe("Invalid Song Queries", function(){
 
 describe("SongID Tests", function(){
     test("SongID working", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs/1?key=admin");
+        let response = await request.get("/v1/games/iidx/songs/1?key=admin");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -367,14 +367,14 @@ describe("SongID Tests", function(){
     });
 
     test("Reject nonexistent songID", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs/1000000?key=admin");
+        let response = await request.get("/v1/games/iidx/songs/1000000?key=admin");
 
         expect(response.status).toBe(404);
         expect(response.body.success).toBe(false);
     });
 
     test("SongID Default Charts", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs/1/charts?key=admin");
+        let response = await request.get("/v1/games/iidx/songs/1/charts?key=admin");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -387,7 +387,7 @@ describe("SongID Tests", function(){
     });
 
     test("SongID Charts with limit", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs/1/charts?key=admin&limit=2");
+        let response = await request.get("/v1/games/iidx/songs/1/charts?key=admin&limit=2");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -401,7 +401,7 @@ describe("SongID Tests", function(){
     });
 
     test("SongID Charts with start", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs/1/charts?key=admin&start=4");
+        let response = await request.get("/v1/games/iidx/songs/1/charts?key=admin&start=4");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -415,7 +415,7 @@ describe("SongID Tests", function(){
 
     // note this also checks that queryObj works
     test("SongID Charts with exact query", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs/1/charts?key=admin&exact=true&difficulty=ANOTHER&playtype=SP");
+        let response = await request.get("/v1/games/iidx/songs/1/charts?key=admin&exact=true&difficulty=ANOTHER&playtype=SP");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -427,14 +427,14 @@ describe("SongID Tests", function(){
     });
 
     test("Reject songID Chart exact query with no match", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs/1/charts?key=admin&exact=true&difficulty=LEGGENDARIA&playtype=SP");
+        let response = await request.get("/v1/games/iidx/songs/1/charts?key=admin&exact=true&difficulty=LEGGENDARIA&playtype=SP");
 
         expect(response.status).toBe(404);
         expect(response.body.success).toBe(false);
     });
 
     test("Reject nonexistent songID chart request", async function(){
-        let response = await request.get("/api/v1/games/iidx/songs/1000000/charts?key=admin");
+        let response = await request.get("/v1/games/iidx/songs/1000000/charts?key=admin");
 
         expect(response.status).toBe(404);
         expect(response.body.success).toBe(false);
@@ -444,7 +444,7 @@ describe("SongID Tests", function(){
 describe("Folders Meta Tests", function(){
     for (const game of config.supportedGames) {
         test("Get " + game + " Level Folders", async function(){
-            let response = await request.get("/api/v1/games/" + game +"/folders/levels?key=admin");
+            let response = await request.get("/v1/games/" + game +"/folders/levels?key=admin");
     
             expect(response.status).toBe(200);
             expect(response.body.success).toBe(true);
@@ -453,7 +453,7 @@ describe("Folders Meta Tests", function(){
         });
 
         test("Get " + game + " Version Folders", async function(){
-            let response = await request.get("/api/v1/games/" + game +"/folders/versions?key=admin");
+            let response = await request.get("/v1/games/" + game +"/folders/versions?key=admin");
     
             expect(response.status).toBe(200);
             expect(response.body.success).toBe(true);
@@ -465,7 +465,7 @@ describe("Folders Meta Tests", function(){
 
 describe("Folder Tests", function(){
     test("Get IIDX Level 1s", async function(){
-        let response = await request.get("/api/v1/games/iidx/folders/levels/1?key=admin");
+        let response = await request.get("/v1/games/iidx/folders/levels/1?key=admin");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -476,7 +476,7 @@ describe("Folder Tests", function(){
     });
 
     test("Get IIDX Version 1st style", async function(){
-        let response = await request.get("/api/v1/games/iidx/folders/versions/0?key=admin");
+        let response = await request.get("/v1/games/iidx/folders/versions/0?key=admin");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -487,7 +487,7 @@ describe("Folder Tests", function(){
     });
 
     test("Get IIDX Version substream", async function(){
-        let response = await request.get("/api/v1/games/iidx/folders/versions/1?key=admin");
+        let response = await request.get("/v1/games/iidx/folders/versions/1?key=admin");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -500,7 +500,7 @@ describe("Folder Tests", function(){
 
 describe("Folder Scores Tests", function(){
     test("Get IIDX Level 1 scores on userID 1", async function(){
-        let response = await request.get("/api/v1/games/iidx/folders/levels/1/scores?key=admin&userID=1");
+        let response = await request.get("/v1/games/iidx/folders/levels/1/scores?key=admin&userID=1");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -511,14 +511,14 @@ describe("Folder Scores Tests", function(){
     });
 
     test("Reject folder scores without user", async function(){
-        let response = await request.get("/api/v1/games/iidx/folders/levels/1/scores?key=admin");
+        let response = await request.get("/v1/games/iidx/folders/levels/1/scores?key=admin");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Reject folder scores with non-existent user", async function(){
-        let response = await request.get("/api/v1/games/iidx/folders/levels/1/scores?key=admin&userID=100");
+        let response = await request.get("/v1/games/iidx/folders/levels/1/scores?key=admin&userID=100");
 
         expect(response.status).toBe(404);
         expect(response.body.success).toBe(false);
@@ -527,7 +527,7 @@ describe("Folder Scores Tests", function(){
 
 describe("Song Independent Chart Query Tests", function(){
     test("Default pagination query", async function(){
-        let response = await request.get("/api/v1/games/iidx/charts?key=admin");
+        let response = await request.get("/v1/games/iidx/charts?key=admin");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -538,7 +538,7 @@ describe("Song Independent Chart Query Tests", function(){
     });
 
     test("Pagination query with custom limit", async function(){
-        let response = await request.get("/api/v1/games/iidx/charts?key=admin&limit=5");
+        let response = await request.get("/v1/games/iidx/charts?key=admin&limit=5");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -547,7 +547,7 @@ describe("Song Independent Chart Query Tests", function(){
     });
 
     test("Pagination query with custom start", async function(){
-        let response = await request.get("/api/v1/games/iidx/charts?key=admin&start=17");
+        let response = await request.get("/v1/games/iidx/charts?key=admin&start=17");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -556,7 +556,7 @@ describe("Song Independent Chart Query Tests", function(){
     });
 
     test("Pagination query with custom start and limit", async function(){
-        let response = await request.get("/api/v1/games/iidx/charts?key=admin&start=17&limit=2");
+        let response = await request.get("/v1/games/iidx/charts?key=admin&start=17&limit=2");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -568,7 +568,7 @@ describe("Song Independent Chart Query Tests", function(){
 
     
     test("Exact Difficulty Query", async function(){
-        let response = await request.get("/api/v1/games/iidx/charts?key=admin&exact=true&difficulty=ANOTHER");
+        let response = await request.get("/v1/games/iidx/charts?key=admin&exact=true&difficulty=ANOTHER");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -580,7 +580,7 @@ describe("Song Independent Chart Query Tests", function(){
     });
 
     test("Exact Difficulty + Playtype + SongID Query", async function(){
-        let response = await request.get("/api/v1/games/iidx/charts?key=admin&exact=true&difficulty=ANOTHER&playtype=SP&songID=1");
+        let response = await request.get("/v1/games/iidx/charts?key=admin&exact=true&difficulty=ANOTHER&playtype=SP&songID=1");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -593,7 +593,7 @@ describe("Song Independent Chart Query Tests", function(){
     });
 
     test("SongID Query", async function(){
-        let response = await request.get("/api/v1/games/iidx/charts?key=admin&songID=1");
+        let response = await request.get("/v1/games/iidx/charts?key=admin&songID=1");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -605,7 +605,7 @@ describe("Song Independent Chart Query Tests", function(){
     });
 
     test("Custom Sort Criteria", async function(){
-        let response = await request.get("/api/v1/games/iidx/charts?key=admin&sortCriteria=notedata.notecount");
+        let response = await request.get("/v1/games/iidx/charts?key=admin&sortCriteria=notedata.notecount");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -620,7 +620,7 @@ describe("Song Independent Chart Query Tests", function(){
 
 describe("Clan Meta Tests", function(){
     test("Default pagination query", async function(){
-        let response = await request.get("/api/v1/clans?key=admin");
+        let response = await request.get("/v1/clans?key=admin");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -631,7 +631,7 @@ describe("Clan Meta Tests", function(){
     });
 
     test("Pagination query with custom limit", async function(){
-        let response = await request.get("/api/v1/clans?key=admin&limit=2");
+        let response = await request.get("/v1/clans?key=admin&limit=2");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -640,7 +640,7 @@ describe("Clan Meta Tests", function(){
     });
 
     test("Pagination query with custom start", async function(){
-        let response = await request.get("/api/v1/clans?key=admin&start=4");
+        let response = await request.get("/v1/clans?key=admin&start=4");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -649,7 +649,7 @@ describe("Clan Meta Tests", function(){
     });
 
     test("Pagination query with custom start and limit", async function(){
-        let response = await request.get("/api/v1/clans?key=admin&start=3&limit=2");
+        let response = await request.get("/v1/clans?key=admin&start=3&limit=2");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -664,7 +664,7 @@ describe("Clan Tests", function(){
     // test accordingly
 
     test("Check specific clan", async function(){
-        let response = await request.get("/api/v1/clans/FOUR?key=admin");
+        let response = await request.get("/v1/clans/FOUR?key=admin");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -672,14 +672,14 @@ describe("Clan Tests", function(){
     });
 
     test("Check non-existent clan", async function(){
-        let response = await request.get("/api/v1/clans/FAKE?key=admin");
+        let response = await request.get("/v1/clans/FAKE?key=admin");
 
         expect(response.status).toBe(404);
         expect(response.body.success).toBe(false);
     });
 
     test("Update clan MOTD as clan admin", async function(){
-        let response = await request.patch("/api/v1/clans/FOUR/change-motd?key=admin&motd=new motd");
+        let response = await request.patch("/v1/clans/FOUR/change-motd?key=admin&motd=new motd");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -688,14 +688,14 @@ describe("Clan Tests", function(){
     });
 
     test("Update clan MOTD not as clan admin", async function(){
-        let response = await request.patch("/api/v1/clans/FOUR/change-motd?key=altuser&motd=new motd");
+        let response = await request.patch("/v1/clans/FOUR/change-motd?key=altuser&motd=new motd");
 
         expect(response.status).toBe(401);
         expect(response.body.success).toBe(false);
     });
 
     test("Update clan name as clan admin", async function(){
-        let response = await request.patch("/api/v1/clans/FOUR/change-name?key=admin&name=Mezzanine");
+        let response = await request.patch("/v1/clans/FOUR/change-name?key=admin&name=Mezzanine");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -704,7 +704,7 @@ describe("Clan Tests", function(){
     });
 
     test("Update clan name not as clan admin", async function(){
-        let response = await request.patch("/api/v1/clans/FOUR/change-name?key=altuser&name=Mezzanine");
+        let response = await request.patch("/v1/clans/FOUR/change-name?key=altuser&name=Mezzanine");
 
         expect(response.status).toBe(401);
         expect(response.body.success).toBe(false);
@@ -713,7 +713,7 @@ describe("Clan Tests", function(){
 
 describe("Tierlist Meta Tests", function(){
     test("Default pagination query", async function(){
-        let response = await request.get("/api/v1/tierlists?key=admin");
+        let response = await request.get("/v1/tierlists?key=admin");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -722,7 +722,7 @@ describe("Tierlist Meta Tests", function(){
     });
 
     test("Pagination query with custom limit", async function(){
-        let response = await request.get("/api/v1/tierlists?key=admin&limit=2");
+        let response = await request.get("/v1/tierlists?key=admin&limit=2");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -731,7 +731,7 @@ describe("Tierlist Meta Tests", function(){
     });
 
     test("Pagination query with custom start", async function(){
-        let response = await request.get("/api/v1/tierlists?key=admin&start=1");
+        let response = await request.get("/v1/tierlists?key=admin&start=1");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -740,7 +740,7 @@ describe("Tierlist Meta Tests", function(){
     });
 
     test("Pagination query with custom start and limit", async function(){
-        let response = await request.get("/api/v1/tierlists?key=admin&start=3&limit=2");
+        let response = await request.get("/v1/tierlists?key=admin&start=3&limit=2");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -751,35 +751,35 @@ describe("Tierlist Meta Tests", function(){
 
 describe("Tierlist Data Checks", function(){
     test("Get default with game/playtype", async function(){
-        let response = await request.get("/api/v1/tierlists/tierlistdata?key=admin&game=iidx&playtype=SP");
+        let response = await request.get("/v1/tierlists/tierlistdata?key=admin&game=iidx&playtype=SP");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
     });
 
     test("Get default with ID", async function(){
-        let response = await request.get("/api/v1/tierlists/tierlistdata?key=admin&tierlistID=ee9b756e50cff8282091102257b01f423ef855f2");
+        let response = await request.get("/v1/tierlists/tierlistdata?key=admin&tierlistID=ee9b756e50cff8282091102257b01f423ef855f2");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
     });
 
     test("Provide no data", async function(){
-        let response = await request.get("/api/v1/tierlists/tierlistdata?key=admin");
+        let response = await request.get("/v1/tierlists/tierlistdata?key=admin");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
     test("Get exact", async function(){
-        let response = await request.get("/api/v1/tierlists/tierlistdata?key=admin&game=iidx&playtype=SP&songID=25&exact=true&difficulty=ANOTHER");
+        let response = await request.get("/v1/tierlists/tierlistdata?key=admin&game=iidx&playtype=SP&songID=25&exact=true&difficulty=ANOTHER");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
     });
     
     test("Get non-existent exact query", async function(){
-        let response = await request.get("/api/v1/tierlists/tierlistdata?key=admin&game=iidx&playtype=SP&songID=10000&exact=true&difficulty=ANOTHER");
+        let response = await request.get("/v1/tierlists/tierlistdata?key=admin&game=iidx&playtype=SP&songID=10000&exact=true&difficulty=ANOTHER");
 
         expect(response.status).toBe(404);
         expect(response.body.success).toBe(false);
