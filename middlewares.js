@@ -10,6 +10,9 @@ async function RequireAPIKey(req,res,next)
     if (req.query.key){
         givenKey = req.query.key;
     }
+    else if (req.body.key){
+        givenKey = req.body.key;
+    }
     else {
         givenKey = req.cookies.apikey;
     }
