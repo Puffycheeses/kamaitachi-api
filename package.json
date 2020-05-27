@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "cookie-parser": "^1.4.5",
+    "esd-js": "^1.1.0",
     "express": "^4.17.1",
     "mongo-sanitize": "^1.1.0",
     "mongodb": "^3.5.7",
