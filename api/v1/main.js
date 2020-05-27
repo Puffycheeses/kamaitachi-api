@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
 
-// mounted on /api/v1
+// mounted on /v1
 
 const MAJOR_VER = 1;
 const MINOR_VER = 0;
@@ -27,9 +27,11 @@ const tierlistsRouter = require("./tierlists/tierlists.js");
 const scoresRouter = require("./scores/scores.js");
 const leaderboardsRouter = require("./leaderboards/leaderboards.js");
 const gamesRouter = require("./games/games.js");
+const rivalsRouter = require("./rivals/rivals.js");
 const clansRouter = require("./clans/clans.js");
 
 router.use("/users", usersRouter);
+router.use("/rivals", rivalsRouter);
 router.use("/tierlists", tierlistsRouter);
 router.use("/scores", scoresRouter);
 router.use("/leaderboards", leaderboardsRouter);

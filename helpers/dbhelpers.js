@@ -23,6 +23,7 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
         validSorts = apiConfig.validSorts[databaseName];
         defaultSort = apiConfig.defaultSorts[databaseName];
     }
+
     for (const key in validKeys) {
         // check that the given query even has this key
         if (key in query){
