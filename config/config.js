@@ -439,6 +439,23 @@ const adviceNoteTags = {
   maimai: []
 }
 
+const COLOUR_SET = {
+    gray: "rgba(105, 105, 105, 1)",
+    maroon: "rgba(85, 17, 17, 1)",
+    red: "rgba(170, 85, 85, 1)",
+    paleGreen: "rgba(142,174,79, 1)",
+    paleBlue: "rgba(92, 97, 153, 1)",
+    green: "rgba(50, 205, 50, 1)",
+    blue: "rgba(70, 130, 180, 1)",
+    gold: "rgba(255, 215, 0, 1)",
+    vibrantYellow: "rgba(245, 229, 27, 1)",
+    teal: "rgba(127, 255, 212, 1)",
+    white: "rgba(192, 192, 192, 1)",
+    purple: "rgba(153, 50, 204, 1)",
+    paleOrange: "rgba(235, 151, 78, 1)",
+    orange: "rgba(248, 148, 6, 1)"
+}
+
 // hi, outline colours are the same as the fill colours but with the opacities changed
 // you might say this is inefficient - it is
 // but writing any sort of fix for it would take longer than the time it takes for me to update a value twice.
@@ -446,440 +463,265 @@ const adviceNoteTags = {
 // todo, just put this out of its misery
 // it's not even difficult to update it's just taking up too much of my IDE and i don't like it.
 const gradeColours = {
-  museca: {
-    fill: {
-      "没": "rgba(105, 105, 105, 0.2)",
-      "拙": "rgba(85, 17, 17, 0.2)",
-      "凡": "rgba(170, 85, 85, 0.2)",
-      "佳": "rgba(142,174,79, 0.2)",
-      "良": "rgba(92, 97, 153, 0.2)",
-      "優": "rgba(50, 205, 50, 0.2)",
-      "秀": "rgba(70, 130, 180, 0.2)",
-      "傑": "rgba(255, 215, 0, 0.2)",
-      "傑G": "rgba(127, 255, 212, 0.2)"
+    museca: {
+        outline:{
+        "没": COLOUR_SET.gray,
+        "拙": COLOUR_SET.maroon,
+        "凡": COLOUR_SET.red,
+        "佳": COLOUR_SET.paleGreen,
+        "良": COLOUR_SET.paleBlue,
+        "優": COLOUR_SET.green,
+        "秀": COLOUR_SET.blue,
+        "傑": COLOUR_SET.teal,
+        "傑G": COLOUR_SET.gold
+        }
     },
-    outline:{
-      "没": "rgba(105, 105, 105, 1)",
-      "拙": "rgba(85, 17, 17, 1)",
-      "凡": "rgba(170, 85, 85, 1)",
-      "佳": "rgba(142,174,79, 1)",
-      "良": "rgba(92, 97, 153, 1)",
-      "優": "rgba(50, 205, 50, 1)",
-      "秀": "rgba(70, 130, 180, 1)",
-      "傑": "rgba(255, 215, 0, 1)",
-      "傑G": "rgba(127, 255, 212, 1)"
-    }
-  },
-  ddr: {
-    fill: {
-      "D": "rgba(105, 105, 105, 0.2)",
-      "C": "rgba(85, 17, 17, 0.2)",
-      "B": "rgba(170, 85, 85, 0.2)",
-      "A": "rgba(142,174,79, 0.2)",
-      "AA": "rgba(255, 215, 0, 0.2)",
-      "AAA": "rgba(127, 255, 212, 0.2)"
+    ddr: {
+        outline:{
+        "D": COLOUR_SET.maroon,
+        "C": COLOUR_SET.purple,
+        "B": COLOUR_SET.paleBlue,
+        "A": COLOUR_SET.paleGreen,
+        "AA": COLOUR_SET.blue,
+        "AAA": COLOUR_SET.gold
+        }
     },
-    outline:{
-      "D": "rgba(105, 105, 105, 1)",
-      "C": "rgba(85, 17, 17, 1)",
-      "B": "rgba(170, 85, 85, 1)",
-      "A": "rgba(142,174,79, 1)",
-      "AA": "rgba(255, 215, 0, 1)",
-      "AAA": "rgba(127, 255, 212, 1)"
-    }
-  },
-  jubeat: {
-    fill: {
-      "E": "rgba(105, 105, 105, 0.2)",
-      "D": "rgba(85, 17, 17, 0.2)",
-      "C": "rgba(170, 85, 85, 0.2)",
-      "B": "rgba(142,174,79, 0.2)",
-      "A": "rgba(92, 97, 153, 0.2)",
-      "S": "rgba(50, 205, 50, 0.2)",
-      "SS": "rgba(70, 130, 180, 0.2)",
-      "SSS": "rgba(255, 215, 0, 0.2)",
-      "EXC": "rgba(127, 255, 212, 0.2)"
+    jubeat: {
+        outline:{
+        "E": COLOUR_SET.gray,
+        "D": COLOUR_SET.maroon,
+        "C": COLOUR_SET.purple,
+        "B": COLOUR_SET.paleBlue,
+        "A": COLOUR_SET.paleGreen,
+        "S": COLOUR_SET.blue,
+        "SS": COLOUR_SET.gold,
+        "SSS": COLOUR_SET.teal,
+        "EXC": COLOUR_SET.white
+        }
     },
-    outline:{
-      "E": "rgba(105, 105, 105, 1)",
-      "D": "rgba(85, 17, 17, 1)",
-      "C": "rgba(170, 85, 85, 1)",
-      "B": "rgba(142,174,79, 1)",
-      "A": "rgba(92, 97, 153, 1)",
-      "S": "rgba(50, 205, 50, 1)",
-      "SS": "rgba(70, 130, 180, 1)",
-      "SSS": "rgba(255, 215, 0, 1)",
-      "EXC": "rgba(127, 255, 212, 1)"
-    }
-  },
-  maimai: { // todo make this not repeat values for S, S+, etc.
-    fill: {
-      "F": "rgba(105, 105, 105, 0.2)",
-      "E": "rgba(85, 17, 17, 0.2)",
-      "D": "rgba(170, 85, 85, 0.2)",
-      "C": "rgba(142,174,79, 0.2)",
-      "B": "rgba(92, 97, 153, 0.2)",
-      "A": "rgba(50, 205, 50, 0.2)",
-      "AA": "rgba(70, 130, 180, 0.2)",
-      "AAA": "rgba(255, 215, 0, 0.2)",
-      "S": "rgba(127, 255, 212, 0.2)",
-      "S+": "rgba(127, 255, 212, 0.2)",
-      "SS": "rgba(127, 255, 212, 0.2)",
-      "SS+": "rgba(127, 255, 212, 0.2)",
-      "SSS": "rgba(127, 255, 212, 0.2)",
-      "SSS+": "rgba(127, 255, 212, 0.2)",
+    maimai: { // todo make this not repeat values for S, S+, etc.
+        outline:{
+            "F": COLOUR_SET.gray,
+            "E": COLOUR_SET.red,
+            "D": COLOUR_SET.maroon,
+            "C": COLOUR_SET.purple,
+            "B": COLOUR_SET.paleGreen,
+            "A": COLOUR_SET.green,
+            "AA": COLOUR_SET.paleBlue,
+            "AAA": COLOUR_SET.blue,
+            "S": COLOUR_SET.gold,
+            "S+": COLOUR_SET.vibrantYellow,
+            "SS": COLOUR_SET.paleOrange,
+            "SS+": COLOUR_SET.orange,
+            "SSS": COLOUR_SET.teal,
+            "SSS+": COLOUR_SET.white,
+        }
     },
-    outline:{
-      "F": "rgba(105, 105, 105, 1)",
-      "E": "rgba(85, 17, 17, 1)",
-      "D": "rgba(170, 85, 85, 1)",
-      "C": "rgba(142,174,79, 1)",
-      "B": "rgba(92, 97, 153, 1)",
-      "A": "rgba(50, 205, 50, 1)",
-      "AA": "rgba(70, 130, 180, 1)",
-      "AAA": "rgba(255, 215, 0, 1)",
-      "S": "rgba(127, 255, 212, 1)",
-      "S+": "rgba(127, 255, 212, 1)",
-      "SS": "rgba(127, 255, 212, 1)",
-      "SS+": "rgba(127, 255, 212, 1)",
-      "SSS": "rgba(127, 255, 212,1)",
-      "SSS+": "rgba(127, 255, 212, 1)",
-    }
-  },
-  popn: {
-    fill: {
-      "F": "rgba(105, 105, 105, 0.2)",
-      "E": "rgba(85, 17, 17, 0.2)",
-      "D": "rgba(170, 85, 85, 0.2)",
-      "C": "rgba(142,174,79, 0.2)",
-      "B": "rgba(92, 97, 153, 0.2)",
-      "A": "rgba(50, 205, 50, 0.2)",
-      "AA": "rgba(70, 130, 180, 0.2)",
-      "AAA": "rgba(255, 215, 0, 0.2)",
-      "S": "rgba(127, 255, 212, 0.2)"
-    },
+    popn: {
       outline: {
-        "F": "rgba(105, 105, 105, 1)",
-        "E": "rgba(85, 17, 17, 1)",
-        "D": "rgba(170, 85, 85, 1)",
-        "C": "rgba(142,174,79, 1)",
-        "B": "rgba(92, 97, 153, 1)",
-        "A": "rgba(50, 205, 50, 1)",
-        "AA": "rgba(70, 130, 180, 1)",
-        "AAA": "rgba(255, 215, 0, 1)",
-        "S": "rgba(127, 255, 212, 1)"
+        "F": COLOUR_SET.gray,
+        "E": COLOUR_SET.red,
+        "D": COLOUR_SET.maroon,
+        "C": COLOUR_SET.purple,
+        "B": COLOUR_SET.paleBlue,
+        "A": COLOUR_SET.green,
+        "AA": COLOUR_SET.paleOrange,
+        "AAA": COLOUR_SET.gold,
+        "S": COLOUR_SET.teal,
       }
     },
-  iidx: {
-    fill: {
-      "F": "rgba(105, 105, 105, 0.2)",
-      "E": "rgba(85, 17, 17, 0.2)",
-      "D": "rgba(170, 85, 85, 0.2)",
-      "C": "rgba(142,174,79, 0.2)",
-      "B": "rgba(92, 97, 153, 0.2)",
-      "A": "rgba(50, 205, 50, 0.2)",
-      "AA": "rgba(70, 130, 180, 0.2)",
-      "AAA": "rgba(255, 215, 0, 0.2)",
-      "MAX-": "rgba(127, 255, 212, 0.2)",
-      "MAX": "rgba(192,192,192 ,0.2 )"
+    iidx: {
+        outline: {
+            "F": COLOUR_SET.gray,
+            "E": COLOUR_SET.red,
+            "D": COLOUR_SET.maroon,
+            "C": COLOUR_SET.purple,
+            "B": COLOUR_SET.paleBlue,
+            "A": COLOUR_SET.green,
+            "AA": COLOUR_SET.blue,
+            "AAA": COLOUR_SET.gold,
+            "MAX-": COLOUR_SET.teal,
+            "MAX": COLOUR_SET.white
+        }
     },
-    outline:{
-      "F": "rgba(105, 105, 105, 1)",
-      "E": "rgba(85, 17, 17, 1)",
-      "D": "rgba(170, 85, 85, 1)",
-      "C": "rgba(142,174,79, 1)",
-      "B": "rgba(92, 97, 153, 1)",
-      "A": "rgba(50, 205, 50, 1)",
-      "AA": "rgba(70, 130, 180, 1)",
-      "AAA": "rgba(255, 215, 0, 1)",
-      "MAX-": "rgba(127, 255, 212, 1)",
-      "MAX": "rgba(192,192,192 ,1)"
-    }
-  },
-  bms: {
-    fill: {
-      "F": "rgba(105, 105, 105, 0.2)",
-      "E": "rgba(85, 17, 17, 0.2)",
-      "D": "rgba(170, 85, 85, 0.2)",
-      "C": "rgba(142,174,79, 0.2)",
-      "B": "rgba(92, 97, 153, 0.2)",
-      "A": "rgba(50, 205, 50, 0.2)",
-      "AA": "rgba(70, 130, 180, 0.2)",
-      "AAA": "rgba(255, 215, 0, 0.2)",
-      "MAX-": "rgba(127, 255, 212, 0.2)",
-      "MAX": "rgba(192,192,192 ,0.2 )"
+    bms: {
+        outline: {
+            "F": COLOUR_SET.gray,
+            "E": COLOUR_SET.red,
+            "D": COLOUR_SET.maroon,
+            "C": COLOUR_SET.purple,
+            "B": COLOUR_SET.paleBlue,
+            "A": COLOUR_SET.green,
+            "AA": COLOUR_SET.blue,
+            "AAA": COLOUR_SET.gold,
+            "MAX-": COLOUR_SET.teal,
+            "MAX": COLOUR_SET.white
+        }
     },
-    outline:{
-      "F": "rgba(105, 105, 105, 1)",
-      "E": "rgba(85, 17, 17, 1)",
-      "D": "rgba(170, 85, 85, 1)",
-      "C": "rgba(142,174,79, 1)",
-      "B": "rgba(92, 97, 153, 1)",
-      "A": "rgba(50, 205, 50, 1)",
-      "AA": "rgba(70, 130, 180, 1)",
-      "AAA": "rgba(255, 215, 0, 1)",
-      "MAX-": "rgba(127, 255, 212, 1)",
-      "MAX": "rgba(192,192,192 ,1)"
-    }
-  },
-  etterna: {
-    fill: {
-      "F": "rgba(105, 105, 105, 0.2)",
-      "E": "rgba(85, 17, 17, 0.2)",
-      "D": "rgba(170, 85, 85, 0.2)",
-      "C": "rgba(142,174,79, 0.2)",
-      "B": "rgba(92, 97, 153, 0.2)",
-      "A": "rgba(50, 205, 50, 0.2)",
-      "AA": "rgba(70, 130, 180, 0.2)",
-      "AAA": "rgba(255, 215, 0, 0.2)",
-      "AAAA": "rgba(127, 255, 212, 0.2)"
+    etterna: {
+        outline: {
+            "F": COLOUR_SET.gray,
+            "E": COLOUR_SET.red,
+            "D": COLOUR_SET.maroon,
+            "C": COLOUR_SET.purple,
+            "B": COLOUR_SET.paleBlue,
+            "A": COLOUR_SET.green,
+            "AA": COLOUR_SET.blue,
+            "AAA": COLOUR_SET.gold,
+            "AAAA": COLOUR_SET.teal
+        }
     },
-    outline:{
-      "F": "rgba(105, 105, 105, 1)",
-      "E": "rgba(85, 17, 17, 1)",
-      "D": "rgba(170, 85, 85, 1)",
-      "C": "rgba(142,174,79, 1)",
-      "B": "rgba(92, 97, 153, 1)",
-      "A": "rgba(50, 205, 50, 1)",
-      "AA": "rgba(70, 130, 180, 1)",
-      "AAA": "rgba(255, 215, 0, 1)",
-      "AAAA": "rgba(127, 255, 212, 1)"
-    }
-  },
-  sdvx:{
-    fill: {
-      "D": "rgba(170, 85, 85, 0.2)",
-      "C": "rgba(142,174,79, 0.2)",
-      "B": "rgba(92, 97, 153, 0.2)",
-      "A": "rgba(50, 205, 50, 0.2)",
-      "A+": "rgba(70, 130, 180, 0.2)",
-      "AA": "rgba(255, 215, 0, 0.2)",
-      "AA+": "rgba(127, 255, 212, 0.2)",
-      "AAA": "rgba(127, 255, 212, 0.2)",
-      "AAA+": "rgba(127, 255, 212, 0.2)",
-      "S": "rgba(127, 255, 212, 0.2)"
+    sdvx:{
+        outline: {
+            "D": COLOUR_SET.gray,
+            "C": COLOUR_SET.red,
+            "B": COLOUR_SET.maroon,
+            "A": COLOUR_SET.paleBlue,
+            "A+": COLOUR_SET.blue,
+            "AA": COLOUR_SET.paleGreen,
+            "AA+": COLOUR_SET.green,
+            "AAA": COLOUR_SET.gold,
+            "AAA+": COLOUR_SET.vibrantYellow,
+            "S": COLOUR_SET.teal
+        }
     },
-    outline:{
-      "D": "rgba(170, 85, 85, 1)",
-      "C": "rgba(142,174,79, 1)",
-      "B": "rgba(92, 97, 153, 1)",
-      "A": "rgba(50, 205, 50, 1)",
-      "A+": "rgba(70, 130, 180, 1)",
-      "AA": "rgba(255, 215, 0, 1)",
-      "AA+": "rgba(127, 255, 212, 1)",
-      "AAA": "rgba(127, 255, 212, 1)",
-      "AAA+": "rgba(127, 255, 212, 1)",
-      "S": "rgba(127, 255, 212, 1)"
-    }
-  },
-  osumania:{
-    fill: {
-      "F": "rgba(32,32,32,0.2)",
-      "D": "rgba(170, 85, 85, 0.2)",
-      "C": "rgba(142,174,79, 0.2)",
-      "B": "rgba(92, 97, 153, 0.2)",
-      "A": "rgba(50, 205, 50, 0.2)",
-      "S": "rgba(127, 255, 212, 0.2)",
-      "S+": "rgba(255, 215, 0, 0.2)",
-      "SS": "rgba(127, 255, 212, 0.2)"
+    osumania:{
+        outline:{
+            "F": COLOUR_SET.gray,
+            "D": COLOUR_SET.maroon,
+            "C": COLOUR_SET.purple,
+            "B": COLOUR_SET.paleBlue,
+            "A": COLOUR_SET.green,
+            "S": COLOUR_SET.gold,
+            "SS": COLOUR_SET.teal
+        }
     },
-    outline:{
-      "F": "rgba(32,32,32,1)",
-      "D": "rgba(170, 85, 85, 1)",
-      "C": "rgba(142,174,79, 1)",
-      "B": "rgba(92, 97, 153, 1)",
-      "A": "rgba(50, 205, 50, 1)",
-      "S": "rgba(127, 255, 212, 1)",
-      "S+": "rgba(255, 215, 0, 1)",
-      "SS": "rgba(127, 255, 212, 1)"
-    }
-  },
 }
 
 const lampColours = {
-  ddr:{
-    fill: {
-      "FAILED": "rgba(85, 17, 17, 0.2)",
-      "CLEAR": "rgba(70, 130, 180, 0.2)",
-      "FULL COMBO": "rgba(153, 50, 204, 0.2)",
-      "GREAT FULL COMBO": "rgba(127, 255, 212, 0.2)",
-      "PERFECT FULL COMBO": "rgba(50, 205, 50, 0.2)",
-      "MARVELOUS FULL COMBO": "rgba(255, 215, 0, 0.2)"
+    ddr:{
+        outline:{
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.paleGreen,
+            "FULL COMBO": COLOUR_SET.paleBlue,
+            "GREAT FULL COMBO": COLOUR_SET.green,
+            "PERFECT FULL COMBO": COLOUR_SET.gold,
+            "MARVELOUS FULL COMBO": COLOUR_SET.teal
+        }
     },
-    outline:{
-      "FAILED": "rgba(85, 17, 17, 1)",
-      "CLEAR": "rgba(70, 130, 180, 1)",
-      "FULL COMBO": "rgba(153, 50, 204, 1)",
-      "GREAT FULL COMBO": "rgba(127, 255, 212, 1)",
-      "PERFECT FULL COMBO": "rgba(50, 205, 50, 1)",
-      "MARVELOUS FULL COMBO": "rgba(255, 215, 0, 1)"
-    }
-  },
-  osumania: {
-    fill: {
-      "CLEAR": "rgba(70, 130, 180, 0.2)",
-      "SDCB": "rgba(153, 50, 204, 0.2)",
-      "FULL COMBO": "rgba(127, 255, 212, 0.2)",
-      "SDG": "rgba(50, 205, 50, 0.2)",
-      "PERFECT FULL COMBO": "rgba(255, 215, 0, 0.2)",
-      "RAINBOW FULL COMBO": "rgba(255,105,180,0.2)"
+    osumania: {
+        outline:{
+            "CLEAR": COLOUR_SET.paleGreen,
+            "SDCB": COLOUR_SET.purple,
+            "FULL COMBO": COLOUR_SET.blue,
+            "SDG": COLOUR_SET.green,
+            "PERFECT FULL COMBO": COLOUR_SET.gold,
+            "RAINBOW FULL COMBO": COLOUR_SET.teal,
+        }
     },
-    outline:{
-      "CLEAR": "rgba(70, 130, 180, 1)",
-      "SDCB": "rgba(153, 50, 204, 1)",
-      "FULL COMBO": "rgba(127, 255, 212, 1)",
-      "SDG": "rgba(50, 205, 50, 1)",
-      "PERFECT FULL COMBO": "rgba(255, 215, 0, 1)",
-      "RAINBOW FULL COMBO": "rgba(255,105,180,1)",
-    }
-  },
-  etterna: {
-    fill: {
-      "FAILED": "rgba(85, 17, 17, 0.2)",
-      "CLEAR": "rgba(70, 130, 180, 0.2)",
-      "SDCB": "rgba(153, 50, 204, 0.2)",
-      "MISSFLAG": "rgba(105, 105, 105, 0.2)",
-      "FULL COMBO": "rgba(127, 255, 212, 0.2)",
-      "SDG": "rgba(35, 203, 167, 0.2)",
-      "BLACKFLAG": "rgba(3, 166, 120, 0.2)",
-      "PERFECT FULL COMBO": "rgba(255, 215, 0, 0.2)",
-      "SDP": "rgba(247, 202, 24, 0.2)",
-      "WHITEFLAG": "rgba(232, 236, 241, 0.2)",
-      "MARVELOUS FULL COMBO": "rgba(192,192,192 ,0.2 )"
+    etterna: {
+        outline:{
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.paleBlue,
+            "SDCB": COLOUR_SET.purple,
+            "MISSFLAG": COLOUR_SET.maroon,
+            "FULL COMBO": COLOUR_SET.blue,
+            "SDG": COLOUR_SET.orange,
+            "BLACKFLAG": COLOUR_SET.green,
+            "PERFECT FULL COMBO": COLOUR_SET.gold,
+            "SDP": COLOUR_SET.vibrantYellow,
+            "WHITEFLAG": COLOUR_SET.white,
+            "MARVELOUS FULL COMBO": COLOUR_SET.teal
+        }
     },
-    outline:{
-      "FAILED": "rgba(85, 17, 17, 1)",
-      "CLEAR": "rgba(70, 130, 180, 1)",
-      "SDCB": "rgba(153, 50, 204, 1)",
-      "MISSFLAG": "rgba(105, 105, 105, 1)",
-      "FULL COMBO": "rgba(127, 255, 212, 1)",
-      "SDG": "rgba(35, 203, 167, 1)",
-      "BLACKFLAG": "rgba(3, 166, 120, 1)",
-      "PERFECT FULL COMBO": "rgba(255, 215, 0, 1)",
-      "SDP": "rgba(247, 202, 24, 1)",
-      "WHITEFLAG": "rgba(232, 236, 241, 1)",
-      "MARVELOUS FULL COMBO": "rgba(192,192,192 ,1)"
-    }
-  },
-  iidx: {
-    fill: {
-      "NO PLAY": "rgba(105, 105, 105, 0.2)", // lol
-      "FAILED": "rgba(85, 17, 17, 0.2)",
-      "ASSIST CLEAR": "rgba(153, 50, 204, 0.2)",
-      "EASY CLEAR": "rgba(50, 205, 50, 0.2)",
-      "CLEAR": "rgba(70, 130, 180, 0.2)",
-      "HARD CLEAR": "rgba(255, 127, 80,0.2)",
-      "EX HARD CLEAR": "rgba(255, 215, 0, 0.2)",
-      "FULL COMBO": "rgba(127, 255, 212, 0.2)"
+    iidx: {
+        outline:{
+            "NO PLAY": COLOUR_SET.gray,
+            "FAILED": COLOUR_SET.red,
+            "ASSIST CLEAR": COLOUR_SET.purple,
+            "EASY CLEAR": COLOUR_SET.green,
+            "CLEAR": COLOUR_SET.blue,
+            "HARD CLEAR": COLOUR_SET.orange,
+            "EX HARD CLEAR": COLOUR_SET.gold,
+            "FULL COMBO": COLOUR_SET.teal
+        }
     },
-    outline:{
-      "NO PLAY": "rgba(105, 105, 105, 1)",
-      "FAILED": "rgba(85, 17, 17, 1)",
-      "ASSIST CLEAR": "rgba(153, 50, 204, 1)",
-      "EASY CLEAR": "rgba(50, 205, 50, 1)",
-      "CLEAR": "rgba(70, 130, 180, 1)",
-      "HARD CLEAR": "rgba(255, 127, 80,1)",
-      "EX HARD CLEAR": "rgba(255, 215, 0, 1)",
-      "FULL COMBO": "rgba(127, 255, 212, 1)"
-    }
-  },
-  bms: {
-    fill: {
-      "NO PLAY": "rgba(105, 105, 105, 0.2)", // lol
-      "FAILED": "rgba(85, 17, 17, 0.2)",
-      "ASSIST CLEAR": "rgba(153, 50, 204, 0.2)",
-      "EASY CLEAR": "rgba(50, 205, 50, 0.2)",
-      "CLEAR": "rgba(70, 130, 180, 0.2)",
-      "HARD CLEAR": "rgba(255, 127, 80,0.2)",
-      "EX HARD CLEAR": "rgba(255, 215, 0, 0.2)",
-      "FULL COMBO": "rgba(127, 255, 212, 0.2)"
+    bms: {
+        outline:{
+            "NO PLAY": COLOUR_SET.gray,
+            "FAILED": COLOUR_SET.red,
+            "ASSIST CLEAR": COLOUR_SET.purple,
+            "EASY CLEAR": COLOUR_SET.green,
+            "CLEAR": COLOUR_SET.blue,
+            "HARD CLEAR": COLOUR_SET.orange,
+            "EX HARD CLEAR": COLOUR_SET.gold,
+            "FULL COMBO": COLOUR_SET.teal
+        }
     },
-    outline:{
-      "NO PLAY": "rgba(105, 105, 105, 1)",
-      "FAILED": "rgba(85, 17, 17, 1)",
-      "ASSIST CLEAR": "rgba(153, 50, 204, 1)",
-      "EASY CLEAR": "rgba(50, 205, 50, 1)",
-      "CLEAR": "rgba(70, 130, 180, 1)",
-      "HARD CLEAR": "rgba(255, 127, 80,1)",
-      "EX HARD CLEAR": "rgba(255, 215, 0, 1)",
-      "FULL COMBO": "rgba(127, 255, 212, 1)"
-    }
-  },
-  museca: {
-    fill: {
-      "FAILED": "rgba(85, 17, 17, 0.2)",
-      "CLEAR": "rgba(50, 205, 50, 0.2)",
-      "CONNECT ALL": "rgba(70, 130, 180, 0.2)",
-      "PERFECT CONNECT ALL": "rgba(255, 215, 0, 0.2)"
+    museca: {
+        outline:{
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.green,
+            "CONNECT ALL": COLOUR_SET.teal,
+            "PERFECT CONNECT ALL": COLOUR_SET.gold
+        }
     },
-    outline:{
-      "FAILED": "rgba(85, 17, 17, 1)",
-      "CLEAR": "rgba(50, 205, 50, 1)",
-      "CONNECT ALL": "rgba(70, 130, 180, 1)",
-      "PERFECT CONNECT ALL": "rgba(255, 215, 0, 1)"
-    }
-  },
-  sdvx: {
-    fill: {
-      "FAILED": "rgba(85, 17, 17, 0.2)",
-      "CLEAR": "rgba(50, 205, 50, 0.2)",
-      "EXCESSIVE CLEAR": "rgba(153, 50, 204, 0.2)",
-      "ULTIMATE CHAIN": "rgba(70, 130, 180, 0.2)",
-      "PERFECT ULTIMATE CHAIN": "rgba(255, 215, 0, 0.2)"
+    sdvx: {
+        outline:{
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.green,
+            "EXCESSIVE CLEAR": COLOUR_SET.orange,
+            "ULTIMATE CHAIN": COLOUR_SET.teal,
+            "PERFECT ULTIMATE CHAIN": COLOUR_SET.gold
+        }
     },
-    outline:{
-      "FAILED": "rgba(85, 17, 17, 1)",
-      "CLEAR": "rgba(50, 205, 50, 1)",
-      "EXCESSIVE CLEAR": "rgba(153, 50, 204, 1)",
-      "ULTIMATE CHAIN": "rgba(70, 130, 180, 1)",
-      "PERFECT ULTIMATE CHAIN": "rgba(255, 215, 0, 1)"
-    }
-  },
-  popn: {
-    fill: {
-      "FAILED": "rgba(85, 17, 17, 0.2)",
-      "CLEAR": "rgba(50, 205, 50, 0.2)",
-      "FULL COMBO": "rgba(70, 130, 180, 0.2)",
-      "PERFECT": "rgba(255, 215, 0, 0.2)"
+    popn: {
+        outline:{
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.green,
+            "FULL COMBO": COLOUR_SET.teal,
+            "PERFECT": COLOUR_SET.gold
+        }
     },
-    outline:{
-      "FAILED": "rgba(85, 17, 17, 1)",
-      "CLEAR": "rgba(50, 205, 50, 1)",
-      "FULL COMBO": "rgba(70, 130, 180, 1)",
-      "PERFECT": "rgba(255, 215, 0, 1)"
-    }
-  },
-  maimai: {
-    fill: {
-      "FAILED": "rgba(70, 130, 180, 0.2)",
-      "CLEAR": "rgba(255, 255, 255, 0.2)",
-      "FULL COMBO": "rgba(255, 215, 0, 0.2)",
-      "ALL PERFECT": "rgba(127, 255, 212, 0.2)",
-      "ALL PERFECT+": "rgba(192,192,192,0.2)"
+    maimai: {
+        outline:{
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.green,
+            "FULL COMBO": COLOUR_SET.blue,
+            "ALL PERFECT": COLOUR_SET.gold,
+            "ALL PERFECT+": COLOUR_SET.teal
+        }
     },
-    outline:{
-      "FAILED": "rgba(70, 130, 180, 1)",
-      "CLEAR": "rgba(255, 255, 255, 1)",
-      "FULL COMBO": "rgba(255, 215, 0, 1)",
-      "ALL PERFECT": "rgba(127, 255, 212, 1)",
-      "ALL PERFECT+": "rgba(192,192,192 ,1)"
+    jubeat: {
+        outline:{
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.paleBlue,
+            "FULL COMBO": COLOUR_SET.teal,
+            "EXCELLENT": COLOUR_SET.gold
+        }
     }
-  },
-  jubeat: {
-    fill: {
-      "FAILED": "rgba(70, 130, 180, 0.2)",
-      "CLEAR": "rgba(255, 255, 255, 0.2)",
-      "FULL COMBO": "rgba(255, 215, 0, 0.2)",
-      "EXCELLENT": "rgba(127, 255, 212, 0.2)"
-    },
-    outline:{
-      "FAILED": "rgba(70, 130, 180, 1)",
-      "CLEAR": "rgba(255, 255, 255, 1)",
-      "FULL COMBO": "rgba(255, 215, 0, 1)",
-      "EXCELLENT": "rgba(127, 255, 212, 1)"
-    }
-  }
 }
+
+// ok
+
+for (const colourConfig of [lampColours, gradeColours]) {
+    for (const game in colourConfig) {
+        if (colourConfig.hasOwnProperty(game)) {
+            colourConfig[game].fill = {};
+            for (const key in colourConfig[game].outline) {
+                if (colourConfig[game].outline.hasOwnProperty(key)) {
+                    const element = colourConfig[game].outline[key];
+                    let fadedEl = element.split(",");
+                    fadedEl[fadedEl.length - 1] = "0.2)";
+
+                    colourConfig[game].fill[key] = fadedEl.join(",");
+                }
+            }
+
+        }
+    }
+}
+
 
 const judgeColours = {
   iidx: {
