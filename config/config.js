@@ -26,6 +26,20 @@ const gameColours = {
   bms:"#B5DCCD",
 }
 
+const rivalGroupDefaultCellShading = {
+    iidx: "lamp",
+    museca: "grade",
+    maimai: "grade",
+    sdvx: "lamp",
+    ddr: "lamp",
+    gitadora: "grade",
+    gfdm: "grade",
+    jubeat: "grade",
+    popn: "grade",
+    osumania: "lamp",
+    bms: "lamp",
+}
+
 // human readable stuff for games
 const gameHuman = {
   iidx: "beatmania IIDX",
@@ -1085,12 +1099,12 @@ function GetGrade(game, percent){
 }
 
 function GetGradeWithScore(score){
-  if (score.game === "ddr"){
-    return GetGrade(score.game, score.scoreData.score / 1000000);
-  }
-  else {
+  // if (score.game === "ddr"){
+  //   return GetGrade(score.game, score.scoreData.score / 1000000);
+  // }
+  // else {
     return GetGrade(score.game, score.scoreData.percent);
-  }
+  // }
 }
 
 const ratingParameters = {
@@ -1185,20 +1199,6 @@ function CalculatePercent(game, score, chartData,hitData){
 
     percent = (percent * 100) / (Object.values(hitData).reduce((a,b) => a+b,0));
   }
-  else if (game === "osustd"){
-    // osustd percent calc
-    // use default stuff
-    percent = hitData["300"] * 1 + hitData["100"] * (1/3) + hitData["50"] * (1/6);
-
-    percent = (percent * 100) / (Object.values(hitData).reduce((a,b) => a+b,0));
-  }
-  else if (game === "osutaiko"){
-    // osutaiko percent calc
-    // use default stuff
-    percent = hitData["300"] * 1 + hitData["100"] * 0.5;
-
-    percent = (percent * 100) / (Object.values(hitData).reduce((a,b) => a+b,0));
-  }
 
   if (percent > 100){
     console.error("WARNING: PERCENT CALCULATED FOR SCORE WAS GREATER THAN 100%. INVESTIGATE")
@@ -1214,7 +1214,8 @@ function CalculatePercent(game, score, chartData,hitData){
 
 
 
-module.exports = {
+if (typeof window === 'undefined'){
+  module.exports = {
     supportedGames,
     gameOrders,
     diffOrders,
@@ -1222,6 +1223,7 @@ module.exports = {
     HumanToGame,
     folders,
     VersionToHuman,
+    versionHuman,
     grades,
     lamps,
     lampColours,
@@ -1248,5 +1250,6 @@ module.exports = {
     adviceChartTags,
     adviceNoteTags,
     GetGradeWithScore,
-    versionHuman
-};
+    rivalGroupDefaultCellShading
+  };
+}
