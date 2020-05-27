@@ -19,6 +19,30 @@ async function GetUser(userID){
     return user;
 }
 
+async function GetUsers(userIDs){
+    let users = await db.get("users").find({id: {$in: userIDs}}, {fields:apiConfig.REMOVE_PRIVATE_USER_RETURNS});
+
+    return users;
+}
+
+async function GetUserWithAPIKey(aKey){
+    let apiKey = await db.get("public-api-keys").findOne({apiKey: aKey});
+
+    if (!apiKey){
+        console.error("apiKey removed during query.", aKey);
+        return null;
+    }
+
+    let user = await db.get("users").findOne({id: apiKey.assignedTo});
+
+    if (!user){
+        console.error("FATAL. KEY ASSIGNED TO USER WHO DOES NOT EXIST", aKey);
+        return null;
+    }
+
+    return user;
+}
+
 async function GetAllUsers(){
     let users = await db.get("users").find({}, {fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
     return users;
@@ -46,5 +70,7 @@ module.exports = {
     GetUser,
     GetAllUsers,
     IsUserIDOnline,
-    GetPlayersOnGame
+    GetPlayersOnGame,
+    GetUserWithAPIKey,
+    GetUsers
 }
