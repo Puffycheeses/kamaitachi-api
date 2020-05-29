@@ -88,7 +88,7 @@ router.post("/create-group", async function(req,res){
             scoreCompareMode: "relevant",
             strictness: 0.5,
             boundary: 0.1,
-            cellShading: config.rivalGroupDefaultCellShading[req.body.game]
+            cellShading: config.gameRelevantScoreBucket[req.body.game]
         }
     }
 

@@ -1,15 +1,13 @@
 // always lowercase. list of supported games.
-const supportedGames = ["iidx","museca","maimai","jubeat","popn","sdvx","ddr","osumania","bms","etterna"];
+const supportedGames = ["iidx","museca","maimai","jubeat","popn","sdvx","ddr","bms"];
 
 const serviceSupportedGames = {
   PLI: ["iidx"],
   ARC: ["iidx","jubeat","sdvx","ddr"],  // PERFECT!
   FLO: ["iidx"],
   "e-amusement": ["iidx"],
-  "osu (MANUAL)": ["osumania"],
   LR2: ["bms"],
-  beatoraja: ["bms"],
-  Etterna: ["etterna"]
+  beatoraja: ["bms"]
 }
 
 const gameColours = {
@@ -22,11 +20,10 @@ const gameColours = {
   gfdm: "#DA836E",
   jubeat: "#129A7D",
   popn: "#F39CA4",
-  osumania: "#DC7684",
   bms:"#B5DCCD",
 }
 
-const rivalGroupDefaultCellShading = {
+const gameRelevantScoreBucket = {
     iidx: "lamp",
     museca: "grade",
     maimai: "grade",
@@ -36,7 +33,6 @@ const rivalGroupDefaultCellShading = {
     gfdm: "grade",
     jubeat: "grade",
     popn: "grade",
-    osumania: "lamp",
     bms: "lamp",
 }
 
@@ -51,9 +47,7 @@ const gameHuman = {
   gfdm: "GuitarFreaks & DrumMania",
   jubeat: "jubeat",
   popn: "pop'n music",
-  osumania: "osu!mania",
-  bms: "BMS",
-  etterna: "Etterna"
+  bms: "BMS"
 }
 
 // human readable stuff for versions
@@ -197,9 +191,7 @@ const gameOrders = {
   popn: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","park","lapis","eclale","usaneko","peace"],
   sdvx: ["booth","inf","gw","heaven","vivid"],
   ddr: ["1","2","3","4","5","max","max2","extreme","snova","snova2","x","x2","x3","2013","2014","a","a20"],
-  osumania: ["0"],
   bms: ["0"],
-  etterna: ["0"]
 }
 
 const defaultPlaytype = {
@@ -209,10 +201,8 @@ const defaultPlaytype = {
   jubeat: "Single",
   popn: "9B",
   sdvx: "Single",
-  osumania: "4K",
   ddr: "SP",
   bms: "7K",
-  etterna: "4K"
 }
 
 // difficulty orders of games.
@@ -224,9 +214,7 @@ const diffOrders = {
   popn: ["9B Easy","9B Normal","9B Hyper","9B EX"],
   sdvx: ["Single NOV","Single ADV","Single EXH","Single MXM","Single INF","Single GRV","Single HVN","Single VVD"],
   ddr: ["SP BEGINNER","SP BASIC","SP DIFFICULT","SP EXPERT","SP CHALLENGE","DP BASIC","DP DIFFICULT", "DP EXPERT","DP CHALLENGE"],
-  osumania: [],
   bms: [], // BMS does have difficulties, it just doesn't matter because root songs aren't properly defined.
-  etterna: ["4K BEGINNER","4K EASY","4K MEDIUM","4K HARD","4K CHALLENGE"]
 }
 
 // valid folders for each game
@@ -266,34 +254,12 @@ const folders = {
     levels: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],
     versions: gameOrders["sdvx"]
   },
-  osumania:{
-    type: "dynamic", // dynamic mode will not utilse folders. they are left as empty to avoid crashing stuff
-    reasonableLevelMax: 10,
-    levels: [],
-    versions: []
-  },
   bms: {
     type: "tierlist",
     reasonableLevelMax: 30,
     levels: [],
     versions: []
   },
-  etterna: {
-    type: "dynamic",
-    reasonableLevelMax: 0,
-    levels: [],
-    versions: []
-  }
-}
-
-const invalidatingMods = {
-  osumania: ["EZ","NF","SO","AP","RD"/*,"ScoreV2"*/,"CM","TP","RX","AT","AP"], // not actually sure if half of these are possible 
-  etterna: ["NoMines"]
-}
-const difficultyChangingMods = {
-  osumania: ["DT","HT"],
-  // oh boy
-  etterna: ["0.7xMusic","0.75xMusic","0.8xMusic","0.85xMusic","0.9xMusic","0.95xMusic","1.05xMusic","1.1xMusic","1.15xMusic","1.2xMusic","1.25xMusic","1.3xMusic","1.35xMusic","1.4xMusic","1.45xMusic","1.5xMusic","1.55xMusic","1.6xMusic","1.65xMusic","1.7xMusic","1.75xMusic","1.8xMusic","1.85xMusic","1.9xMusic","1.95xMusic","2.0xMusic","2.05xMusic","2.1xMusic","2.15xMusic","2.2xMusic","2.25xMusic","2.3xMusic","2.35xMusic","2.4xMusic","2.45xMusic","2.5xMusic","2.55xMusic","2.6xMusic","2.65xMusic","2.7xMusic","2.75xMusic","2.8xMusic","2.85xMusic","2.9xMusic","2.95xMusic","3.0xMusic"]
 }
 
 const validPlaytypes ={
@@ -304,12 +270,7 @@ const validPlaytypes ={
   maimai: ["Single"],
   jubeat: ["Single"],
   museca: ["Single"],
-  osustd: ["Single"],
-  osutaiko: ["Single"],
-  osuctb: ["Single"],
-  osumania: ["4K","5K","6K","7K","8K","9K"],
-  bms: ["7K","14K","5K","10K"],
-  etterna: ["4K"]
+  bms: ["7K","14K","5K","10K"]
 }
 
 const validTierlistTiers = {
@@ -320,9 +281,7 @@ const validTierlistTiers = {
   popn: [],
   sdvx: [],
   ddr: ["clear","perfectfullcombo"],
-  osumania: [],
   bms: ["easyclear","clear","hardclear","fullcombo"],
-  etterna: []
 }
 
 const judgements = {
@@ -333,9 +292,7 @@ const judgements = {
   jubeat: ["MISS","POOR","GOOD","GREAT","PERFECT"],
   popn: ["BAD","GOOD","GREAT","COOL"],
   sdvx: ["MISS","NEAR","CRITICAL"],
-  ddr: ["MISS","BOO","GOOD","GREAT","PERFECT","MARVELOUS"],
-  osumania: ["MISS","50","100","200","300","300M"], // not using 320 as it's a misnomer
-  etterna: ["MISS","BAD","GOOD","GREAT","PERFECT","MARVELOUS"]
+  ddr: ["MISS","BOO","GOOD","GREAT","PERFECT","MARVELOUS"]
 }
 
 // correct order for grades
@@ -348,8 +305,6 @@ const grades = {
   popn: ["E","D","C","B","A","AA","AAA","S"],
   sdvx: ["D","C","B","A","A+","AA","AA+","AAA","AAA+","S"],
   ddr: ["D","C","B","A","AA","AAA"],
-  osumania: ["D","C","B","A","S","SS"],
-  etterna: ["F","D","C","B","A","AA","AAA","AAAA"],
 }
 
 
@@ -365,8 +320,6 @@ const gradeBoundaries = {
   // popn is fidgety with grades - A is the limit of grades if you fail. this NEEDS TO BE HANDLED in importhelpers. - 28/04/2020 isnt done yet lol
   sdvx: [0,70,80,87,90,93,95,97,98,99],
   ddr: [0,59,69,79,89,99,100],
-  osumania: [0,50,80,90,95,100],
-  etterna: [0,50,60,70,80,93,99.75,99.97]
 }
 
 // correct order for lamps
@@ -379,8 +332,6 @@ const lamps = {
   popn: ["FAILED","CLEAR","FULL COMBO","PERFECT"],
   sdvx: ["FAILED","CLEAR","EXCESSIVE CLEAR","ULTIMATE CHAIN","PERFECT ULTIMATE CHAIN"],
   ddr: ["FAILED","CLEAR","LIFE4","FULL COMBO","GREAT FULL COMBO","PERFECT FULL COMBO","MARVELOUS FULL COMBO"],
-  osumania: ["CLEAR","SDCB","FULL COMBO","SDG","PERFECT FULL COMBO","RAINBOW FULL COMBO"],
-  etterna: ["FAILED","CLEAR","SDCB","MISSFLAG","FULL COMBO","SDG","BLACKFLAG","PERFECT FULL COMBO","SDP","WHITEFLAG","MARVELOUS FULL COMBO"]
 }
 
 // first lamp that is considered a "true clear" by the game.
@@ -392,9 +343,7 @@ const clearLamp = {
   jubeat: "CLEAR",
   popn: "CLEAR",
   sdvx: "CLEAR",
-  ddr: "CLEAR",
-  osumania: "CLEAR",
-  etterna: "CLEAR"
+  ddr: "CLEAR"
 }
 
 const validModifiers = {
@@ -421,9 +370,7 @@ const adviceChartTags = {
   sdvx: [..._rootChartTags],
   popn: [..._rootChartTags],
   jubeat: [..._rootChartTags],
-  osumania: [..._rootChartTags],
   maimai: [..._rootChartTags],
-  etterna: [..._rootChartTags],
 }
 
 const adviceNoteTags = {
@@ -434,8 +381,6 @@ const adviceNoteTags = {
   sdvx: ["STREAMS","JACKS","LASERS","SPEED","TRILLS","ONE-HANDING","STAMINA","TECHNICAL"],
   popn: [],
   jubeat: [],
-  osumania: ["STREAMS","TECHNICAL","JACKS","CHORDJACKS","VIBRO","JUMPSTREAMS","HANDSTREAMS","QUADSTREAMS","DUMP"],
-  etterna: ["STREAMS","TECHNICAL","JACKS","CHORDJACKS","VIBRO","JUMPSTREAMS","HANDSTREAMS","QUADSTREAMS","DUMP"],
   maimai: []
 }
 
@@ -558,19 +503,6 @@ const gradeColours = {
             "MAX": COLOUR_SET.white
         }
     },
-    etterna: {
-        outline: {
-            "F": COLOUR_SET.gray,
-            "E": COLOUR_SET.red,
-            "D": COLOUR_SET.maroon,
-            "C": COLOUR_SET.purple,
-            "B": COLOUR_SET.paleBlue,
-            "A": COLOUR_SET.green,
-            "AA": COLOUR_SET.blue,
-            "AAA": COLOUR_SET.gold,
-            "AAAA": COLOUR_SET.teal
-        }
-    },
     sdvx:{
         outline: {
             "D": COLOUR_SET.gray,
@@ -584,18 +516,7 @@ const gradeColours = {
             "AAA+": COLOUR_SET.vibrantYellow,
             "S": COLOUR_SET.teal
         }
-    },
-    osumania:{
-        outline:{
-            "F": COLOUR_SET.gray,
-            "D": COLOUR_SET.maroon,
-            "C": COLOUR_SET.purple,
-            "B": COLOUR_SET.paleBlue,
-            "A": COLOUR_SET.green,
-            "S": COLOUR_SET.gold,
-            "SS": COLOUR_SET.teal
-        }
-    },
+    }
 }
 
 const lampColours = {
@@ -606,31 +527,6 @@ const lampColours = {
             "FULL COMBO": COLOUR_SET.paleBlue,
             "GREAT FULL COMBO": COLOUR_SET.green,
             "PERFECT FULL COMBO": COLOUR_SET.gold,
-            "MARVELOUS FULL COMBO": COLOUR_SET.teal
-        }
-    },
-    osumania: {
-        outline:{
-            "CLEAR": COLOUR_SET.paleGreen,
-            "SDCB": COLOUR_SET.purple,
-            "FULL COMBO": COLOUR_SET.blue,
-            "SDG": COLOUR_SET.green,
-            "PERFECT FULL COMBO": COLOUR_SET.gold,
-            "RAINBOW FULL COMBO": COLOUR_SET.teal,
-        }
-    },
-    etterna: {
-        outline:{
-            "FAILED": COLOUR_SET.red,
-            "CLEAR": COLOUR_SET.paleBlue,
-            "SDCB": COLOUR_SET.purple,
-            "MISSFLAG": COLOUR_SET.maroon,
-            "FULL COMBO": COLOUR_SET.blue,
-            "SDG": COLOUR_SET.orange,
-            "BLACKFLAG": COLOUR_SET.green,
-            "PERFECT FULL COMBO": COLOUR_SET.gold,
-            "SDP": COLOUR_SET.vibrantYellow,
-            "WHITEFLAG": COLOUR_SET.white,
             "MARVELOUS FULL COMBO": COLOUR_SET.teal
         }
     },
@@ -842,42 +738,6 @@ const judgeColours = {
       "PERFECT": "rgba(241, 245, 24, 1)"
     }
   },
-  osumania: {
-    fill: {
-      "MISS": "rgba(211, 38, 38, 0.2)",
-      "50": "rgba(165, 38, 211, 0.2)",
-      "100": "rgba(39, 190, 117,0.2)",
-      "200": "rgba(38, 211, 78, 0.2)",
-      "300": "rgba(241, 245, 24, 0.2)",
-      "300M": "rgba(158, 248, 255, 0.2)"
-    },
-    outline:{
-      "MISS": "rgba(211, 38, 38, 1)",
-      "50": "rgba(165, 38, 211, 1)",
-      "100": "rgba(39, 190, 117, 1)",
-      "200": "rgba(38, 211, 78, 1)",
-      "300": "rgba(241, 245, 24, 1)",
-      "300M": "rgba(158, 248, 255, 1)"
-    }
-  },
-  etterna: {
-    fill: {
-      "MISS": "rgba(211, 38, 38, 0.2)",
-      "BAD": "rgba(165, 38, 211, 0.2)",
-      "GOOD": "rgba(39, 190, 117,0.2)",
-      "GREAT": "rgba(38, 211, 78, 0.2)",
-      "PERFECT": "rgba(241, 245, 24, 0.2)",
-      "MARVELOUS": "rgba(158, 248, 255, 0.2)"
-    },
-    outline:{
-      "MISS": "rgba(211, 38, 38, 1)",
-      "BAD": "rgba(165, 38, 211, 1)",
-      "GOOD": "rgba(39, 190, 117, 1)",
-      "GREAT": "rgba(38, 211, 78, 1)",
-      "PERFECT": "rgba(241, 245, 24, 1)",
-      "MARVELOUS": "rgba(158, 248, 255, 1)"
-    }
-  }
 }
 
 const gameChartIndicators = {
@@ -889,8 +749,6 @@ const gameChartIndicators = {
   jubeat: ["holds"],
   sdvx: [],
   bms: [],
-  osumania: [],
-  etterna: []
 }
 
 // getter functions
@@ -989,16 +847,6 @@ const ratingParameters = {
     failHarshnessMultiplier: 0.9,
     pivotPercent: 0.9,
     clearExpMultiplier: 1.45
-  },
-  osumania: {
-    failHarshnessMultiplier: 1,
-    pivotPercent: 0.93, // grade: A
-    clearExpMultiplier: 1.35 // no real reason
-  },
-  etterna: {
-    failHarshnessMultiplier: 1,
-    pivotPercent: 0.93, // grade: AA
-    clearExpMultiplier: 1.35 // no real reason
   }
 }
 
@@ -1032,14 +880,6 @@ function CalculatePercent(game, score, chartData,hitData){
     // max score on every chart is 10,000,000
     // blah blah blah
     percent = (score / 10000000) * 100;
-  }
-  else if (game === "osumania"){
-    // mania percent calc
-    // add slight punishment for 300s, essentially reuse scorev1
-    // score v2 is ms based but due to CLT we can use mean values
-    percent = hitData["300M"] * 1 + hitData["300"] * 0.995 + hitData["200"] * (2/3) + hitData["100"] * (1/3) + hitData["50"] * (1/6);
-
-    percent = (percent * 100) / (Object.values(hitData).reduce((a,b) => a+b,0));
   }
 
   if (percent > 100){
@@ -1084,14 +924,12 @@ if (typeof window === 'undefined'){
     judgeColours,
     gameColours,
     validTierlistTiers,
-    difficultyChangingMods,
-    invalidatingMods,
     CalculatePercent,
     clearLamp,
     validModifiers,
     adviceChartTags,
     adviceNoteTags,
     GetGradeWithScore,
-    rivalGroupDefaultCellShading
+    gameRelevantScoreBucket
   };
 }
