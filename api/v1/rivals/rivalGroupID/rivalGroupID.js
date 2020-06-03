@@ -6,6 +6,7 @@ const crypto = require("crypto");
 const config = require("../../../../config/config.js");
 const router = express.Router({mergeParams: true});
 const esd = require("esd-js");
+const scoreHelpers = require("../../../../helpers/scorehelpers.js");
 
 // mounted on /api/v1/rivals/:rivalGroupID
 
@@ -377,7 +378,7 @@ router.get("/folder-scores", CheckRivalGroupExists, async function(req,res){
     });
 
     if (req.query.autocoerce !== "false"){
-        scores = await AutoCoerce(scores);
+        scores = await scoreHelpers.AutoCoerce(scores);
     }
 
     let members = await userHelpers.GetUsers(rg.members);
@@ -394,52 +395,6 @@ router.get("/folder-scores", CheckRivalGroupExists, async function(req,res){
         }
     });
 });
-
-async function AutoCoerce(scores){
-    let notPBs = scores.filter(e => !e.isLampPB);
-    if (notPBs.length === 0){
-        return scores;
-    }
-
-    let lampPBsArr = await db.get("scores").find({
-        $or: notPBs.map(s => ({
-            userID: s.userID,
-            songID: s.songID,
-            "scoreData.playtype": s.scoreData.playtype,
-            "scoreData.difficulty": s.scoreData.difficulty,
-            isLampPB: true
-        }))
-    });
-
-    let lampPBs = {}
-    for (const score of lampPBsArr) {
-        lampPBs[score.userID + "-" + score.songID + "-" + score.scoreData.playtype + "-" + score.game + "-" + score.scoreData.playtype + "-" + score.scoreData.difficulty] = score;
-    }
-    
-    for (const score of scores) {
-        if (!score.isLampPB){
-
-            /* unused slow code, dw about it - zkldi
-            let lampPB = await db.get("scores").findOne({
-                userID: score.userID,
-                game: score.game,
-                "scoreData.playtype": score.scoreData.playtype,
-                "scoreData.difficulty": score.scoreData.difficulty,
-                isLampPB: true,
-            });
-            */
-
-            let lampPB = lampPBs[score.userID + "-" + score.songID + "-" + score.scoreData.playtype + "-" + score.game + "-" + score.scoreData.playtype + "-" + score.scoreData.difficulty];
-
-            if (lampPB){
-                score.scoreData.lamp = lampPB.scoreData.lamp;
-                score.isLampPB = true;
-            }
-        }
-    }
-
-    return scores;
-}
 
 router.get("/relevant-scores", CheckRivalGroupExists, async function(req,res){
     let rg = req.rg;
@@ -484,7 +439,7 @@ router.get("/relevant-scores", CheckRivalGroupExists, async function(req,res){
     // we need to find the scores associated lampPB and monkey patch it on.
 
     if (!(req.query.autocoerce === "false")){
-        scores = await AutoCoerce(scores);
+        scores = await scoreHelpers.AutoCoerce(scores);
     }
 
     let charts = await db.get("charts-" + rg.game).find({
