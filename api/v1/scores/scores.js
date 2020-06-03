@@ -62,9 +62,39 @@ router.get("/:userID/best", middlewares.RequireExistingUser, async function(req,
         bestScores = await scoreHelpers.AutoCoerce(bestScores);
     }
 
+    let rivalGroup = await db.get("rivals").findOne({
+        game: req.query.game,
+        playtype: req.query.playtype,
+        isDefault: true
+    });
+
     // monkey patch rankings on
     for (const score of bestScores) {
-        score.ranking = "N/A";
+        let otherScores = await db.get("scores").find({
+            songID: score.songID,
+            "scoreData.difficulty": score.scoreData.difficulty,
+            "scoreData.playtype": score.scoreData.playtype,
+            isScorePB: true,
+        },
+        {
+            sort: {"calculatedData.rating": -1}
+        });
+
+        let scoreIDs = otherScores.map(e => e.scoreID);
+
+        if (rivalGroup){
+            let rgScoreIDs = otherScores.filter(e => rivalGroup.members.includes(e.userID)).map(e => e.scoreID);
+
+            score.rgRanking = rgScoreIDs.indexOf(score.scoreID) + 1;
+            if (!score.rgRanking){
+                score.ranking = "N/A";
+            }
+        }
+        
+        score.ranking = scoreIDs.indexOf(score.scoreID) + 1;
+        if (!score.ranking){
+            score.ranking = "N/A";
+        }
     }
 
     if (bestScores.length === 0){
