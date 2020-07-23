@@ -4,7 +4,7 @@
   "description": "The public API for Kamaitachi",
   "main": "main.js",
   "scripts": {
-    "test": "jest --runInBand --bail=1 --forceExit"
+    "test": ""
   },
   "repository": {
     "type": "git",
@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/zkldi/kamaitachi-api#readme",
   "devDependencies": {
-    "jest": "^25.5.3",
     "supertest": "^4.0.2"
   },
   "dependencies": {
