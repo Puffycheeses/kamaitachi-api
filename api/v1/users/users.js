@@ -155,7 +155,6 @@ router.get("/search", async function(req,res){
     }
 
     // todo, this sucks and is slow.
-
     let users = await userHelpers.GetAllUsers();
     
     for (const user of users) {
