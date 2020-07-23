@@ -11,6 +11,19 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "https://kamaitachi.xyz");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header("Access-Control-Allow-Credentials", "true");
+    res.header("Access-Control-Allow-Methods", "GET,POST,PATCH,PUT,DELETE,OPTIONS");
+    next();
+});
+
+// hack fix for cors preflight
+// in order to send CORS requests with methods other than GET or POST
+// an OPTIONS request to the same endpoint must return EXACTLY
+// an empty 200 response.
+app.use(function(req,res, next){;
+    if (req.method === "OPTIONS"){
+        res.header("Access-Control-Max-Age", 60 * 60 * 24 * 365);
+        return res.status(200).send();
+    }
     next();
 });
 
@@ -18,6 +31,10 @@ app.use(function(req, res, next) {
 // ffx comes with a great json viewer, but of course, chrome is BIG
 // pls use ffx :).
 app.set("json spaces", 4);
+
+// enable reading json bodies
+// limit them so as not to choke the api
+app.use(express.json({limit:"1mb"}));
 
 // crucial middleware; these are in this order for a very important reason.
 app.use(cookieParser());
@@ -31,6 +48,7 @@ app.use(middlewares.SanitiseInput);
 // i think it's okay to mount this everywhere since it only mutates req.query, which should be uriencoded anyway.
 // for all i know, express might do this by default, lol.
 app.use(middlewares.DecodeURIComponents);
+
 
 // just check the db lives
 db.then(() => {

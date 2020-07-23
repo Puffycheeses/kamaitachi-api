@@ -7,8 +7,11 @@ const config = require("./config/config.js");
 async function RequireAPIKey(req,res,next)
 {
     let givenKey;
-    if (req.query.key){
+    if (req.query.key && req.method === "GET"){
         givenKey = req.query.key;
+    }
+    else if (req.body.key){
+        givenKey = req.body.key;
     }
     else {
         givenKey = req.cookies.apikey;
@@ -117,6 +120,8 @@ async function SanitiseInput(req,res,next){
                 description: "Passed data was determined to be malicious. Nesting objects is not allowed."
             });
         }
+
+        req.body[key] = "" + req.body[key] // potentially safety critical, apologies.
     }
 
     next();

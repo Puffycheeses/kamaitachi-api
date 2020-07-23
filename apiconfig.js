@@ -15,6 +15,15 @@ const validKeys = {
         userID: "integer",
         highlight: "boolean"
     },
+    "rivals": {
+        name: "string",
+        desc: "string",
+        game: "string",
+        playtype: "string",
+        members: "integer",
+        founderID: "integer",
+        mutualGroup: "boolean"
+    },
     "notifications": {
         title: "string",
         fromUserID: "integer",

@@ -4,6 +4,53 @@ const ALLOWED_SORT_CRITERIA = ["timeAchieved","timeAdded","scoreData.score","sco
 const SCOREDATA_KEYS = ["playtype","difficulty","grade","lamp"];
 const MAX_SCORE_LIMIT = 100;
 
+async function AutoCoerce(scores){
+    let notPBs = scores.filter(e => !e.isLampPB);
+    if (notPBs.length === 0){
+        return scores;
+    }
+
+    let lampPBsArr = await db.get("scores").find({
+        $or: notPBs.map(s => ({
+            userID: s.userID,
+            songID: s.songID,
+            "scoreData.playtype": s.scoreData.playtype,
+            "scoreData.difficulty": s.scoreData.difficulty,
+            isLampPB: true
+        }))
+    });
+
+    let lampPBs = {}
+    for (const score of lampPBsArr) {
+        lampPBs[score.userID + "-" + score.songID + "-" + score.scoreData.playtype + "-" + score.game + "-" + score.scoreData.playtype + "-" + score.scoreData.difficulty] = score;
+    }
+    
+    for (const score of scores) {
+        if (!score.isLampPB){
+
+            /* unused slow code, dw about it - zkldi
+            let lampPB = await db.get("scores").findOne({
+                userID: score.userID,
+                game: score.game,
+                "scoreData.playtype": score.scoreData.playtype,
+                "scoreData.difficulty": score.scoreData.difficulty,
+                isLampPB: true,
+            });
+            */
+
+            let lampPB = lampPBs[score.userID + "-" + score.songID + "-" + score.scoreData.playtype + "-" + score.game + "-" + score.scoreData.playtype + "-" + score.scoreData.difficulty];
+
+            if (lampPB){
+                score.scoreData.lamp = lampPB.scoreData.lamp;
+                score.isLampPB = true;
+            }
+        }
+    }
+
+    return scores;
+}
+
+
 async function GetScoresWithQuery(query){
 
     // queryObj generation
@@ -134,5 +181,6 @@ async function GetScoresWithQuery(query){
 }
 
 module.exports = {
-    GetScoresWithQuery
+    GetScoresWithQuery,
+    AutoCoerce
 }

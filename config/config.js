@@ -1,15 +1,13 @@
 // always lowercase. list of supported games.
-const supportedGames = ["iidx","museca","maimai","jubeat","popn","sdvx","ddr","osumania","bms","etterna"];
+const supportedGames = ["iidx","museca","maimai","jubeat","popn","sdvx","ddr","bms"];
 
 const serviceSupportedGames = {
   PLI: ["iidx"],
   ARC: ["iidx","jubeat","sdvx","ddr"],  // PERFECT!
   FLO: ["iidx"],
   "e-amusement": ["iidx"],
-  "osu (MANUAL)": ["osumania"],
   LR2: ["bms"],
-  beatoraja: ["bms"],
-  Etterna: ["etterna"]
+  beatoraja: ["bms"]
 }
 
 const gameColours = {
@@ -22,8 +20,20 @@ const gameColours = {
   gfdm: "#DA836E",
   jubeat: "#129A7D",
   popn: "#F39CA4",
-  osumania: "#DC7684",
   bms:"#B5DCCD",
+}
+
+const gameRelevantScoreBucket = {
+    iidx: "lamp",
+    museca: "grade",
+    maimai: "grade",
+    sdvx: "lamp",
+    ddr: "lamp",
+    gitadora: "grade",
+    gfdm: "grade",
+    jubeat: "grade",
+    popn: "grade",
+    bms: "lamp",
 }
 
 // human readable stuff for games
@@ -37,9 +47,7 @@ const gameHuman = {
   gfdm: "GuitarFreaks & DrumMania",
   jubeat: "jubeat",
   popn: "pop'n music",
-  osumania: "osu!mania",
-  bms: "BMS",
-  etterna: "Etterna"
+  bms: "BMS"
 }
 
 // human readable stuff for versions
@@ -183,9 +191,7 @@ const gameOrders = {
   popn: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","park","lapis","eclale","usaneko","peace"],
   sdvx: ["booth","inf","gw","heaven","vivid"],
   ddr: ["1","2","3","4","5","max","max2","extreme","snova","snova2","x","x2","x3","2013","2014","a","a20"],
-  osumania: ["0"],
   bms: ["0"],
-  etterna: ["0"]
 }
 
 const defaultPlaytype = {
@@ -195,10 +201,8 @@ const defaultPlaytype = {
   jubeat: "Single",
   popn: "9B",
   sdvx: "Single",
-  osumania: "4K",
   ddr: "SP",
   bms: "7K",
-  etterna: "4K"
 }
 
 // difficulty orders of games.
@@ -210,9 +214,7 @@ const diffOrders = {
   popn: ["9B Easy","9B Normal","9B Hyper","9B EX"],
   sdvx: ["Single NOV","Single ADV","Single EXH","Single MXM","Single INF","Single GRV","Single HVN","Single VVD"],
   ddr: ["SP BEGINNER","SP BASIC","SP DIFFICULT","SP EXPERT","SP CHALLENGE","DP BASIC","DP DIFFICULT", "DP EXPERT","DP CHALLENGE"],
-  osumania: [],
   bms: [], // BMS does have difficulties, it just doesn't matter because root songs aren't properly defined.
-  etterna: ["4K BEGINNER","4K EASY","4K MEDIUM","4K HARD","4K CHALLENGE"]
 }
 
 // valid folders for each game
@@ -252,34 +254,12 @@ const folders = {
     levels: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],
     versions: gameOrders["sdvx"]
   },
-  osumania:{
-    type: "dynamic", // dynamic mode will not utilse folders. they are left as empty to avoid crashing stuff
-    reasonableLevelMax: 10,
-    levels: [],
-    versions: []
-  },
   bms: {
     type: "tierlist",
     reasonableLevelMax: 30,
     levels: [],
     versions: []
   },
-  etterna: {
-    type: "dynamic",
-    reasonableLevelMax: 0,
-    levels: [],
-    versions: []
-  }
-}
-
-const invalidatingMods = {
-  osumania: ["EZ","NF","SO","AP","RD"/*,"ScoreV2"*/,"CM","TP","RX","AT","AP"], // not actually sure if half of these are possible 
-  etterna: ["NoMines"]
-}
-const difficultyChangingMods = {
-  osumania: ["DT","HT"],
-  // oh boy
-  etterna: ["0.7xMusic","0.75xMusic","0.8xMusic","0.85xMusic","0.9xMusic","0.95xMusic","1.05xMusic","1.1xMusic","1.15xMusic","1.2xMusic","1.25xMusic","1.3xMusic","1.35xMusic","1.4xMusic","1.45xMusic","1.5xMusic","1.55xMusic","1.6xMusic","1.65xMusic","1.7xMusic","1.75xMusic","1.8xMusic","1.85xMusic","1.9xMusic","1.95xMusic","2.0xMusic","2.05xMusic","2.1xMusic","2.15xMusic","2.2xMusic","2.25xMusic","2.3xMusic","2.35xMusic","2.4xMusic","2.45xMusic","2.5xMusic","2.55xMusic","2.6xMusic","2.65xMusic","2.7xMusic","2.75xMusic","2.8xMusic","2.85xMusic","2.9xMusic","2.95xMusic","3.0xMusic"]
 }
 
 const validPlaytypes ={
@@ -290,12 +270,7 @@ const validPlaytypes ={
   maimai: ["Single"],
   jubeat: ["Single"],
   museca: ["Single"],
-  osustd: ["Single"],
-  osutaiko: ["Single"],
-  osuctb: ["Single"],
-  osumania: ["4K","5K","6K","7K","8K","9K"],
-  bms: ["7K","14K","5K","10K"],
-  etterna: ["4K"]
+  bms: ["7K","14K","5K","10K"]
 }
 
 const validTierlistTiers = {
@@ -306,9 +281,7 @@ const validTierlistTiers = {
   popn: [],
   sdvx: [],
   ddr: ["clear","perfectfullcombo"],
-  osumania: [],
   bms: ["easyclear","clear","hardclear","fullcombo"],
-  etterna: []
 }
 
 const judgements = {
@@ -319,9 +292,7 @@ const judgements = {
   jubeat: ["MISS","POOR","GOOD","GREAT","PERFECT"],
   popn: ["BAD","GOOD","GREAT","COOL"],
   sdvx: ["MISS","NEAR","CRITICAL"],
-  ddr: ["MISS","BOO","GOOD","GREAT","PERFECT","MARVELOUS"],
-  osumania: ["MISS","50","100","200","300","300M"], // not using 320 as it's a misnomer
-  etterna: ["MISS","BAD","GOOD","GREAT","PERFECT","MARVELOUS"]
+  ddr: ["MISS","BOO","GOOD","GREAT","PERFECT","MARVELOUS"]
 }
 
 // correct order for grades
@@ -334,8 +305,6 @@ const grades = {
   popn: ["E","D","C","B","A","AA","AAA","S"],
   sdvx: ["D","C","B","A","A+","AA","AA+","AAA","AAA+","S"],
   ddr: ["D","C","B","A","AA","AAA"],
-  osumania: ["D","C","B","A","S","SS"],
-  etterna: ["F","D","C","B","A","AA","AAA","AAAA"],
 }
 
 
@@ -351,8 +320,6 @@ const gradeBoundaries = {
   // popn is fidgety with grades - A is the limit of grades if you fail. this NEEDS TO BE HANDLED in importhelpers. - 28/04/2020 isnt done yet lol
   sdvx: [0,70,80,87,90,93,95,97,98,99],
   ddr: [0,59,69,79,89,99,100],
-  osumania: [0,50,80,90,95,100],
-  etterna: [0,50,60,70,80,93,99.75,99.97]
 }
 
 // correct order for lamps
@@ -365,8 +332,6 @@ const lamps = {
   popn: ["FAILED","CLEAR","FULL COMBO","PERFECT"],
   sdvx: ["FAILED","CLEAR","EXCESSIVE CLEAR","ULTIMATE CHAIN","PERFECT ULTIMATE CHAIN"],
   ddr: ["FAILED","CLEAR","LIFE4","FULL COMBO","GREAT FULL COMBO","PERFECT FULL COMBO","MARVELOUS FULL COMBO"],
-  osumania: ["CLEAR","SDCB","FULL COMBO","SDG","PERFECT FULL COMBO","RAINBOW FULL COMBO"],
-  etterna: ["FAILED","CLEAR","SDCB","MISSFLAG","FULL COMBO","SDG","BLACKFLAG","PERFECT FULL COMBO","SDP","WHITEFLAG","MARVELOUS FULL COMBO"]
 }
 
 // first lamp that is considered a "true clear" by the game.
@@ -378,9 +343,7 @@ const clearLamp = {
   jubeat: "CLEAR",
   popn: "CLEAR",
   sdvx: "CLEAR",
-  ddr: "CLEAR",
-  osumania: "CLEAR",
-  etterna: "CLEAR"
+  ddr: "CLEAR"
 }
 
 const validModifiers = {
@@ -407,9 +370,7 @@ const adviceChartTags = {
   sdvx: [..._rootChartTags],
   popn: [..._rootChartTags],
   jubeat: [..._rootChartTags],
-  osumania: [..._rootChartTags],
   maimai: [..._rootChartTags],
-  etterna: [..._rootChartTags],
 }
 
 const adviceNoteTags = {
@@ -420,9 +381,24 @@ const adviceNoteTags = {
   sdvx: ["STREAMS","JACKS","LASERS","SPEED","TRILLS","ONE-HANDING","STAMINA","TECHNICAL"],
   popn: [],
   jubeat: [],
-  osumania: ["STREAMS","TECHNICAL","JACKS","CHORDJACKS","VIBRO","JUMPSTREAMS","HANDSTREAMS","QUADSTREAMS","DUMP"],
-  etterna: ["STREAMS","TECHNICAL","JACKS","CHORDJACKS","VIBRO","JUMPSTREAMS","HANDSTREAMS","QUADSTREAMS","DUMP"],
   maimai: []
+}
+
+const COLOUR_SET = {
+    gray: "rgba(105, 105, 105, 1)",
+    maroon: "rgba(85, 17, 17, 1)",
+    red: "rgba(170, 85, 85, 1)",
+    paleGreen: "rgba(142,174,79, 1)",
+    paleBlue: "rgba(92, 97, 153, 1)",
+    green: "rgba(50, 205, 50, 1)",
+    blue: "rgba(70, 130, 180, 1)",
+    gold: "rgba(255, 215, 0, 1)",
+    vibrantYellow: "rgba(245, 229, 27, 1)",
+    teal: "rgba(127, 255, 212, 1)",
+    white: "rgba(192, 192, 192, 1)",
+    purple: "rgba(153, 50, 204, 1)",
+    paleOrange: "rgba(235, 151, 78, 1)",
+    orange: "rgba(248, 148, 6, 1)"
 }
 
 // hi, outline colours are the same as the fill colours but with the opacities changed
@@ -432,440 +408,216 @@ const adviceNoteTags = {
 // todo, just put this out of its misery
 // it's not even difficult to update it's just taking up too much of my IDE and i don't like it.
 const gradeColours = {
-  museca: {
-    fill: {
-      "没": "rgba(105, 105, 105, 0.2)",
-      "拙": "rgba(85, 17, 17, 0.2)",
-      "凡": "rgba(170, 85, 85, 0.2)",
-      "佳": "rgba(142,174,79, 0.2)",
-      "良": "rgba(92, 97, 153, 0.2)",
-      "優": "rgba(50, 205, 50, 0.2)",
-      "秀": "rgba(70, 130, 180, 0.2)",
-      "傑": "rgba(255, 215, 0, 0.2)",
-      "傑G": "rgba(127, 255, 212, 0.2)"
+    museca: {
+        outline:{
+        "没": COLOUR_SET.gray,
+        "拙": COLOUR_SET.maroon,
+        "凡": COLOUR_SET.red,
+        "佳": COLOUR_SET.paleGreen,
+        "良": COLOUR_SET.paleBlue,
+        "優": COLOUR_SET.green,
+        "秀": COLOUR_SET.blue,
+        "傑": COLOUR_SET.teal,
+        "傑G": COLOUR_SET.gold
+        }
     },
-    outline:{
-      "没": "rgba(105, 105, 105, 1)",
-      "拙": "rgba(85, 17, 17, 1)",
-      "凡": "rgba(170, 85, 85, 1)",
-      "佳": "rgba(142,174,79, 1)",
-      "良": "rgba(92, 97, 153, 1)",
-      "優": "rgba(50, 205, 50, 1)",
-      "秀": "rgba(70, 130, 180, 1)",
-      "傑": "rgba(255, 215, 0, 1)",
-      "傑G": "rgba(127, 255, 212, 1)"
-    }
-  },
-  ddr: {
-    fill: {
-      "D": "rgba(105, 105, 105, 0.2)",
-      "C": "rgba(85, 17, 17, 0.2)",
-      "B": "rgba(170, 85, 85, 0.2)",
-      "A": "rgba(142,174,79, 0.2)",
-      "AA": "rgba(255, 215, 0, 0.2)",
-      "AAA": "rgba(127, 255, 212, 0.2)"
+    ddr: {
+        outline:{
+        "D": COLOUR_SET.maroon,
+        "C": COLOUR_SET.purple,
+        "B": COLOUR_SET.paleBlue,
+        "A": COLOUR_SET.paleGreen,
+        "AA": COLOUR_SET.blue,
+        "AAA": COLOUR_SET.gold
+        }
     },
-    outline:{
-      "D": "rgba(105, 105, 105, 1)",
-      "C": "rgba(85, 17, 17, 1)",
-      "B": "rgba(170, 85, 85, 1)",
-      "A": "rgba(142,174,79, 1)",
-      "AA": "rgba(255, 215, 0, 1)",
-      "AAA": "rgba(127, 255, 212, 1)"
-    }
-  },
-  jubeat: {
-    fill: {
-      "E": "rgba(105, 105, 105, 0.2)",
-      "D": "rgba(85, 17, 17, 0.2)",
-      "C": "rgba(170, 85, 85, 0.2)",
-      "B": "rgba(142,174,79, 0.2)",
-      "A": "rgba(92, 97, 153, 0.2)",
-      "S": "rgba(50, 205, 50, 0.2)",
-      "SS": "rgba(70, 130, 180, 0.2)",
-      "SSS": "rgba(255, 215, 0, 0.2)",
-      "EXC": "rgba(127, 255, 212, 0.2)"
+    jubeat: {
+        outline:{
+        "E": COLOUR_SET.gray,
+        "D": COLOUR_SET.maroon,
+        "C": COLOUR_SET.purple,
+        "B": COLOUR_SET.paleBlue,
+        "A": COLOUR_SET.paleGreen,
+        "S": COLOUR_SET.blue,
+        "SS": COLOUR_SET.gold,
+        "SSS": COLOUR_SET.teal,
+        "EXC": COLOUR_SET.white
+        }
     },
-    outline:{
-      "E": "rgba(105, 105, 105, 1)",
-      "D": "rgba(85, 17, 17, 1)",
-      "C": "rgba(170, 85, 85, 1)",
-      "B": "rgba(142,174,79, 1)",
-      "A": "rgba(92, 97, 153, 1)",
-      "S": "rgba(50, 205, 50, 1)",
-      "SS": "rgba(70, 130, 180, 1)",
-      "SSS": "rgba(255, 215, 0, 1)",
-      "EXC": "rgba(127, 255, 212, 1)"
-    }
-  },
-  maimai: { // todo make this not repeat values for S, S+, etc.
-    fill: {
-      "F": "rgba(105, 105, 105, 0.2)",
-      "E": "rgba(85, 17, 17, 0.2)",
-      "D": "rgba(170, 85, 85, 0.2)",
-      "C": "rgba(142,174,79, 0.2)",
-      "B": "rgba(92, 97, 153, 0.2)",
-      "A": "rgba(50, 205, 50, 0.2)",
-      "AA": "rgba(70, 130, 180, 0.2)",
-      "AAA": "rgba(255, 215, 0, 0.2)",
-      "S": "rgba(127, 255, 212, 0.2)",
-      "S+": "rgba(127, 255, 212, 0.2)",
-      "SS": "rgba(127, 255, 212, 0.2)",
-      "SS+": "rgba(127, 255, 212, 0.2)",
-      "SSS": "rgba(127, 255, 212, 0.2)",
-      "SSS+": "rgba(127, 255, 212, 0.2)",
+    maimai: { // todo make this not repeat values for S, S+, etc.
+        outline:{
+            "F": COLOUR_SET.gray,
+            "E": COLOUR_SET.red,
+            "D": COLOUR_SET.maroon,
+            "C": COLOUR_SET.purple,
+            "B": COLOUR_SET.paleGreen,
+            "A": COLOUR_SET.green,
+            "AA": COLOUR_SET.paleBlue,
+            "AAA": COLOUR_SET.blue,
+            "S": COLOUR_SET.gold,
+            "S+": COLOUR_SET.vibrantYellow,
+            "SS": COLOUR_SET.paleOrange,
+            "SS+": COLOUR_SET.orange,
+            "SSS": COLOUR_SET.teal,
+            "SSS+": COLOUR_SET.white,
+        }
     },
-    outline:{
-      "F": "rgba(105, 105, 105, 1)",
-      "E": "rgba(85, 17, 17, 1)",
-      "D": "rgba(170, 85, 85, 1)",
-      "C": "rgba(142,174,79, 1)",
-      "B": "rgba(92, 97, 153, 1)",
-      "A": "rgba(50, 205, 50, 1)",
-      "AA": "rgba(70, 130, 180, 1)",
-      "AAA": "rgba(255, 215, 0, 1)",
-      "S": "rgba(127, 255, 212, 1)",
-      "S+": "rgba(127, 255, 212, 1)",
-      "SS": "rgba(127, 255, 212, 1)",
-      "SS+": "rgba(127, 255, 212, 1)",
-      "SSS": "rgba(127, 255, 212,1)",
-      "SSS+": "rgba(127, 255, 212, 1)",
-    }
-  },
-  popn: {
-    fill: {
-      "F": "rgba(105, 105, 105, 0.2)",
-      "E": "rgba(85, 17, 17, 0.2)",
-      "D": "rgba(170, 85, 85, 0.2)",
-      "C": "rgba(142,174,79, 0.2)",
-      "B": "rgba(92, 97, 153, 0.2)",
-      "A": "rgba(50, 205, 50, 0.2)",
-      "AA": "rgba(70, 130, 180, 0.2)",
-      "AAA": "rgba(255, 215, 0, 0.2)",
-      "S": "rgba(127, 255, 212, 0.2)"
-    },
+    popn: {
       outline: {
-        "F": "rgba(105, 105, 105, 1)",
-        "E": "rgba(85, 17, 17, 1)",
-        "D": "rgba(170, 85, 85, 1)",
-        "C": "rgba(142,174,79, 1)",
-        "B": "rgba(92, 97, 153, 1)",
-        "A": "rgba(50, 205, 50, 1)",
-        "AA": "rgba(70, 130, 180, 1)",
-        "AAA": "rgba(255, 215, 0, 1)",
-        "S": "rgba(127, 255, 212, 1)"
+        "F": COLOUR_SET.gray,
+        "E": COLOUR_SET.red,
+        "D": COLOUR_SET.maroon,
+        "C": COLOUR_SET.purple,
+        "B": COLOUR_SET.paleBlue,
+        "A": COLOUR_SET.green,
+        "AA": COLOUR_SET.paleOrange,
+        "AAA": COLOUR_SET.gold,
+        "S": COLOUR_SET.teal,
       }
     },
-  iidx: {
-    fill: {
-      "F": "rgba(105, 105, 105, 0.2)",
-      "E": "rgba(85, 17, 17, 0.2)",
-      "D": "rgba(170, 85, 85, 0.2)",
-      "C": "rgba(142,174,79, 0.2)",
-      "B": "rgba(92, 97, 153, 0.2)",
-      "A": "rgba(50, 205, 50, 0.2)",
-      "AA": "rgba(70, 130, 180, 0.2)",
-      "AAA": "rgba(255, 215, 0, 0.2)",
-      "MAX-": "rgba(127, 255, 212, 0.2)",
-      "MAX": "rgba(192,192,192 ,0.2 )"
+    iidx: {
+        outline: {
+            "F": COLOUR_SET.gray,
+            "E": COLOUR_SET.red,
+            "D": COLOUR_SET.maroon,
+            "C": COLOUR_SET.purple,
+            "B": COLOUR_SET.paleBlue,
+            "A": COLOUR_SET.green,
+            "AA": COLOUR_SET.blue,
+            "AAA": COLOUR_SET.gold,
+            "MAX-": COLOUR_SET.teal,
+            "MAX": COLOUR_SET.white
+        }
     },
-    outline:{
-      "F": "rgba(105, 105, 105, 1)",
-      "E": "rgba(85, 17, 17, 1)",
-      "D": "rgba(170, 85, 85, 1)",
-      "C": "rgba(142,174,79, 1)",
-      "B": "rgba(92, 97, 153, 1)",
-      "A": "rgba(50, 205, 50, 1)",
-      "AA": "rgba(70, 130, 180, 1)",
-      "AAA": "rgba(255, 215, 0, 1)",
-      "MAX-": "rgba(127, 255, 212, 1)",
-      "MAX": "rgba(192,192,192 ,1)"
-    }
-  },
-  bms: {
-    fill: {
-      "F": "rgba(105, 105, 105, 0.2)",
-      "E": "rgba(85, 17, 17, 0.2)",
-      "D": "rgba(170, 85, 85, 0.2)",
-      "C": "rgba(142,174,79, 0.2)",
-      "B": "rgba(92, 97, 153, 0.2)",
-      "A": "rgba(50, 205, 50, 0.2)",
-      "AA": "rgba(70, 130, 180, 0.2)",
-      "AAA": "rgba(255, 215, 0, 0.2)",
-      "MAX-": "rgba(127, 255, 212, 0.2)",
-      "MAX": "rgba(192,192,192 ,0.2 )"
+    bms: {
+        outline: {
+            "F": COLOUR_SET.gray,
+            "E": COLOUR_SET.red,
+            "D": COLOUR_SET.maroon,
+            "C": COLOUR_SET.purple,
+            "B": COLOUR_SET.paleBlue,
+            "A": COLOUR_SET.green,
+            "AA": COLOUR_SET.blue,
+            "AAA": COLOUR_SET.gold,
+            "MAX-": COLOUR_SET.teal,
+            "MAX": COLOUR_SET.white
+        }
     },
-    outline:{
-      "F": "rgba(105, 105, 105, 1)",
-      "E": "rgba(85, 17, 17, 1)",
-      "D": "rgba(170, 85, 85, 1)",
-      "C": "rgba(142,174,79, 1)",
-      "B": "rgba(92, 97, 153, 1)",
-      "A": "rgba(50, 205, 50, 1)",
-      "AA": "rgba(70, 130, 180, 1)",
-      "AAA": "rgba(255, 215, 0, 1)",
-      "MAX-": "rgba(127, 255, 212, 1)",
-      "MAX": "rgba(192,192,192 ,1)"
+    sdvx:{
+        outline: {
+            "D": COLOUR_SET.gray,
+            "C": COLOUR_SET.red,
+            "B": COLOUR_SET.maroon,
+            "A": COLOUR_SET.paleBlue,
+            "A+": COLOUR_SET.blue,
+            "AA": COLOUR_SET.paleGreen,
+            "AA+": COLOUR_SET.green,
+            "AAA": COLOUR_SET.gold,
+            "AAA+": COLOUR_SET.vibrantYellow,
+            "S": COLOUR_SET.teal
+        }
     }
-  },
-  etterna: {
-    fill: {
-      "F": "rgba(105, 105, 105, 0.2)",
-      "E": "rgba(85, 17, 17, 0.2)",
-      "D": "rgba(170, 85, 85, 0.2)",
-      "C": "rgba(142,174,79, 0.2)",
-      "B": "rgba(92, 97, 153, 0.2)",
-      "A": "rgba(50, 205, 50, 0.2)",
-      "AA": "rgba(70, 130, 180, 0.2)",
-      "AAA": "rgba(255, 215, 0, 0.2)",
-      "AAAA": "rgba(127, 255, 212, 0.2)"
-    },
-    outline:{
-      "F": "rgba(105, 105, 105, 1)",
-      "E": "rgba(85, 17, 17, 1)",
-      "D": "rgba(170, 85, 85, 1)",
-      "C": "rgba(142,174,79, 1)",
-      "B": "rgba(92, 97, 153, 1)",
-      "A": "rgba(50, 205, 50, 1)",
-      "AA": "rgba(70, 130, 180, 1)",
-      "AAA": "rgba(255, 215, 0, 1)",
-      "AAAA": "rgba(127, 255, 212, 1)"
-    }
-  },
-  sdvx:{
-    fill: {
-      "D": "rgba(170, 85, 85, 0.2)",
-      "C": "rgba(142,174,79, 0.2)",
-      "B": "rgba(92, 97, 153, 0.2)",
-      "A": "rgba(50, 205, 50, 0.2)",
-      "A+": "rgba(70, 130, 180, 0.2)",
-      "AA": "rgba(255, 215, 0, 0.2)",
-      "AA+": "rgba(127, 255, 212, 0.2)",
-      "AAA": "rgba(127, 255, 212, 0.2)",
-      "AAA+": "rgba(127, 255, 212, 0.2)",
-      "S": "rgba(127, 255, 212, 0.2)"
-    },
-    outline:{
-      "D": "rgba(170, 85, 85, 1)",
-      "C": "rgba(142,174,79, 1)",
-      "B": "rgba(92, 97, 153, 1)",
-      "A": "rgba(50, 205, 50, 1)",
-      "A+": "rgba(70, 130, 180, 1)",
-      "AA": "rgba(255, 215, 0, 1)",
-      "AA+": "rgba(127, 255, 212, 1)",
-      "AAA": "rgba(127, 255, 212, 1)",
-      "AAA+": "rgba(127, 255, 212, 1)",
-      "S": "rgba(127, 255, 212, 1)"
-    }
-  },
-  osumania:{
-    fill: {
-      "F": "rgba(32,32,32,0.2)",
-      "D": "rgba(170, 85, 85, 0.2)",
-      "C": "rgba(142,174,79, 0.2)",
-      "B": "rgba(92, 97, 153, 0.2)",
-      "A": "rgba(50, 205, 50, 0.2)",
-      "S": "rgba(127, 255, 212, 0.2)",
-      "S+": "rgba(255, 215, 0, 0.2)",
-      "SS": "rgba(127, 255, 212, 0.2)"
-    },
-    outline:{
-      "F": "rgba(32,32,32,1)",
-      "D": "rgba(170, 85, 85, 1)",
-      "C": "rgba(142,174,79, 1)",
-      "B": "rgba(92, 97, 153, 1)",
-      "A": "rgba(50, 205, 50, 1)",
-      "S": "rgba(127, 255, 212, 1)",
-      "S+": "rgba(255, 215, 0, 1)",
-      "SS": "rgba(127, 255, 212, 1)"
-    }
-  },
 }
 
 const lampColours = {
-  ddr:{
-    fill: {
-      "FAILED": "rgba(85, 17, 17, 0.2)",
-      "CLEAR": "rgba(70, 130, 180, 0.2)",
-      "FULL COMBO": "rgba(153, 50, 204, 0.2)",
-      "GREAT FULL COMBO": "rgba(127, 255, 212, 0.2)",
-      "PERFECT FULL COMBO": "rgba(50, 205, 50, 0.2)",
-      "MARVELOUS FULL COMBO": "rgba(255, 215, 0, 0.2)"
+    ddr:{
+        outline:{
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.paleGreen,
+            "FULL COMBO": COLOUR_SET.paleBlue,
+            "GREAT FULL COMBO": COLOUR_SET.green,
+            "PERFECT FULL COMBO": COLOUR_SET.gold,
+            "MARVELOUS FULL COMBO": COLOUR_SET.teal
+        }
     },
-    outline:{
-      "FAILED": "rgba(85, 17, 17, 1)",
-      "CLEAR": "rgba(70, 130, 180, 1)",
-      "FULL COMBO": "rgba(153, 50, 204, 1)",
-      "GREAT FULL COMBO": "rgba(127, 255, 212, 1)",
-      "PERFECT FULL COMBO": "rgba(50, 205, 50, 1)",
-      "MARVELOUS FULL COMBO": "rgba(255, 215, 0, 1)"
-    }
-  },
-  osumania: {
-    fill: {
-      "CLEAR": "rgba(70, 130, 180, 0.2)",
-      "SDCB": "rgba(153, 50, 204, 0.2)",
-      "FULL COMBO": "rgba(127, 255, 212, 0.2)",
-      "SDG": "rgba(50, 205, 50, 0.2)",
-      "PERFECT FULL COMBO": "rgba(255, 215, 0, 0.2)",
-      "RAINBOW FULL COMBO": "rgba(255,105,180,0.2)"
+    iidx: {
+        outline:{
+            "NO PLAY": COLOUR_SET.gray,
+            "FAILED": COLOUR_SET.red,
+            "ASSIST CLEAR": COLOUR_SET.purple,
+            "EASY CLEAR": COLOUR_SET.green,
+            "CLEAR": COLOUR_SET.blue,
+            "HARD CLEAR": COLOUR_SET.orange,
+            "EX HARD CLEAR": COLOUR_SET.gold,
+            "FULL COMBO": COLOUR_SET.teal
+        }
     },
-    outline:{
-      "CLEAR": "rgba(70, 130, 180, 1)",
-      "SDCB": "rgba(153, 50, 204, 1)",
-      "FULL COMBO": "rgba(127, 255, 212, 1)",
-      "SDG": "rgba(50, 205, 50, 1)",
-      "PERFECT FULL COMBO": "rgba(255, 215, 0, 1)",
-      "RAINBOW FULL COMBO": "rgba(255,105,180,1)",
-    }
-  },
-  etterna: {
-    fill: {
-      "FAILED": "rgba(85, 17, 17, 0.2)",
-      "CLEAR": "rgba(70, 130, 180, 0.2)",
-      "SDCB": "rgba(153, 50, 204, 0.2)",
-      "MISSFLAG": "rgba(105, 105, 105, 0.2)",
-      "FULL COMBO": "rgba(127, 255, 212, 0.2)",
-      "SDG": "rgba(35, 203, 167, 0.2)",
-      "BLACKFLAG": "rgba(3, 166, 120, 0.2)",
-      "PERFECT FULL COMBO": "rgba(255, 215, 0, 0.2)",
-      "SDP": "rgba(247, 202, 24, 0.2)",
-      "WHITEFLAG": "rgba(232, 236, 241, 0.2)",
-      "MARVELOUS FULL COMBO": "rgba(192,192,192 ,0.2 )"
+    bms: {
+        outline:{
+            "NO PLAY": COLOUR_SET.gray,
+            "FAILED": COLOUR_SET.red,
+            "ASSIST CLEAR": COLOUR_SET.purple,
+            "EASY CLEAR": COLOUR_SET.green,
+            "CLEAR": COLOUR_SET.blue,
+            "HARD CLEAR": COLOUR_SET.orange,
+            "EX HARD CLEAR": COLOUR_SET.gold,
+            "FULL COMBO": COLOUR_SET.teal
+        }
     },
-    outline:{
-      "FAILED": "rgba(85, 17, 17, 1)",
-      "CLEAR": "rgba(70, 130, 180, 1)",
-      "SDCB": "rgba(153, 50, 204, 1)",
-      "MISSFLAG": "rgba(105, 105, 105, 1)",
-      "FULL COMBO": "rgba(127, 255, 212, 1)",
-      "SDG": "rgba(35, 203, 167, 1)",
-      "BLACKFLAG": "rgba(3, 166, 120, 1)",
-      "PERFECT FULL COMBO": "rgba(255, 215, 0, 1)",
-      "SDP": "rgba(247, 202, 24, 1)",
-      "WHITEFLAG": "rgba(232, 236, 241, 1)",
-      "MARVELOUS FULL COMBO": "rgba(192,192,192 ,1)"
-    }
-  },
-  iidx: {
-    fill: {
-      "NO PLAY": "rgba(105, 105, 105, 0.2)", // lol
-      "FAILED": "rgba(85, 17, 17, 0.2)",
-      "ASSIST CLEAR": "rgba(153, 50, 204, 0.2)",
-      "EASY CLEAR": "rgba(50, 205, 50, 0.2)",
-      "CLEAR": "rgba(70, 130, 180, 0.2)",
-      "HARD CLEAR": "rgba(255, 127, 80,0.2)",
-      "EX HARD CLEAR": "rgba(255, 215, 0, 0.2)",
-      "FULL COMBO": "rgba(127, 255, 212, 0.2)"
+    museca: {
+        outline:{
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.green,
+            "CONNECT ALL": COLOUR_SET.teal,
+            "PERFECT CONNECT ALL": COLOUR_SET.gold
+        }
     },
-    outline:{
-      "NO PLAY": "rgba(105, 105, 105, 1)",
-      "FAILED": "rgba(85, 17, 17, 1)",
-      "ASSIST CLEAR": "rgba(153, 50, 204, 1)",
-      "EASY CLEAR": "rgba(50, 205, 50, 1)",
-      "CLEAR": "rgba(70, 130, 180, 1)",
-      "HARD CLEAR": "rgba(255, 127, 80,1)",
-      "EX HARD CLEAR": "rgba(255, 215, 0, 1)",
-      "FULL COMBO": "rgba(127, 255, 212, 1)"
-    }
-  },
-  bms: {
-    fill: {
-      "NO PLAY": "rgba(105, 105, 105, 0.2)", // lol
-      "FAILED": "rgba(85, 17, 17, 0.2)",
-      "ASSIST CLEAR": "rgba(153, 50, 204, 0.2)",
-      "EASY CLEAR": "rgba(50, 205, 50, 0.2)",
-      "CLEAR": "rgba(70, 130, 180, 0.2)",
-      "HARD CLEAR": "rgba(255, 127, 80,0.2)",
-      "EX HARD CLEAR": "rgba(255, 215, 0, 0.2)",
-      "FULL COMBO": "rgba(127, 255, 212, 0.2)"
+    sdvx: {
+        outline:{
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.green,
+            "EXCESSIVE CLEAR": COLOUR_SET.orange,
+            "ULTIMATE CHAIN": COLOUR_SET.teal,
+            "PERFECT ULTIMATE CHAIN": COLOUR_SET.gold
+        }
     },
-    outline:{
-      "NO PLAY": "rgba(105, 105, 105, 1)",
-      "FAILED": "rgba(85, 17, 17, 1)",
-      "ASSIST CLEAR": "rgba(153, 50, 204, 1)",
-      "EASY CLEAR": "rgba(50, 205, 50, 1)",
-      "CLEAR": "rgba(70, 130, 180, 1)",
-      "HARD CLEAR": "rgba(255, 127, 80,1)",
-      "EX HARD CLEAR": "rgba(255, 215, 0, 1)",
-      "FULL COMBO": "rgba(127, 255, 212, 1)"
-    }
-  },
-  museca: {
-    fill: {
-      "FAILED": "rgba(85, 17, 17, 0.2)",
-      "CLEAR": "rgba(50, 205, 50, 0.2)",
-      "CONNECT ALL": "rgba(70, 130, 180, 0.2)",
-      "PERFECT CONNECT ALL": "rgba(255, 215, 0, 0.2)"
+    popn: {
+        outline:{
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.green,
+            "FULL COMBO": COLOUR_SET.teal,
+            "PERFECT": COLOUR_SET.gold
+        }
     },
-    outline:{
-      "FAILED": "rgba(85, 17, 17, 1)",
-      "CLEAR": "rgba(50, 205, 50, 1)",
-      "CONNECT ALL": "rgba(70, 130, 180, 1)",
-      "PERFECT CONNECT ALL": "rgba(255, 215, 0, 1)"
-    }
-  },
-  sdvx: {
-    fill: {
-      "FAILED": "rgba(85, 17, 17, 0.2)",
-      "CLEAR": "rgba(50, 205, 50, 0.2)",
-      "EXCESSIVE CLEAR": "rgba(153, 50, 204, 0.2)",
-      "ULTIMATE CHAIN": "rgba(70, 130, 180, 0.2)",
-      "PERFECT ULTIMATE CHAIN": "rgba(255, 215, 0, 0.2)"
+    maimai: {
+        outline:{
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.green,
+            "FULL COMBO": COLOUR_SET.blue,
+            "ALL PERFECT": COLOUR_SET.gold,
+            "ALL PERFECT+": COLOUR_SET.teal
+        }
     },
-    outline:{
-      "FAILED": "rgba(85, 17, 17, 1)",
-      "CLEAR": "rgba(50, 205, 50, 1)",
-      "EXCESSIVE CLEAR": "rgba(153, 50, 204, 1)",
-      "ULTIMATE CHAIN": "rgba(70, 130, 180, 1)",
-      "PERFECT ULTIMATE CHAIN": "rgba(255, 215, 0, 1)"
+    jubeat: {
+        outline:{
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.paleBlue,
+            "FULL COMBO": COLOUR_SET.teal,
+            "EXCELLENT": COLOUR_SET.gold
+        }
     }
-  },
-  popn: {
-    fill: {
-      "FAILED": "rgba(85, 17, 17, 0.2)",
-      "CLEAR": "rgba(50, 205, 50, 0.2)",
-      "FULL COMBO": "rgba(70, 130, 180, 0.2)",
-      "PERFECT": "rgba(255, 215, 0, 0.2)"
-    },
-    outline:{
-      "FAILED": "rgba(85, 17, 17, 1)",
-      "CLEAR": "rgba(50, 205, 50, 1)",
-      "FULL COMBO": "rgba(70, 130, 180, 1)",
-      "PERFECT": "rgba(255, 215, 0, 1)"
-    }
-  },
-  maimai: {
-    fill: {
-      "FAILED": "rgba(70, 130, 180, 0.2)",
-      "CLEAR": "rgba(255, 255, 255, 0.2)",
-      "FULL COMBO": "rgba(255, 215, 0, 0.2)",
-      "ALL PERFECT": "rgba(127, 255, 212, 0.2)",
-      "ALL PERFECT+": "rgba(192,192,192,0.2)"
-    },
-    outline:{
-      "FAILED": "rgba(70, 130, 180, 1)",
-      "CLEAR": "rgba(255, 255, 255, 1)",
-      "FULL COMBO": "rgba(255, 215, 0, 1)",
-      "ALL PERFECT": "rgba(127, 255, 212, 1)",
-      "ALL PERFECT+": "rgba(192,192,192 ,1)"
-    }
-  },
-  jubeat: {
-    fill: {
-      "FAILED": "rgba(70, 130, 180, 0.2)",
-      "CLEAR": "rgba(255, 255, 255, 0.2)",
-      "FULL COMBO": "rgba(255, 215, 0, 0.2)",
-      "EXCELLENT": "rgba(127, 255, 212, 0.2)"
-    },
-    outline:{
-      "FAILED": "rgba(70, 130, 180, 1)",
-      "CLEAR": "rgba(255, 255, 255, 1)",
-      "FULL COMBO": "rgba(255, 215, 0, 1)",
-      "EXCELLENT": "rgba(127, 255, 212, 1)"
-    }
-  }
 }
+
+// ok
+
+for (const colourConfig of [lampColours, gradeColours]) {
+    for (const game in colourConfig) {
+        if (colourConfig.hasOwnProperty(game)) {
+            colourConfig[game].fill = {};
+            for (const key in colourConfig[game].outline) {
+                if (colourConfig[game].outline.hasOwnProperty(key)) {
+                    const element = colourConfig[game].outline[key];
+                    let fadedEl = element.split(",");
+                    fadedEl[fadedEl.length - 1] = "0.2)";
+
+                    colourConfig[game].fill[key] = fadedEl.join(",");
+                }
+            }
+
+        }
+    }
+}
+
 
 const judgeColours = {
   iidx: {
@@ -986,42 +738,6 @@ const judgeColours = {
       "PERFECT": "rgba(241, 245, 24, 1)"
     }
   },
-  osumania: {
-    fill: {
-      "MISS": "rgba(211, 38, 38, 0.2)",
-      "50": "rgba(165, 38, 211, 0.2)",
-      "100": "rgba(39, 190, 117,0.2)",
-      "200": "rgba(38, 211, 78, 0.2)",
-      "300": "rgba(241, 245, 24, 0.2)",
-      "300M": "rgba(158, 248, 255, 0.2)"
-    },
-    outline:{
-      "MISS": "rgba(211, 38, 38, 1)",
-      "50": "rgba(165, 38, 211, 1)",
-      "100": "rgba(39, 190, 117, 1)",
-      "200": "rgba(38, 211, 78, 1)",
-      "300": "rgba(241, 245, 24, 1)",
-      "300M": "rgba(158, 248, 255, 1)"
-    }
-  },
-  etterna: {
-    fill: {
-      "MISS": "rgba(211, 38, 38, 0.2)",
-      "BAD": "rgba(165, 38, 211, 0.2)",
-      "GOOD": "rgba(39, 190, 117,0.2)",
-      "GREAT": "rgba(38, 211, 78, 0.2)",
-      "PERFECT": "rgba(241, 245, 24, 0.2)",
-      "MARVELOUS": "rgba(158, 248, 255, 0.2)"
-    },
-    outline:{
-      "MISS": "rgba(211, 38, 38, 1)",
-      "BAD": "rgba(165, 38, 211, 1)",
-      "GOOD": "rgba(39, 190, 117, 1)",
-      "GREAT": "rgba(38, 211, 78, 1)",
-      "PERFECT": "rgba(241, 245, 24, 1)",
-      "MARVELOUS": "rgba(158, 248, 255, 1)"
-    }
-  }
 }
 
 const gameChartIndicators = {
@@ -1033,8 +749,6 @@ const gameChartIndicators = {
   jubeat: ["holds"],
   sdvx: [],
   bms: [],
-  osumania: [],
-  etterna: []
 }
 
 // getter functions
@@ -1085,12 +799,12 @@ function GetGrade(game, percent){
 }
 
 function GetGradeWithScore(score){
-  if (score.game === "ddr"){
-    return GetGrade(score.game, score.scoreData.score / 1000000);
-  }
-  else {
+  // if (score.game === "ddr"){
+  //   return GetGrade(score.game, score.scoreData.score / 1000000);
+  // }
+  // else {
     return GetGrade(score.game, score.scoreData.percent);
-  }
+  // }
 }
 
 const ratingParameters = {
@@ -1133,16 +847,6 @@ const ratingParameters = {
     failHarshnessMultiplier: 0.9,
     pivotPercent: 0.9,
     clearExpMultiplier: 1.45
-  },
-  osumania: {
-    failHarshnessMultiplier: 1,
-    pivotPercent: 0.93, // grade: A
-    clearExpMultiplier: 1.35 // no real reason
-  },
-  etterna: {
-    failHarshnessMultiplier: 1,
-    pivotPercent: 0.93, // grade: AA
-    clearExpMultiplier: 1.35 // no real reason
   }
 }
 
@@ -1177,28 +881,6 @@ function CalculatePercent(game, score, chartData,hitData){
     // blah blah blah
     percent = (score / 10000000) * 100;
   }
-  else if (game === "osumania"){
-    // mania percent calc
-    // add slight punishment for 300s, essentially reuse scorev1
-    // score v2 is ms based but due to CLT we can use mean values
-    percent = hitData["300M"] * 1 + hitData["300"] * 0.995 + hitData["200"] * (2/3) + hitData["100"] * (1/3) + hitData["50"] * (1/6);
-
-    percent = (percent * 100) / (Object.values(hitData).reduce((a,b) => a+b,0));
-  }
-  else if (game === "osustd"){
-    // osustd percent calc
-    // use default stuff
-    percent = hitData["300"] * 1 + hitData["100"] * (1/3) + hitData["50"] * (1/6);
-
-    percent = (percent * 100) / (Object.values(hitData).reduce((a,b) => a+b,0));
-  }
-  else if (game === "osutaiko"){
-    // osutaiko percent calc
-    // use default stuff
-    percent = hitData["300"] * 1 + hitData["100"] * 0.5;
-
-    percent = (percent * 100) / (Object.values(hitData).reduce((a,b) => a+b,0));
-  }
 
   if (percent > 100){
     console.error("WARNING: PERCENT CALCULATED FOR SCORE WAS GREATER THAN 100%. INVESTIGATE")
@@ -1214,39 +896,40 @@ function CalculatePercent(game, score, chartData,hitData){
 
 
 
-module.exports = {
-    supportedGames,
-    gameOrders,
-    diffOrders,
-    GameToHuman,
-    HumanToGame,
-    folders,
-    VersionToHuman,
-    grades,
-    lamps,
-    lampColours,
-    gradeColours,
-    GetLevel,
-    GetXPForLevel,
-    serviceSupportedGames,
-    defaultPlaytype,
-    gameChartIndicators,
-    GetGrade,
-    gradeBoundaries,
-    gameHuman,
-    ratingParameters,
-    validPlaytypes,
-    judgements,
-    judgeColours,
-    gameColours,
-    validTierlistTiers,
-    difficultyChangingMods,
-    invalidatingMods,
-    CalculatePercent,
-    clearLamp,
-    validModifiers,
-    adviceChartTags,
-    adviceNoteTags,
-    GetGradeWithScore,
-    versionHuman
-};
+if (typeof module !== 'undefined'){
+    module.exports = {
+        supportedGames,
+        gameOrders,
+        diffOrders,
+        GameToHuman,
+        HumanToGame,
+        folders,
+        VersionToHuman,
+        versionHuman,
+        grades,
+        lamps,
+        lampColours,
+        gradeColours,
+        GetLevel,
+        GetXPForLevel,
+        serviceSupportedGames,
+        defaultPlaytype,
+        gameChartIndicators,
+        GetGrade,
+        gradeBoundaries,
+        gameHuman,
+        ratingParameters,
+        validPlaytypes,
+        judgements,
+        judgeColours,
+        gameColours,
+        validTierlistTiers,
+        CalculatePercent,
+        clearLamp,
+        validModifiers,
+        adviceChartTags,
+        adviceNoteTags,
+        GetGradeWithScore,
+        gameRelevantScoreBucket
+    };
+}
