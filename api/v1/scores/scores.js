@@ -50,7 +50,8 @@ router.get("/:userID/best", middlewares.RequireExistingUser, async function(req,
         userID: parseInt(req.params.userID),
         game: req.query.game,
         "scoreData.playtype": req.query.playtype,
-        isScorePB: true
+        isScorePB: true,
+        validity: {$ne: "invalid"}
     },
     {
         sort: {"calculatedData.rating": -1},
