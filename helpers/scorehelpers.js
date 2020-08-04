@@ -1,4 +1,5 @@
 const db = require("../db.js");
+const config = require("../config/config.js");
 
 const ALLOWED_SORT_CRITERIA = ["timeAchieved","timeAdded","scoreData.score","scoreData.percent","calculatedData.rating","calculatedData.notability","xp"];
 const SCOREDATA_KEYS = ["playtype","difficulty","grade","lamp"];
@@ -51,13 +52,13 @@ async function AutoCoerce(scores){
 }
 
 
-async function GetScoresWithQuery(query){
+async function GetScoresWithQuery(query, res){
 
     // queryObj generation
     let queryObj = {};
 
     if (query.userID){
-        queryObj.userID = query.userID;
+        queryObj.userID = parseInt(query.userID);
     }
     // pagination support
     let scoreLimit = MAX_SCORE_LIMIT;
@@ -94,7 +95,7 @@ async function GetScoresWithQuery(query){
     }
 
     // sort on criteria
-    let sortCriteria = "timeAchieved";
+    let sortCriteria = "timeAdded"; // default
     if (query.sortCriteria){
         if (!ALLOWED_SORT_CRITERIA.includes(query.sortCriteria)){
             return res.status(400).json({
@@ -102,7 +103,14 @@ async function GetScoresWithQuery(query){
                 description: "sortCriteria provided is not allowed. Refer to the documentation."
             })
         }
-        sortCriteria = query.sortCriteria
+
+        sortCriteria = {[query.sortCriteria]: query.reverse ? -1 : 1};
+
+        // issue: sorting with mongo results in null values being sorted first, ideally, we'd like to exclude those from the results
+        // this, however, doesn't work.
+        // at all.
+        // for now, it's commented out and we will have to just force reverse :/ - zkldi
+        // queryObj[query.sortCriteria] = {$ne: null};
     }
 
     if (query.game){
@@ -116,12 +124,6 @@ async function GetScoresWithQuery(query){
     }
 
     if (query.service){
-        if (!config.supportedServices.includes(query.service)){
-            return res.status(400).json({
-                success: false,
-                description: "The service " + query.service + " is not supported."
-            });
-        }
         queryObj.service = query.service;
     }
 
@@ -138,9 +140,12 @@ async function GetScoresWithQuery(query){
     // scoredata stuffs
     for (const key of SCOREDATA_KEYS) {
         if (query[key]){
-            queryObj.scoreData[key] = query[key];
+            queryObj["scoreData." + key] = query[key];
         }
     }
+
+    console.log(queryObj);
+
     let scores = [];
     
     if (query.unique && query.unique !== "false"){
@@ -172,9 +177,48 @@ async function GetScoresWithQuery(query){
         scores = await db.get("scores").find(queryObj, {fields: {_id: 0}, limit : scoreLimit, skip: start, sort : sortCriteria });
     }
 
-    let scoreBody = {items: scores}
+    let scoreBody = {scores: scores}
     if (scores.length !== 0){
         scoreBody.nextStartPoint = start + scoreLimit;
+
+        if (query.getAssocData && query.getAssocData !== "false") {
+            // for now, only support this if query.game is available.
+            if (query.game){
+                let chartQueryArr = [];
+                let songQueryArr = [];
+    
+                for (const e of scores) {
+                    chartQueryArr.push({
+                        id: e.songID,
+                        difficulty: e.scoreData.difficulty,
+                        playtype: e.scoreData.playtype
+                    });
+                    
+                    songQueryArr.push(e.songID);
+                }
+
+                let charts = await db.get("charts-" + query.game).find({
+                    $or: chartQueryArr
+                }, {
+                    fields: {_id: 0}
+                });
+    
+                let songs = await db.get("songs-" + query.game).find({
+                    id: {$in: songQueryArr}
+                }, {
+                    fields: {_id: 0}
+                });
+    
+                scoreBody.charts = charts;
+                scoreBody.songs = songs;
+            }
+            else {
+                return res.status(400).json({
+                    success: false,
+                    description: "getAssocData was passed, but no game was given."
+                });
+            }
+        }
     }
 
     return scoreBody;

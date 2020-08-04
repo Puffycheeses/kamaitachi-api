@@ -132,11 +132,11 @@ router.get("/:userID/best", middlewares.RequireExistingUser, async function(req,
 });
 
 router.get("/query", async function(req,res){
-    let scoreBody = await scoreHelpers.GetScoresWithQuery(req.query);
+    let scoreBody = await scoreHelpers.GetScoresWithQuery(req.query, res);
 
     return res.status(200).json({
         success: true,
-        description: "Successfully retrieved " + scoreBody.items.length + " scores.",
+        description: "Successfully retrieved " + scoreBody.scores.length + " scores.",
         body: scoreBody
     })
 });
