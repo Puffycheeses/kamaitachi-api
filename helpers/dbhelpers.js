@@ -7,7 +7,7 @@ const DEFAULT_LIMIT = 100;
 // does fancy pagination and all that jazz
 // it is assumed that everything entering through query is a string.
 // if you are putting numeric input into here, coerce it into a string with "" +.
-async function FancyDBQuery(databaseName, query, paginate, limit, configOverride){
+async function FancyDBQuery(databaseName, query, paginate, limit, configOverride, useCount){
     let queryObj = {}
 
     let validKeys;
@@ -164,19 +164,21 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
         }
     }
 
-    let items = await db.get(databaseName).find(queryObj, settings);
+    let method = useCount ? "count" : "find";
+
+    let items = await db.get(databaseName)[method](queryObj, settings);
 
     let itemsBody = {items};
     if (paginate && items.length === settings.limit && items.length !== 0){
-        // N+1, see rest N+1 problem.   
+        // N+1, see rest N+1 problem.
         itemsBody.nextStartPoint = settings.skip + settings.limit + 1;
     }
-
+    
     return {
         statusCode: 200,
         body: {
             success: true,
-            description: "Successfully found " + items.length + " items.",
+            description: "Successfully found " + (useCount ? items : items.length) + " items.",
             body: itemsBody
         }
     }
