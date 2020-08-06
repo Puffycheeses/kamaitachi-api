@@ -12,7 +12,7 @@ router.use(middlewares.RequireExistingUser);
 const MAX_RETURNS = 100;
 router.get("/", async function(req,res){
 
-    let user = await userHelpers.GetUser(req.params.userID);
+    let user = req.user;
     req.query.userID = "" + user.id;
 
     let dbRes = await dbHelpers.FancyDBQuery(
