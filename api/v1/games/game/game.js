@@ -47,6 +47,26 @@ router.get("/", async function(req,res){
     });
 });
 
+router.get("/playercount", async function(req,res){
+    let playtypes = config.validPlaytypes[req.params.game];
+
+    let ret = {};
+
+    for (const pt of playtypes) {
+        let players = await db.get("users").count({
+            ["ratings." + req.params.game + "." + pt]: {$gt: 0}
+        });
+
+        ret[pt] = players;
+    }
+
+    return res.status(200).json({
+        success: true,
+        description: "Found players for " + req.params.game,
+        body: ret
+    });
+});
+
 // mounts
 const songsRouter = require("./songs/songs.js");
 const foldersRouter = require("./folders/folders.js");
