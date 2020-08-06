@@ -61,7 +61,7 @@ async function GetScoresWithQuery(query, res){
         queryObj.userID = parseInt(query.userID);
     }
     // pagination support
-    let scoreLimit = MAX_SCORE_LIMIT;
+    let scoreLimit = parseInt(query.limit) < 100 ? parseInt(query.limit) : MAX_SCORE_LIMIT;
     let rgxIsNum = /^[0-9]+$/;
     if (query.scoreLimit){
         if (!rgxIsNum.match(query.scoreLimit)){
@@ -95,7 +95,7 @@ async function GetScoresWithQuery(query, res){
     }
 
     // sort on criteria
-    let sortCriteria = "timeAdded"; // default
+    let sortCriteria = {"timeAdded": -1}; // default
     if (query.sortCriteria){
         if (!ALLOWED_SORT_CRITERIA.includes(query.sortCriteria)){
             return res.status(400).json({
@@ -107,10 +107,12 @@ async function GetScoresWithQuery(query, res){
         sortCriteria = {[query.sortCriteria]: query.reverse ? -1 : 1};
 
         // issue: sorting with mongo results in null values being sorted first, ideally, we'd like to exclude those from the results
-        // this, however, doesn't work.
-        // at all.
-        // for now, it's commented out and we will have to just force reverse :/ - zkldi
+        // we *should* do something like {$ne: null} here...
+        // ...but, due to an issue with score importing, NaN is actually the value of a lot of these should-be-null values.
+        // for now, {$gt: 0} works fine, BUT, in the future this should be fixed, with a refactor of scoreimporting - zkldi.
+
         // queryObj[query.sortCriteria] = {$ne: null};
+        queryObj[query.sortCriteria] = {$gt: 0};
     }
 
     if (query.game){
@@ -144,8 +146,6 @@ async function GetScoresWithQuery(query, res){
         }
     }
 
-    console.log(queryObj);
-
     let scores = [];
     
     if (query.unique && query.unique !== "false"){
@@ -178,7 +178,7 @@ async function GetScoresWithQuery(query, res){
     }
 
     let scoreBody = {scores: scores}
-    if (scores.length !== 0){
+    if (scores.length !== 0) {
         scoreBody.nextStartPoint = start + scoreLimit;
 
         if (query.getAssocData && query.getAssocData !== "false") {
@@ -219,6 +219,12 @@ async function GetScoresWithQuery(query, res){
                 });
             }
         }
+    }
+    else {
+        return res.status(404).json({
+            success: false,
+            description: "No data found for this query."
+        });
     }
 
     return scoreBody;
