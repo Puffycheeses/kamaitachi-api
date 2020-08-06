@@ -26,17 +26,24 @@ async function RequireAPIKey(req,res,next)
         });
     }
 
+    req.apikey = key;
+
     next();
 }
 
 async function RequireExistingUser(req,res,next){
-    let user = await userHelpers.GetUser(req.params.userID);
+    let user = req.user || await userHelpers.GetUser(req.params.userID);
     if (!user){
         return res.status(404).json({
             success: false,
             description: "Can not find user '" + req.params.userID + "'."
         });
     }
+
+    if (!req.user){
+        req.user = user;
+    }
+
     next();
 }
 
@@ -53,14 +60,18 @@ async function RequireExistingSongID(req,res,next){
 }
 
 async function RequireUserKeyMatch(req,res,next){
-    let user = await userHelpers.GetUser(req.params.userID);
-    let key = await db.get("public-api-keys").findOne({apiKey: req.query.key});
+    let user = req.user || await userHelpers.GetUser(req.params.userID);
+    let key = req.apikey;
 
     if (user.id !== key.assignedTo){
         return res.status(401).json({
             success: false,
             description: "This key is not authorised to modify user '" + user.id + "'"
         })
+    }
+
+    if (!req.user){
+        req.user = user;
     }
 
     next();
