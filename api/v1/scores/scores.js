@@ -134,11 +134,15 @@ router.get("/:userID/best", middlewares.RequireExistingUser, async function(req,
 router.get("/query", async function(req,res){
     let scoreBody = await scoreHelpers.GetScoresWithQuery(req.query, res);
 
-    return res.status(200).json({
-        success: true,
-        description: "Successfully retrieved " + scoreBody.scores.length + " scores.",
-        body: scoreBody
-    })
+    // check if this was an actual scorebody or just some hacky res nonsense,
+    // sorry for the poor code here, needs refactoring - zkldi.
+    if (scoreBody.scores){
+        return res.status(200).json({
+            success: true,
+            description: "Successfully retrieved " + scoreBody.scores.length + " scores.",
+            body: scoreBody
+        });
+    }
 });
 
-module.exports = router;
+module.exports = router; 
