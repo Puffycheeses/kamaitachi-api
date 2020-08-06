@@ -15,11 +15,19 @@ const validKeys = {
         userID: "integer",
         highlight: "boolean"
     },
+    "scores": {
+        userID: "integer",
+        game: "string",
+        "scoreData.playtype": "string",
+        isScorePB: "boolean",
+        isLampPB: "boolean",
+    },
     "rivals": {
         name: "string",
         desc: "string",
         game: "string",
         playtype: "string",
+        isDefault: "boolean",
         members: "integer",
         founderID: "integer",
         mutualGroup: "boolean"
