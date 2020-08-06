@@ -396,6 +396,70 @@ router.get("/folder-scores", CheckRivalGroupExists, async function(req,res){
     });
 });
 
+router.get("/score-feed", CheckRivalGroupExists, async function(req,res){
+    let rg = req.rg;
+
+    if (!req.query.includeSelf){
+        rg.members = rg.members.filter(e => e !== req.apikey.assignedTo);
+    }
+    let members = await userHelpers.GetUsers(rg.members);
+    let impressiveness = parseFloat(req.query.impressiveness) || 0.95;
+    let lim = parseInt(req.query.limit) < 100 ? parseInt(req.query.limit) : 100;
+    let start = parseInt(req.query.start) || 0;
+
+    let importantScores = await db.get("scores").find({
+        game: rg.game,
+        "scoreData.playtype": rg.playtype,
+        isScorePB: true,
+        timeAchieved: {$gt: 0},
+        $or: members.map(m => ({
+            userID: m.id,
+            "calculatedData.rating": {$gte: m.ratings[rg.game][rg.playtype] * impressiveness}
+        }))
+    }, {
+        sort: {"timeAchieved": -1},
+        fields: {_id: 0},
+        start: start,
+        limit: lim
+    });
+
+    if (importantScores.length === 0){
+        return res.status(200).json({
+            success: true, // maybe?
+            description: "Found no scores.",
+            body: {
+                scores: importantScores,
+                charts: [],
+                songs: [],
+                members: members
+            }
+        })
+    }
+
+    let songsArr = await db.get("songs-" + rg.game).find({
+        id: {$in: importantScores.map(e => e.songID)}
+    });
+
+    let chartsArr = await db.get("charts-" + rg.game).find({
+        $or: importantScores.map(e => ({
+            id: e.songID,
+            difficulty: e.scoreData.difficulty,
+            playtype: e.scoreData.playtype
+        }))
+    });
+
+    return res.status(200).json({
+        success: true,
+        description: "Found " + importantScores.length + " scores.",
+        body: {
+            scores: importantScores,
+            songs: songsArr,
+            charts: chartsArr,
+            members: members
+        }
+    });
+});
+
 router.get("/relevant-scores", CheckRivalGroupExists, async function(req,res){
     let rg = req.rg;
 
@@ -438,7 +502,7 @@ router.get("/relevant-scores", CheckRivalGroupExists, async function(req,res){
     // scorePBs dont necessarily have the lamp PB. for cases where this is not true,
     // we need to find the scores associated lampPB and monkey patch it on.
 
-    if (!(req.query.autocoerce === "false")){
+    if (req.query.autocoerce !== "false"){
         scores = await scoreHelpers.AutoCoerce(scores);
     }
 
