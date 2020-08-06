@@ -781,21 +781,16 @@ function GetXPForLevel(level){
 }
 
 function GetGrade(game, percent){
-  // THIS FOR LOOP IS ITERATING DOWNWARDS
-  // JUST INCASE YOU DON'T ACTUALLY READ IT PROPERLY
-  for (let i = grades[game].length; i >= 0; i--) {
-    var gradeName = grades[game][i]
-    var gradeBound = gradeBoundaries[game][i]
-    
-    if (percent >= gradeBound){
-      return gradeName;
+    for (let i = grades[game].length; i >= 0; i--) {
+        var gradeName = grades[game][i]
+        var gradeBound = gradeBoundaries[game][i]
+        
+        if (percent >= gradeBound){
+        return gradeName;
+        }
     }
-  }
 
-  // if we get all this way they've got a negative score
-  // idk what to write in this case so ur gonna get the worst grade and throw an error in my logs
-  console.error("Negative score parsed?",percent)
-  return grades[game][0];
+    return grades[game][0];
 }
 
 function GetGradeWithScore(score){
