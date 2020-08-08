@@ -6,7 +6,6 @@ const dbHelpers = require("../../../../../helpers/dbhelpers.js");
 const db = require("../../../../../db.js");
 
 // mounted on /api/v1/users/:userID/scores
-router.use(middlewares.RequireUserKeyMatch);
 
 router.get("/count", async function(req,res){
     let user = req.user;
