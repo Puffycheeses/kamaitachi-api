@@ -1,7 +1,7 @@
 const db = require("../../../db.js");
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const scoreHelpers = require("../../../helpers/scorehelpers.js");
+const scoreHelpers = require("../../../core/score-core.js");
 const config = require("../../../config/config.js");
 const middlewares = require("../../../middlewares.js");
 
@@ -71,30 +71,32 @@ router.get("/:userID/best", middlewares.RequireExistingUser, async function(req,
 
     // monkey patch rankings on
     for (const score of bestScores) {
-        let otherScores = await db.get("scores").find({
+        let ranking = await db.get("scores").count({
             songID: score.songID,
             "scoreData.difficulty": score.scoreData.difficulty,
             "scoreData.playtype": score.scoreData.playtype,
             isScorePB: true,
+            "calculatedData.rating": {$gte: score.calculatedData.rating}
         },
         {
             sort: {"calculatedData.rating": -1}
-        });
+        }) + 1;
 
-        let scoreIDs = otherScores.map(e => e.scoreID);
+        score.ranking = ranking;
 
         if (rivalGroup){
-            let rgScoreIDs = otherScores.filter(e => rivalGroup.members.includes(e.userID)).map(e => e.scoreID);
-
-            score.rgRanking = rgScoreIDs.indexOf(score.scoreID) + 1;
-            if (!score.rgRanking){
-                score.ranking = "N/A";
-            }
-        }
-        
-        score.ranking = scoreIDs.indexOf(score.scoreID) + 1;
-        if (!score.ranking){
-            score.ranking = "N/A";
+            let rgRanking = await db.get("scores").count({
+                userID: {$in: rivalGroup.members},
+                songID: score.songID,
+                "scoreData.difficulty": score.scoreData.difficulty,
+                "scoreData.playtype": score.scoreData.playtype,
+                isScorePB: true,
+                "calculatedData.rating": {$gte: score.calculatedData.rating}
+            },
+            {
+                sort: {"calculatedData.rating": -1}
+            }) + 1;
+            score.rgRanking = rgRanking;
         }
     }
 
