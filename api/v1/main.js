@@ -3,9 +3,9 @@ const router = express.Router({mergeParams: true});
 
 // mounted on /v1
 
-const MAJOR_VER = 1;
-const MINOR_VER = 3;
-const PATCH_VER = 1;
+const MAJOR_VER = 2;
+const MINOR_VER = 0;
+const PATCH_VER = 0;
 
 router.get("/", async function(req,res){
     return res.status(200).json({
@@ -29,6 +29,8 @@ const leaderboardsRouter = require("./leaderboards/leaderboards.js");
 const gamesRouter = require("./games/games.js");
 const rivalsRouter = require("./rivals/rivals.js");
 const clansRouter = require("./clans/clans.js");
+const importsRouter = require("./imports/imports.js");
+const statsRouter = require("./stats/stats.js");
 
 router.use("/users", usersRouter);
 router.use("/rivals", rivalsRouter);
@@ -37,5 +39,7 @@ router.use("/scores", scoresRouter);
 router.use("/leaderboards", leaderboardsRouter);
 router.use("/games", gamesRouter);
 router.use("/clans", clansRouter);
+router.use("/imports", importsRouter);
+router.use("/stats", statsRouter);
 
 module.exports = router;
