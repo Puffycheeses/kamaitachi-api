@@ -1,12 +1,12 @@
 const db = require("../../../../db.js");
-const dbHelpers = require("../../../../helpers/dbhelpers.js");
-const userHelpers = require("../../../../helpers/userhelpers.js");
+const dbHelpers = require("../../../../core/db-core.js");
+const userHelpers = require("../../../../core/user-core.js");
 const express = require("express");
 const crypto = require("crypto");
 const config = require("../../../../config/config.js");
 const router = express.Router({mergeParams: true});
 const esd = require("esd-js");
-const scoreHelpers = require("../../../../helpers/scorehelpers.js");
+const scoreHelpers = require("../../../../core/score-core.js");
 
 // mounted on /api/v1/rivals/:rivalGroupID
 
