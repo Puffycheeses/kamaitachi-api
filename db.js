@@ -1,5 +1,5 @@
 const monk = require("monk");
-const url = process.env.NODE_ENV === "production" ? 'localhost:27017/kamaitachidb' : 'localhost:27017/test'
+const url = "localhost:27017/kamaitachidb";
 const db = monk(url);
 
 db.then(() => {
