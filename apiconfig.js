@@ -17,8 +17,13 @@ const validKeys = {
     },
     "scores": {
         userID: "integer",
+        songID: "integer",
+        service: "string",
         game: "string",
         "scoreData.playtype": "string",
+        "scoreData.difficulty": "string",
+        "scoreData.grade": "string",
+        "scoreData.lamp": "string",
         isScorePB: "boolean",
         isLampPB: "boolean",
     },
