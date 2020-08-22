@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
 const middlewares = require("../../../../../middlewares.js");
-const userHelpers = require("../../../../../helpers/userhelpers.js");
+const userHelpers = require("../../../../../core/user-core.js");
 const apiConfig = require("../../../../../apiconfig.js");
 const db = require("../../../../../db.js");
-const dbHelpers = require("../../../../../helpers/dbhelpers.js");
+const dbHelpers = require("../../../../../core/db-core.js");
 // mounted on /api/v1/users/:userID/sessions
 
 router.use(middlewares.RequireExistingUser);

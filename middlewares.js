@@ -1,6 +1,6 @@
 const db = require("./db.js");
 const Sanitise = require("mongo-sanitize"); // sanitise
-const userHelpers = require("./helpers/userhelpers.js");
+const userHelpers = require("./core/user-core.js");
 const apiConfig = require("./apiconfig.js");
 const config = require("./config/config.js");
 

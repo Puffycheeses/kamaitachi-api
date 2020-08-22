@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const userHelpers = require("../../../../../helpers/userhelpers.js");
+const userHelpers = require("../../../../../core/user-core.js");
 const middlewares = require("../../../../../middlewares.js");
-const dbHelpers = require("../../../../../helpers/dbhelpers.js");
+const dbHelpers = require("../../../../../core/db-core.js");
 const db = require("../../../../../db.js");
 
 // mounted on /api/v1/users/:userID/scores

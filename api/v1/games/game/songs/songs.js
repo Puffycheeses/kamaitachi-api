@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const dbHelpers = require("../../../../../helpers/dbhelpers.js");;
+const dbHelpers = require("../../../../../core/db-core.js");;
 
 // mounted on /api/v1/games/:game/songs
 

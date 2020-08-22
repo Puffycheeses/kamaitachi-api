@@ -1,7 +1,7 @@
 const express = require("express");
 const db = require("../../../../../db.js");
 const router = express.Router({mergeParams: true});
-const userHelpers = require("../../../../../helpers/userhelpers.js");
+const userHelpers = require("../../../../../core/user-core.js");
 const middlewares = require("../../../../../middlewares.js");
 const friendHelpers = require("./helpers.js");
 const apiConfig = require("../../../../../apiconfig.js");

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const middlewares = require("../../../middlewares.js");
 const db = require("../../../db.js");
-const userHelpers = require("../../../helpers/userhelpers.js");
+const userHelpers = require("../../../core/user-core.js");
 const apiConfig = require("../../../apiconfig.js");
 const similarity = require("string-similarity");
 

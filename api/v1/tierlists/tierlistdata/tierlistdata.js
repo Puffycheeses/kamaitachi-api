@@ -1,5 +1,5 @@
 const db = require("../../../../db.js");
-const dbHelpers = require("../../../../helpers/dbhelpers.js");
+const dbHelpers = require("../../../../core/db-core.js");
 const express = require("express");
 const router = express.Router({mergeParams: true});
 const tierlistHelpers = require("./tierlisthelpers.js");
