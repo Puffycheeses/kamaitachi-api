@@ -24,50 +24,12 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
         defaultSort = apiConfig.defaultSorts[databaseName];
     }
 
-    for (const key in validKeys) {
-        // check that the given query even has this key
-        if (key in query){
-            if (validKeys[key] === "string"){
-                queryObj[key] = query[key];
-            }
-            else if (validKeys[key] === "integer"){
-                if (!query[key].match(rgxIsInt)){
-                    return {
-                        statusCode: 400,
-                        body: {
-                            success: false,
-                            description: key + " was not an integer."
-                        }
-                    }
-                }
-                queryObj[key] = parseInt(query[key]);
-            }
-            else if (validKeys[key] === "float"){
-                let numVal = parseFloat(query[key]);
-                if (Number.isNaN(numVal)){
-                    return {
-                        statusCode: 400,
-                        body: {
-                            success: false,
-                            description: key + " was not a float."
-                        }
-                    }
-                }
-                queryObj[key] = numVal;
-            }
-            else if (validKeys[key] === "boolean"){
-                if (["false","true"].includes(queryObj[key])){
-                    return {
-                        statusCode: 400,
-                        body: {
-                            success: false,
-                            description: key + " was not a boolean"
-                        }
-                    }
-                }
-                queryObj[key] = queryObj[key] === "false" ? false : true; // presence check is done above
-            }
-        }
+    try {
+        // modifies queryObj byref to have all the stuff we care about
+        FancyQueryValidate(query, queryObj, validKeys);
+    }
+    catch (r) {
+        return r;
     }
 
     let settings = {
@@ -184,6 +146,59 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
     }
 }
 
+// true on success
+// throws hard if err.
+function FancyQueryValidate(query, queryObj, validKeys){
+    for (const key in validKeys) {
+        // check that the given query even has this key
+        if (key in query){
+            if (validKeys[key] === "string"){
+                queryObj[key] = query[key];
+            }
+            else if (validKeys[key] === "integer"){
+                if (!query[key].match(rgxIsInt)){
+                    throw {
+                        statusCode: 400,
+                        body: {
+                            success: false,
+                            description: key + " was not an integer."
+                        }
+                    }
+                }
+                queryObj[key] = parseInt(query[key]);
+            }
+            else if (validKeys[key] === "float"){
+                let numVal = parseFloat(query[key]);
+                if (Number.isNaN(numVal)){
+                    throw {
+                        statusCode: 400,
+                        body: {
+                            success: false,
+                            description: key + " was not a float."
+                        }
+                    }
+                }
+                queryObj[key] = numVal;
+            }
+            else if (validKeys[key] === "boolean"){
+                if (["false","true"].includes(queryObj[key])){
+                    throw {
+                        statusCode: 400,
+                        body: {
+                            success: false,
+                            description: key + " was not a boolean"
+                        }
+                    }
+                }
+                queryObj[key] = queryObj[key] === "false" ? false : true; // presence check is done above
+            }
+        }
+    }
+
+    return true;
+}
+
 module.exports = {
-    FancyDBQuery
+    FancyDBQuery,
+    FancyQueryValidate
 }
