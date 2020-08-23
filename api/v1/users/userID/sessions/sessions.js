@@ -9,6 +9,21 @@ const dbHelpers = require("../../../../../core/db-core.js");
 
 router.use(middlewares.RequireExistingUser);
 
+async function ValidateSessionExists(req,res,next){
+    let session = await db.get("sessions").findOne({sessionID: req.params.sessionID});
+
+    if (!session){
+        return res.status(404).json({
+            success: false,
+            description: "Session does not exist."
+        });
+    }
+
+    req.gamesession = session;
+
+    next();
+}
+
 const MAX_RETURNS = 100;
 router.get("/", async function(req,res){
 
@@ -25,7 +40,7 @@ router.get("/", async function(req,res){
     return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
-router.patch("/:sessionID/change-name", middlewares.RequireUserKeyMatch, async function(req,res){
+router.patch("/:sessionID/change-name", middlewares.RequireUserKeyMatch, ValidateSessionExists, async function(req,res){
     if (!req.query.name){
         return res.status(400).json({
             success: false,
@@ -39,21 +54,7 @@ router.patch("/:sessionID/change-name", middlewares.RequireUserKeyMatch, async f
         });
     }
 
-    let session = await db.get("sessions").findOne({sessionID: req.params.sessionID});
-
-    if (!session){
-        return res.status(404).json({
-            success: false,
-            description: "Session does not exist."
-        });
-    }
-
-    if (session.userID !== req.params.userID){
-        return res.status(401).json({
-            success: false,
-            description: "This is not your session to edit."
-        });
-    }
+    let session = req.gamesession;
 
     await db.get("sessions").update({_id: session._id}, {$set: {name: req.query.name}});
 
@@ -68,7 +69,7 @@ router.patch("/:sessionID/change-name", middlewares.RequireUserKeyMatch, async f
 });
 
 // TODO, NOT COPY PASTE THIS, LOL.
-router.patch("/:sessionID/change-desc", middlewares.RequireUserKeyMatch, async function(req,res){
+router.patch("/:sessionID/change-desc", middlewares.RequireUserKeyMatch, ValidateSessionExists, async function(req,res){
     if (!req.query.desc){
         return res.status(400).json({
             success: false,
@@ -82,21 +83,7 @@ router.patch("/:sessionID/change-desc", middlewares.RequireUserKeyMatch, async f
         });
     }
 
-    let session = await db.get("sessions").findOne({sessionID: req.params.sessionID});
-
-    if (!session){
-        return res.status(404).json({
-            success: false,
-            description: "Session does not exist."
-        });
-    }
-
-    if (session.userID !== req.params.userID){
-        return res.status(401).json({
-            success: false,
-            description: "This is not your session to edit."
-        });
-    }
+    let session = req.gamesession;
 
     await db.get("sessions").update({_id: session._id}, {$set: {desc: req.query.desc}});
 
@@ -106,6 +93,34 @@ router.patch("/:sessionID/change-desc", middlewares.RequireUserKeyMatch, async f
         body: {
             oldDesc: session.desc,
             newDesc: req.query.desc
+        }
+    });
+});
+
+router.patch("/:sessionID/set-highlight", middlewares.RequireUserKeyMatch, ValidateSessionExists, async function(req,res){
+    let session = req.gamesession;
+
+    await db.get("sessions").update({_id: session._id}, {$set: {highlight: true}});
+
+    return res.status(200).json({
+        success: true,
+        description: "Successfully higlighted session!",
+        body: {
+            // nothing
+        }
+    });
+});
+
+router.patch("/:sessionID/unset-highlight", middlewares.RequireUserKeyMatch, ValidateSessionExists, async function(req,res){
+    let session = req.gamesession;
+
+    await db.get("sessions").update({_id: session._id}, {$set: {highlight: false}});
+
+    return res.status(200).json({
+        success: true,
+        description: "Successfully unhiglighted session!",
+        body: {
+            // nothing
         }
     });
 });

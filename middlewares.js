@@ -62,6 +62,7 @@ async function RequireExistingSongID(req,res,next){
 async function RequireUserKeyMatch(req,res,next){
     let user = req.user || await userHelpers.GetUser(req.params.userID);
     let key = req.apikey;
+
     if (user.id !== key.assignedTo){
         return res.status(401).json({
             success: false,
