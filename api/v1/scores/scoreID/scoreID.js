@@ -41,7 +41,7 @@ router.get("/", async function(req,res){
     });
 });
 
-router.patch("/add-comment", ScoreUserKeyMatch, async function(req,res){
+router.patch("/edit-comment", ScoreUserKeyMatch, async function(req,res){
     if (!req.body.comment){
         return res.status(400).json({
             success: false,
