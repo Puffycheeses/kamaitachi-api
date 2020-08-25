@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const db = require("../../../db.js");
+const db = require("../../../../db.js");
 
 // mounted on /api/v1/scores/:scoreID
 
