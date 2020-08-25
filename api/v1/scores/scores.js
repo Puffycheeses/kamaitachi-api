@@ -147,4 +147,8 @@ router.get("/query", async function(req,res){
     }
 });
 
+const scoreIDRouter = require("./scoreID/scoreID.js");
+
+router.use("/:scoreID", scoreIDRouter);
+
 module.exports = router; 
