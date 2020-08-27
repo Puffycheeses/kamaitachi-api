@@ -66,9 +66,9 @@ router.patch("/edit-comment", ScoreUserKeyMatch, async function(req,res){
 
     return res.status(200).json({
         success: true,
-        description: `Updated comment from ${score.comment} to ${req.body.comment}`,
+        description: `Updated comment from ${req.score.comment} to ${req.body.comment}`,
         body: {
-            oldComment: score.comment,
+            oldComment: req.score.comment,
             newComment: req.body.comment
         }
     });
@@ -85,9 +85,9 @@ router.patch("/remove-comment", ScoreUserKeyMatch, async function(req,res){
 
     return res.status(200).json({
         success: true,
-        description: `Removed comment of ${score.comment}`,
+        description: `Removed comment of ${req.score.comment}`,
         body: {
-            removedComment: score.comment,
+            removedComment: req.score.comment,
         }
     });
 });
