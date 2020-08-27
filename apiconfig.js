@@ -22,8 +22,13 @@ const validKeys = {
         game: "string",
         "scoreData.playtype": "string",
         "scoreData.difficulty": "string",
+        "scoreData.score": "float",
+        "scoreData.percent": "float",
         "scoreData.grade": "string",
         "scoreData.lamp": "string",
+        "scoreData.lampIndex": "integer",
+        "scoreData.gradeIndex": "integer",
+        "scoreData.esd": "float",
         isScorePB: "boolean",
         isLampPB: "boolean",
     },
@@ -89,7 +94,8 @@ const validSorts = {
     "tierlist": ["game"],
     "songs": ["id","title","artist","genre"],
     "charts": ["id","level","notedata.notecount"],
-    "clans": ["xp","foundedTime"]
+    "clans": ["xp","foundedTime"],
+    "scores": ["timeAchieved","timeAdded","xp","scoreData.percent","scoreData.score","scoreData.lampIndex","scoreData.gradeIndex", "calculatedData.rating","calculatedData.notability"]
 }
 
 const defaultSorts = {
@@ -100,7 +106,8 @@ const defaultSorts = {
     "tierlist": "game",
     "songs": "id",
     "charts": "id",
-    "clans": "xp"
+    "clans": "xp",
+    "scores": "timeAchieved"
 }
 
 const VALID_FOLDER_TYPES = ["levels","versions"];
