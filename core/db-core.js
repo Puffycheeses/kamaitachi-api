@@ -7,8 +7,8 @@ const DEFAULT_LIMIT = 100;
 // does fancy pagination and all that jazz
 // it is assumed that everything entering through query is a string.
 // if you are putting numeric input into here, coerce it into a string with "" +.
-async function FancyDBQuery(databaseName, query, paginate, limit, configOverride, useCount){
-    let queryObj = {}
+async function FancyDBQuery(databaseName, query, paginate, limit, configOverride, useCount, queryObj){
+    queryObj = queryObj || {}
 
     let validKeys;
     let validSorts;
@@ -84,7 +84,10 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
                 }
             }
         }
-        settings.sort = query.sortCriteria;
+
+        // a hack indeed, NaN sinks to the top of every desc sort request.
+        queryObj[query.sortCriteria] = {$ne: NaN};
+        settings.sort = {[query.sortCriteria]: query.sort === "asc" ? 1 : -1};
     }
 
     if (paginate){
@@ -150,6 +153,9 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
 // throws hard if err.
 function FancyQueryValidate(query, queryObj, validKeys){
     for (const key in validKeys) {
+        if (key in queryObj){
+            continue; // ignore pre-mutated/monkeypatched data
+        }
         // check that the given query even has this key
         if (key in query){
             if (validKeys[key] === "string"){
@@ -165,7 +171,7 @@ function FancyQueryValidate(query, queryObj, validKeys){
                         }
                     }
                 }
-                queryObj[key] = parseInt(query[key]);
+                queryObj[key] = ParseNumericalModifiers(parseInt(query[key]), query[key + "-opt"]);
             }
             else if (validKeys[key] === "float"){
                 let numVal = parseFloat(query[key]);
@@ -178,10 +184,11 @@ function FancyQueryValidate(query, queryObj, validKeys){
                         }
                     }
                 }
-                queryObj[key] = numVal;
+
+                queryObj[key] = ParseNumericalModifiers(numVal, query[key + "-opt"]);
             }
             else if (validKeys[key] === "boolean"){
-                if (["false","true"].includes(queryObj[key])){
+                if (!["false","true"].includes(query[key])){
                     throw {
                         statusCode: 400,
                         body: {
@@ -190,12 +197,39 @@ function FancyQueryValidate(query, queryObj, validKeys){
                         }
                     }
                 }
-                queryObj[key] = queryObj[key] === "false" ? false : true; // presence check is done above
+                queryObj[key] = query[key] === "false" ? false : true; // presence check is done above
             }
         }
     }
 
     return true;
+}
+
+function ParseNumericalModifiers(value, option){
+    if (!option){
+        return value;
+    }
+    else if (option === "gt"){
+        return {$gt: value}
+    }
+    else if (option === "gte"){
+        return {$gte: value}
+    }
+    else if (option === "lt"){
+        return {$lt: value}
+    }
+    else if (option === "lte"){
+        return {$lte: value}
+    }
+    else {
+        throw {
+            statusCode: 400,
+            body: {
+                success: false,
+                description: "Invalid numerical option: " + option
+            }
+        };
+    }
 }
 
 module.exports = {
