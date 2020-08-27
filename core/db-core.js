@@ -37,43 +37,6 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
         sort: {[defaultSort]: query.sort === "asc" ? 1 : -1}
     }
 
-    // critical modifier: exact
-    // returns only one item that exactly matches the query
-    // if none, returns 404.
-    if (query.exact && query.exact !== "false"){
-        if (Object.keys(queryObj).length === 0){
-            return {
-                statusCode: 400,
-                body: {
-                    success: false,
-                    description: "Cannot perform exact query with no additional information."
-                }
-            }
-        }
-        let item = await db.get(databaseName).findOne(queryObj, settings);
-        if (!item){
-            return {
-                statusCode: 404,
-                body: {
-                    success: false,
-                    description: "Exact item was not found."
-                }
-            }
-        }
-        else {
-            return {
-                statusCode: 200,
-                body: {
-                    success: true,
-                    description: "Successfully found exact item.",
-                    body: {
-                        item
-                    }
-                }
-            }
-        }
-    }
-
     if (query.sortCriteria){
         if (!validSorts.includes(query.sortCriteria)){
             return {
