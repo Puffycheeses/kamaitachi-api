@@ -1,9 +1,11 @@
 const db = require("../../../db.js");
+const dbCore = require("../../../core/db-core.js");
 const express = require("express");
 const router = express.Router({mergeParams: true});
 const scoreHelpers = require("../../../core/score-core.js");
 const config = require("../../../config/config.js");
 const middlewares = require("../../../middlewares.js");
+const regexSanitise = require("escape-string-regexp");
 
 // mounted on /api/v1/scores
 
@@ -133,18 +135,77 @@ router.get("/:userID/best", middlewares.RequireExistingUser, async function(req,
     });
 });
 
+const SCORE_LIMIT = 100;
 router.get("/query", async function(req,res){
-    let scoreBody = await scoreHelpers.GetScoresWithQuery(req.query, res);
+    let baseObj = {};
 
-    // check if this was an actual scorebody or just some hacky res nonsense,
-    // sorry for the poor code here, needs refactoring - zkldi.
-    if (scoreBody.scores){
-        return res.status(200).json({
-            success: true,
-            description: "Successfully retrieved " + scoreBody.scores.length + " scores.",
-            body: scoreBody
-        });
+    if (!req.query.allowInvalid){
+        baseObj.validity = {$ne: "invalid"}
     }
+    if (req.query.folderID){
+        let folder = await db.get("folders").findOne({
+            folderID: req.query.folderID
+        });
+
+        if (!folder){
+            return res.status(404).json({
+                success: false,
+                description: `The folder ${req.query.folderID} does not exist.`
+            });
+        }
+
+        // else, lets patch this onto baseObj
+
+
+    }
+
+    if (req.query.titleSearch){
+        let regex = new RegExp(`${regexSanitise(req.query.titleSearch)}`, "i");
+
+        let likeQuery = {
+            $or: [
+                {title: regex},
+                {"alt-titles": regex}
+            ]
+        };
+
+        if (req.query.game){
+            let similarSongs = await db.get(`songs-${req.query.game}`).find(likeQuery);
+            baseObj.songID = {
+                $in: similarSongs.map(e => e.id)
+            };
+        }
+        else {
+            baseObj.$or = [];
+            for (const game of config.supportedGames) {
+                let similarSongs = await db.get(`songs-${game}`).find(likeQuery);
+
+                baseObj.$or.push({
+                    songID: {$in: similarSongs.map(e => e.id)},
+                    game: game
+                });
+            }
+        }
+    }
+
+    let resBody = await dbCore.FancyDBQuery(
+        "scores",
+        req.query,
+        true,
+        SCORE_LIMIT,
+        false,
+        false,
+        baseObj
+    );
+
+    // there are some other options we can use if this operation is successful
+    if (resBody.body.success){
+        if (req.query.getAssocData && req.query.getAssocData !== "false") {
+            resBody.body.body = await scoreHelpers.GetAssocData(resBody.body.body);
+        }
+    }
+
+    return res.status(resBody.statusCode).json(resBody.body);
 });
 
 const scoreIDRouter = require("./scoreID/scoreID.js");
