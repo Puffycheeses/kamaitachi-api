@@ -48,8 +48,11 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
             }
         }
 
-        // a hack indeed, NaN sinks to the top of every desc sort request.
-        queryObj[query.sortCriteria] = {$ne: NaN};
+        // a hack indeed, as NaN sinks to the top of every desc sort request.
+        if (!queryObj[query.sortCriteria]){
+            queryObj[query.sortCriteria] = {$ne: NaN};
+        }
+
         settings.sort = {[query.sortCriteria]: query.sort === "asc" ? 1 : -1};
     }
 

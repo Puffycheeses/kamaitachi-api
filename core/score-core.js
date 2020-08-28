@@ -39,6 +39,7 @@ async function AutoCoerce(scores){
 
             if (lampPB){
                 score.scoreData.lamp = lampPB.scoreData.lamp;
+                score.calculatedData.lampRating = lampPB.calculatedData.lampRating;
                 score.isLampPB = true;
             }
         }
