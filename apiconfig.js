@@ -95,7 +95,7 @@ const validSorts = {
     "songs": ["id","title","artist","genre"],
     "charts": ["id","level","notedata.notecount"],
     "clans": ["xp","foundedTime"],
-    "scores": ["timeAchieved","timeAdded","xp","scoreData.percent","scoreData.score","scoreData.lampIndex","scoreData.gradeIndex", "calculatedData.rating","calculatedData.notability", "calculatedData.lampRating"]
+    "scores": ["timeAchieved","timeAdded","xp","scoreData.percent","scoreData.score","scoreData.lampIndex","scoreData.gradeIndex", "calculatedData.rating","calculatedData.notability", "calculatedData.lampRating", "calculatedData.gameSpecific.BPI", "calculatedData.gameSpecific.BIPEDS-1"]
 }
 
 const defaultSorts = {
