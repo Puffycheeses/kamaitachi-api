@@ -1,7 +1,7 @@
 const db = require("../db.js");
 const apiConfig = require("../apiconfig.js");
 
-async function AutoCoerce(scores){  
+async function AutoCoerce(scores){
     let notPBs = scores.filter(e => !e.isLampPB);
     if (notPBs.length === 0){
         return scores;
