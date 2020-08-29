@@ -139,7 +139,7 @@ const SCORE_LIMIT = 100;
 router.get("/query", async function(req,res){
     let baseObj = {};
 
-    if (!req.query.allowInvalid){
+    if (!req.query.allowInvalid || req.query.allowInvalid !== "true"){
         baseObj.validity = {$ne: "invalid"}
     }
     if (req.query.folderID){
@@ -155,12 +155,10 @@ router.get("/query", async function(req,res){
         }
 
         // else, lets patch this onto baseObj
-
-
     }
 
     if (req.query.titleSearch){
-        let regex = new RegExp(`${regexSanitise(req.query.titleSearch)}`, "i");
+        let regex = new RegExp(regexSanitise(req.query.titleSearch), "i");
 
         let likeQuery = {
             $or: [
@@ -188,24 +186,45 @@ router.get("/query", async function(req,res){
         }
     }
 
-    let resBody = await dbCore.FancyDBQuery(
-        "scores",
-        req.query,
-        true,
-        SCORE_LIMIT,
-        false,
-        false,
-        baseObj
-    );
-
-    // there are some other options we can use if this operation is successful
-    if (resBody.body.success){
-        if (req.query.getAssocData && req.query.getAssocData !== "false") {
-            resBody.body.body = await scoreHelpers.GetAssocData(resBody.body.body);
-        }
+    if (req.query.userID === "self"){
+        req.query.userID = "" + req.apikey.assignedTo;
     }
 
-    return res.status(resBody.statusCode).json(resBody.body);
+    try {
+        let resBody = await dbCore.FancyDBQuery(
+            "scores",
+            req.query,
+            true,
+            SCORE_LIMIT,
+            false,
+            false,
+            baseObj
+        );
+    
+        // there are some other options we can use if this operation is successful
+        if (resBody.body.success){
+            if (req.query.autocoerce !== "false"){
+                resBody.body.body.items = await scoreHelpers.AutoCoerce(resBody.body.body.items);
+            }
+            if (req.query.getAssocData && req.query.getAssocData !== "false") {
+                resBody.body.body = await scoreHelpers.GetAssocData(resBody.body.body);
+            }
+        }
+        return res.status(resBody.statusCode).json(resBody.body);
+    }
+    catch (r) {
+        if (r.statusCode && r.body){
+            return res.status(r.statusCode).json(r.body);
+        }
+        else {
+            console.error(req.originalUrl);
+            console.error(r);
+            return res.status(500).json({
+                success: false,
+                description: "An unknown internal server error has occured."
+            });
+        }
+    }
 });
 
 const scoreIDRouter = require("./scoreID/scoreID.js");

@@ -10,9 +10,24 @@ const router = express.Router({mergeParams: true});
 
 const RETURN_LIMIT = 50;
 router.get("/", async function(req,res){
-    let rivalsBody = await dbHelpers.FancyDBQuery("rivals",req.query, true, RETURN_LIMIT);
+    try {
+        let rivalsBody = await dbHelpers.FancyDBQuery("rivals",req.query, true, RETURN_LIMIT);
 
-    return res.status(rivalsBody.statusCode).json(rivalsBody.body);
+        return res.status(rivalsBody.statusCode).json(rivalsBody.body);
+    }
+    catch (r) {
+        if (r.statusCode && r.body){
+            return res.status(r.statusCode).json(r.body);
+        }
+        else {
+            console.error(req.originalUrl);
+            console.error(r);
+            return res.status(500).json({
+                success: false,
+                description: "An unknown internal server error has occured."
+            });
+        }
+    }
 });
 
 router.post("/create-group", async function(req,res){

@@ -14,14 +14,29 @@ router.get("/", async function(req,res){
 
     req.query.toUserID = "" + user.id;
 
-    let dbRes = await dbHelpers.FancyDBQuery(
-        "notifications",
-        req.query,
-        true,
-        MAX_RETURNS
-    );
-
-    return res.status(dbRes.statusCode).json(dbRes.body);
+    try {
+        let dbRes = await dbHelpers.FancyDBQuery(
+            "notifications",
+            req.query,
+            true,
+            MAX_RETURNS
+        );
+    
+        return res.status(dbRes.statusCode).json(dbRes.body);
+    }
+    catch (r) {
+        if (r.statusCode && r.body){
+            return res.status(r.statusCode).json(r.body);
+        }
+        else {
+            console.error(req.originalUrl);
+            console.error(r);
+            return res.status(500).json({
+                success: false,
+                description: "An unknown internal server error has occured."
+            });
+        }
+    }
 });
 
 // sugar for notifications?read=false
@@ -31,14 +46,29 @@ router.get("/unread", async function(req,res){
     req.query.toUserID = "" + user.id;
     req.query.read = "false";
 
-    let dbRes = await dbHelpers.FancyDBQuery(
-        "notifications",
-        req.query,
-        true,
-        MAX_RETURNS
-    );
-
-    return res.status(dbRes.statusCode).json(dbRes.body);
+    try {
+        let dbRes = await dbHelpers.FancyDBQuery(
+            "notifications",
+            req.query,
+            true,
+            MAX_RETURNS
+        );
+    
+        return res.status(dbRes.statusCode).json(dbRes.body);
+    }
+    catch (r) {
+        if (r.statusCode && r.body){
+            return res.status(r.statusCode).json(r.body);
+        }
+        else {
+            console.error(req.originalUrl);
+            console.error(r);
+            return res.status(500).json({
+                success: false,
+                description: "An unknown internal server error has occured."
+            });
+        }
+    }
 });
 
 module.exports = router;

@@ -16,16 +16,31 @@ router.get("/count", async function(req,res){
         req.query["scoreData.playtype"] = req.query.playtype;
     }
 
-    let dbRes = await dbHelpers.FancyDBQuery(
-        "scores",
-        req.query,
-        false,
-        null,
-        null,
-        true
-    );
-
-    return res.status(dbRes.statusCode).json(dbRes.body);
+    try {
+        let dbRes = await dbHelpers.FancyDBQuery(
+            "scores",
+            req.query,
+            false,
+            null,
+            null,
+            true
+        );
+    
+        return res.status(dbRes.statusCode).json(dbRes.body);
+    }
+    catch (r) {
+        if (r.statusCode && r.body){
+            return res.status(r.statusCode).json(r.body);
+        }
+        else {
+            console.error(req.originalUrl);
+            console.error(r);
+            return res.status(500).json({
+                success: false,
+                description: "An unknown internal server error has occured."
+            });
+        }
+    }
 });
 
 router.get("/heatmap", async function(req,res){

@@ -1,12 +1,12 @@
 const db = require("../db.js");
 const apiConfig = require("../apiconfig.js");
+const regexSanitise = require("escape-string-regexp");
 
 const rgxIsInt = /^[0-9]+$/;
 const DEFAULT_LIMIT = 100;
 
 // does fancy pagination and all that jazz
 // it is assumed that everything entering through query is a string.
-// if you are putting numeric input into here, coerce it into a string with "" +.
 async function FancyDBQuery(databaseName, query, paginate, limit, configOverride, useCount, queryObj){
     queryObj = queryObj || {}
 
@@ -24,13 +24,8 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
         defaultSort = apiConfig.defaultSorts[databaseName];
     }
 
-    try {
-        // modifies queryObj byref to have all the stuff we care about
-        FancyQueryValidate(query, queryObj, validKeys);
-    }
-    catch (r) {
-        return r;
-    }
+    // modifies queryObj byref to have all the stuff we care about
+    FancyQueryValidate(query, queryObj, validKeys);
 
     let settings = {
         fields: {_id: 0},
@@ -39,7 +34,7 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
 
     if (query.sortCriteria){
         if (!validSorts.includes(query.sortCriteria)){
-            return {
+            throw {
                 statusCode: 400,
                 body: {
                     success: false,
@@ -48,9 +43,9 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
             }
         }
 
-        // a hack indeed, as NaN sinks to the top of every desc sort request.
+        // a hack indeed, as NaN/null sinks to the top of every asc/desc sort request.
         if (!queryObj[query.sortCriteria]){
-            queryObj[query.sortCriteria] = {$ne: NaN};
+            queryObj[query.sortCriteria] = {$nin: [NaN, null]};
         }
 
         settings.sort = {[query.sortCriteria]: query.sort === "asc" ? 1 : -1};
@@ -61,7 +56,7 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
         settings.limit = limit ? limit : DEFAULT_LIMIT;
         if (query.limit){
             if (query.limit && !query.limit.match(rgxIsInt)){
-                return {
+                throw {
                     statusCode: 400,
                     body: {
                         success: false,
@@ -70,7 +65,7 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
                 }
             }
             if (parseInt(query.limit) > settings.limit){
-                return {
+                throw {
                     statusCode: 400,
                     body: {
                         success: false,
@@ -83,7 +78,7 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
 
         if (query.start){
             if (query.start && !query.start.match(rgxIsInt)){
-                return {
+                throw {
                     statusCode: 400,
                     body: {
                         success: false,
@@ -96,6 +91,8 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
     }
 
     let method = useCount ? "count" : "find";
+
+    console.log(queryObj);
 
     let items = await db.get(databaseName)[method](queryObj, settings);
 
@@ -125,7 +122,7 @@ function FancyQueryValidate(query, queryObj, validKeys){
         // check that the given query even has this key
         if (key in query){
             if (validKeys[key] === "string"){
-                queryObj[key] = query[key];
+                queryObj[key] = ParseStringModifiers(query[key], query[key + "-opt"]);
             }
             else if (validKeys[key] === "integer"){
                 if (!query[key].match(rgxIsInt)){
@@ -169,6 +166,27 @@ function FancyQueryValidate(query, queryObj, validKeys){
     }
 
     return true;
+}
+
+function ParseStringModifiers(value, option){
+    if (!option){
+        return value;
+    }
+    else if (option === "like"){
+        return new RegExp(regexSanitise(value), "i");
+    }
+    else if (option === "caseInsensitive"){
+        return new RegExp(`^${regexSanitise(value)}$`, "i");
+    }
+    else {
+        throw {
+            statusCode: 400,
+            body: {
+                success: false,
+                description: "Invalid string option: " + option
+            }
+        };
+    }
 }
 
 function ParseNumericalModifiers(value, option){
