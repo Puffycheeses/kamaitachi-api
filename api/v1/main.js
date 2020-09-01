@@ -31,6 +31,7 @@ const rivalsRouter = require("./rivals/rivals.js");
 const clansRouter = require("./clans/clans.js");
 const importsRouter = require("./imports/imports.js");
 const statsRouter = require("./stats/stats.js");
+const queryRouter = require("./queries/queries.js");
 
 router.use("/users", usersRouter);
 router.use("/rivals", rivalsRouter);
@@ -41,5 +42,6 @@ router.use("/games", gamesRouter);
 router.use("/clans", clansRouter);
 router.use("/imports", importsRouter);
 router.use("/stats", statsRouter);
+router.use("/queries", queryRouter);
 
 module.exports = router;

@@ -139,6 +139,28 @@ const SCORE_LIMIT = 100;
 router.get("/query", async function(req,res){
     let baseObj = {};
 
+    let hrtime = process.hrtime();
+
+    if (req.query.queryID){
+        let queryObj = await db.get("queries").findOne({
+            queryID: req.query.queryID
+        });
+
+        if (!queryObj){
+            return res.status(400).json({
+                success: false,
+                description: "This query does not exist in the database."
+            });
+        }
+
+        // else, hell dimension monkey patch
+
+        for (const key in queryObj.query) {
+            let realKey = key.replace(/¬/g, ".");
+            req.query[realKey] = queryObj.query[key];
+        }
+    }
+
     if (!req.query.allowInvalid || req.query.allowInvalid !== "true"){
         baseObj.validity = {$ne: "invalid"}
     }
@@ -209,10 +231,25 @@ router.get("/query", async function(req,res){
             if (req.query.getAssocData && req.query.getAssocData !== "false") {
                 resBody.body.body = await scoreHelpers.GetAssocData(resBody.body.body);
             }
+
+            // if this was an existing query, increment popularity
+            // yeah, you can trivially break this. but you shouldn't!
+
+            if (req.query.queryID){
+                // can error for all we care
+                db.get("queries").update({
+                    queryID: req.query.queryID
+                }, {$inc: {"timesUsed": 1}});
+            }
         }
+
+        let prh = process.hrtime(hrtime);
+        console.log(prh[0] + (prh[1] / 1000000));
         return res.status(resBody.statusCode).json(resBody.body);
     }
     catch (r) {
+        let prh = process.hrtime(hrtime);
+        console.log(prh[0] + (prh[1] / 1000000));
         if (r.statusCode && r.body){
             return res.status(r.statusCode).json(r.body);
         }

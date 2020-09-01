@@ -2,19 +2,25 @@ const db = require("../db.js");
 const apiConfig = require("../apiconfig.js");
 
 async function AutoCoerce(scores){
-    let notPBs = scores.filter(e => !e.isLampPB);
-    if (notPBs.length === 0){
+    let notPBsArr = [];
+
+    for (const s of scores) {
+        if (!s.isLampPB){
+            notPBsArr.push({
+                userID: s.userID,
+                songID: s.songID,
+                "scoreData.playtype": s.scoreData.playtype,
+                "scoreData.difficulty": s.scoreData.difficulty,
+                isLampPB: true
+            });
+        }
+    }
+    if (notPBsArr.length === 0){
         return scores;
     }
 
     let lampPBsArr = await db.get("scores").find({
-        $or: notPBs.map(s => ({
-            userID: s.userID,
-            songID: s.songID,
-            "scoreData.playtype": s.scoreData.playtype,
-            "scoreData.difficulty": s.scoreData.difficulty,
-            isLampPB: true
-        }))
+        $or: notPBsArr
     });
 
     let lampPBs = {}
