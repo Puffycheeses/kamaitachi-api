@@ -32,6 +32,10 @@ const validKeys = {
         isScorePB: "boolean",
         isLampPB: "boolean",
     },
+    "queries": {
+        name: "string",
+        byUser: "integer"
+    },
     "rivals": {
         name: "string",
         desc: "string",
@@ -95,7 +99,8 @@ const validSorts = {
     "songs": ["id","title","artist","genre"],
     "charts": ["id","level","notedata.notecount"],
     "clans": ["xp","foundedTime"],
-    "scores": ["timeAchieved","timeAdded","xp","scoreData.percent","scoreData.score","scoreData.lampIndex","scoreData.gradeIndex", "calculatedData.rating","calculatedData.notability", "calculatedData.lampRating", "calculatedData.gameSpecific.BPI", "calculatedData.gameSpecific.EPI"]
+    "scores": ["timeAchieved","timeAdded","xp","scoreData.percent","scoreData.score","scoreData.lampIndex","scoreData.gradeIndex", "calculatedData.rating","calculatedData.notability", "calculatedData.lampRating", "calculatedData.gameSpecific.BPI", "calculatedData.gameSpecific.EPI"],
+    "queries": ["timeAdded"]
 }
 
 const defaultSorts = {
@@ -107,18 +112,16 @@ const defaultSorts = {
     "songs": "id",
     "charts": "id",
     "clans": "xp",
-    "scores": "timeAchieved"
+    "scores": "timeAchieved",
+    "queries": "timeAdded"
 }
 
 const VALID_FOLDER_TYPES = ["levels","versions"];
-
-const VALID_SONG_QUERY_KEYS = ["title","firstAppearance","artist","genre"];
 
 module.exports = {
     REMOVE_PRIVATE_USER_RETURNS,
     TIME_DELTA_ONLINE,
     VALID_FOLDER_TYPES,
-    VALID_SONG_QUERY_KEYS,
     validKeys,
     validSorts,
     defaultSorts
