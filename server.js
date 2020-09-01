@@ -17,6 +17,17 @@ app.use((req, res, next) => {
     next();
 });
 
+console.log(`
+    ██╗  ██╗ █████╗ ███╗   ███╗ █████╗ ██╗████████╗ █████╗  ██████╗██╗  ██╗██╗     ██╗ █████╗ ██████╗ ██╗██╗ 
+    ██║ ██╔╝██╔══██╗████╗ ████║██╔══██╗██║╚══██╔══╝██╔══██╗██╔════╝██║  ██║██║    ██╔╝██╔══██╗██╔══██╗██║╚██╗
+    █████╔╝ ███████║██╔████╔██║███████║██║   ██║   ███████║██║     ███████║██║    ██║ ███████║██████╔╝██║ ██║
+    ██╔═██╗ ██╔══██║██║╚██╔╝██║██╔══██║██║   ██║   ██╔══██║██║     ██╔══██║██║    ██║ ██╔══██║██╔═══╝ ██║ ██║
+    ██║  ██╗██║  ██║██║ ╚═╝ ██║██║  ██║██║   ██║   ██║  ██║╚██████╗██║  ██║██║    ╚██╗██║  ██║██║     ██║██╔╝
+    ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝
+`)
+
+console.log("Running in env: " + process.env.NODE_ENV);
+
 // hack fix for cors preflight
 // in order to send CORS requests with methods other than GET or POST
 // an OPTIONS request to the same endpoint must return EXACTLY
@@ -54,11 +65,6 @@ app.use(middlewares.SanitiseInput);
 // for all i know, express might do this by default, lol.
 app.use(middlewares.DecodeURIComponents);
 
-
-// just check the db lives
-db.then(() => {
-    console.log('Database loaded correctly in main.js');
-});
 
 // mounts
 const apiRouterV1 = require("./api/v1/main.js");
