@@ -1,5 +1,5 @@
 const db = require("../../../../db.js");
-const dbHelpers = require("../../../../helpers/dbhelpers.js");
+const dbHelpers = require("../../../../core/db-core.js");
 const express = require("express");
 const router = express.Router({mergeParams: true});
 const tierlistHelpers = require("./tierlisthelpers.js");
@@ -26,14 +26,30 @@ router.get("/", async function(req,res){
 
     req.query.tierlistID = tierlist.tierlistID;
 
-    let dbRes = await dbHelpers.FancyDBQuery(
-        "tierlistdata",
-        req.query,
-        true,
-        RETURN_LIMIT
-    );
+    try {
+        let dbRes = await dbHelpers.FancyDBQuery(
+            "tierlistdata",
+            req.query,
+            true,
+            RETURN_LIMIT
+        );
+    
+        return res.status(dbRes.statusCode).json(dbRes.body);
+    }
+    catch (r) {
+        if (r.statusCode && r.body){
+            return res.status(r.statusCode).json(r.body);
+        }
+        else {
+            console.error(req.originalUrl);
+            console.error(r);
+            return res.status(500).json({
+                success: false,
+                description: "An unknown internal server error has occured."
+            });
+        }
+    }
 
-    return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
 

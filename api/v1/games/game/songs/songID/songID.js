@@ -2,7 +2,7 @@ const db = require("../../../../../../db.js");
 const express = require("express");
 const router = express.Router({mergeParams: true});
 const middlewares = require("../../../../../../middlewares.js");
-const dbHelpers = require("../../../../../../helpers/dbhelpers.js");
+const dbHelpers = require("../../../../../../core/db-core.js");
 
 // mounted on /api/v1/games/:game/songs/:songID
 
@@ -30,15 +30,30 @@ const CHART_RET_LIMIT = 100;
 router.get("/charts", async function(req,res){
 
     req.query.id = req.params.songID;
-    let dbRes = await dbHelpers.FancyDBQuery(
-        "charts-" + req.params.game,
-        req.query,
-        true,
-        CHART_RET_LIMIT,
-        "charts"
-    );
 
-    return res.status(dbRes.statusCode).json(dbRes.body);
+    try {
+        let dbRes = await dbHelpers.FancyDBQuery(
+            "charts-" + req.params.game,
+            req.query,
+            true,
+            CHART_RET_LIMIT,
+            "charts"
+        );
+        return res.status(dbRes.statusCode).json(dbRes.body);
+    }
+    catch (r) {
+        if (r.statusCode && r.body){
+            return res.status(r.statusCode).json(r.body);
+        }
+        else {
+            console.error(req.originalUrl);
+            console.error(r);
+            return res.status(500).json({
+                success: false,
+                description: "An unknown internal server error has occured."
+            });
+        }
+    }
 });
 
 module.exports = router;

@@ -15,11 +15,33 @@ const validKeys = {
         userID: "integer",
         highlight: "boolean"
     },
+    "scores": {
+        userID: "integer",
+        songID: "integer",
+        service: "string",
+        game: "string",
+        "scoreData.playtype": "string",
+        "scoreData.difficulty": "string",
+        "scoreData.score": "float",
+        "scoreData.percent": "float",
+        "scoreData.grade": "string",
+        "scoreData.lamp": "string",
+        "scoreData.lampIndex": "integer",
+        "scoreData.gradeIndex": "integer",
+        "scoreData.esd": "float",
+        isScorePB: "boolean",
+        isLampPB: "boolean",
+    },
+    "queries": {
+        name: "string",
+        byUser: "integer"
+    },
     "rivals": {
         name: "string",
         desc: "string",
         game: "string",
         playtype: "string",
+        isDefault: "boolean",
         members: "integer",
         founderID: "integer",
         mutualGroup: "boolean"
@@ -76,7 +98,9 @@ const validSorts = {
     "tierlist": ["game"],
     "songs": ["id","title","artist","genre"],
     "charts": ["id","level","notedata.notecount"],
-    "clans": ["xp","foundedTime"]
+    "clans": ["xp","foundedTime"],
+    "scores": ["timeAchieved","timeAdded","xp","scoreData.percent","scoreData.score","scoreData.lampIndex","scoreData.gradeIndex", "calculatedData.rating","calculatedData.notability", "calculatedData.lampRating", "calculatedData.gameSpecific.BPI", "calculatedData.gameSpecific.EPI"],
+    "queries": ["timeAdded"]
 }
 
 const defaultSorts = {
@@ -87,18 +111,17 @@ const defaultSorts = {
     "tierlist": "game",
     "songs": "id",
     "charts": "id",
-    "clans": "xp"
+    "clans": "xp",
+    "scores": "timeAchieved",
+    "queries": "timeAdded"
 }
 
 const VALID_FOLDER_TYPES = ["levels","versions"];
-
-const VALID_SONG_QUERY_KEYS = ["title","firstAppearance","artist","genre"];
 
 module.exports = {
     REMOVE_PRIVATE_USER_RETURNS,
     TIME_DELTA_ONLINE,
     VALID_FOLDER_TYPES,
-    VALID_SONG_QUERY_KEYS,
     validKeys,
     validSorts,
     defaultSorts

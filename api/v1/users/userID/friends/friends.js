@@ -1,7 +1,7 @@
 const express = require("express");
 const db = require("../../../../../db.js");
 const router = express.Router({mergeParams: true});
-const userHelpers = require("../../../../../helpers/userhelpers.js");
+const userHelpers = require("../../../../../core/user-core.js");
 const middlewares = require("../../../../../middlewares.js");
 const friendHelpers = require("./helpers.js");
 const apiConfig = require("../../../../../apiconfig.js");
@@ -9,7 +9,7 @@ const apiConfig = require("../../../../../apiconfig.js");
 // mounted on /api/v1/users/:userID/friends
 
 router.get("/", async function(req,res){
-    let user = await userHelpers.GetUser(req.params.userID);
+    let user = req.user;
     
     let friends = await db.get("users").find({id: {$in: user.friends}}, {fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
 
@@ -23,7 +23,7 @@ router.get("/", async function(req,res){
 });
 
 router.get("/online", async function(req,res){
-    let user = await userHelpers.GetUser(req.params.userID);
+    let user = req.user;
 
     let friends = await db.get("users").find({id: {$in: user.friends}, lastSeen: {
         $gt: curTime - apiConfig.TIME_DELTA_ONLINE
@@ -40,7 +40,7 @@ router.get("/online", async function(req,res){
 
 router.patch("/add", middlewares.RequireUserKeyMatch, async function(req,res){
     let friend = await friendHelpers.GetFriend(req.body.friendID);
-    let user = await userHelpers.GetUser(req.params.userID);
+    let user = req.user;
 
     if (user.friends.length > 100){
         return res.status(400).json({
@@ -69,7 +69,7 @@ router.patch("/add", middlewares.RequireUserKeyMatch, async function(req,res){
 
 router.patch("/remove", middlewares.RequireUserKeyMatch, async function(req,res){
     let friend = await friendHelpers.GetFriend(req.body.friendID);
-    let user = await userHelpers.GetUser(req.params.userID);
+    let user = req.user;
 
     if (!user.friends.includes(friend.id)){
         return res.status(400).json({

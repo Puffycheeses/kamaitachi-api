@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const config = require("../../../../config/config.js");
 const middlewares = require("../../../../middlewares.js");
-const userHelpers = require("../../../../helpers/userhelpers.js");
+const userHelpers = require("../../../../core/user-core.js");
 
 // mounted on /api/v1/games/:game
 
@@ -44,6 +44,26 @@ router.get("/", async function(req,res){
             gameInfo: gameObj,
             gameStats: gameStats
         }
+    });
+});
+
+router.get("/playercount", async function(req,res){
+    let playtypes = config.validPlaytypes[req.params.game];
+
+    let ret = {};
+
+    for (const pt of playtypes) {
+        let players = await db.get("users").count({
+            ["ratings." + req.params.game + "." + pt]: {$gt: 0}
+        });
+
+        ret[pt] = players;
+    }
+
+    return res.status(200).json({
+        success: true,
+        description: "Found players for " + req.params.game,
+        body: ret
     });
 });
 

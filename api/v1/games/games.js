@@ -2,7 +2,7 @@ const db = require("../../../db.js");
 const express = require("express");
 const router = express.Router({mergeParams: true});
 const config = require("../../../config/config.js");
-const userHelpers = require("../../../helpers/userhelpers.js");
+const userHelpers = require("../../../core/user-core.js");
 
 // mounted on /api/v1/games
 

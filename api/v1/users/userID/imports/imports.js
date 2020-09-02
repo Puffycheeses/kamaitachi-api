@@ -1,24 +1,40 @@
 const express = require("express");
-const dbHelpers = require("../../../../../helpers/dbhelpers.js");
+const dbHelpers = require("../../../../../core/db-core.js");
 const router = express.Router({mergeParams: true});
-const userHelpers = require("../../../../../helpers/userhelpers.js");
+const userHelpers = require("../../../../../core/user-core.js");
+const db = require("../../../../../db.js");
 
 // mounted on /api/v1/users/:userID/imports
 
 const MAX_RETURNS = 100;
 router.get("/", async function(req,res){
-    let user = await userHelpers.GetUser(req.params.userID);
+    let user = req.user;
 
-    req.query.toUserID = "" + user.id;
+    req.query.userID = "" + user.id;
 
-    let dbRes = await dbHelpers.FancyDBQuery(
-        "imports",
-        req.query,
-        true,
-        MAX_RETURNS
-    );
-
-    return res.status(dbRes.statusCode).json(dbRes.body);
+    try {
+        let dbRes = await dbHelpers.FancyDBQuery(
+            "imports",
+            req.query,
+            true,
+            MAX_RETURNS
+        );
+    
+        return res.status(dbRes.statusCode).json(dbRes.body);
+    }
+    catch (r) {
+        if (r.statusCode && r.body){
+            return res.status(r.statusCode).json(r.body);
+        }
+        else {
+            console.error(req.originalUrl);
+            console.error(r);
+            return res.status(500).json({
+                success: false,
+                description: "An unknown internal server error has occured."
+            });
+        }
+    }
 });
 
 module.exports = router;

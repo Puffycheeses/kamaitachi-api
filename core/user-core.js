@@ -1,5 +1,6 @@
 const db = require("../db.js");
 const apiConfig = require("../apiconfig.js");
+const config = require("../config/config.js");
 
 // finds the user on userID or username.
 // determines this by checking if input is a string
@@ -49,13 +50,23 @@ async function GetAllUsers(){
 }
 
 async function GetPlayersOnGame(game, playtype){
-    let users = await GetAllUsers();
-
-    let Criteria = e => e.ratings[game] && Object.keys(e.ratings[game]).length > 0;
-    if (playtype){
-        Criteria = e => e.ratings[game] && e.ratings[game][playtype];
+    let users = [];
+    if (!playtype){
+        users = await db.get("users").find({
+            $or: config.validPlaytypes[game].map(e => ({
+                ["ratings." + game + "." + e] : {$gt: 0}
+            }))
+        }, {
+            fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS
+        });
     }
-    users = users.filter(Criteria);
+    else {
+        users = await db.get("users").find({
+            ["ratings." + game + "." + playtype] : {$gt: 0}
+        }, {
+            fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS
+        });
+    }
 
     return users;
 }
