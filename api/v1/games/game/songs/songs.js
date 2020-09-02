@@ -7,7 +7,6 @@ const dbHelpers = require("../../../../../core/db-core.js");;
 const MAX_RETURNS = 100;
 
 router.get("/", async function(req,res){
-
     try {
         let dbRes = await dbHelpers.FancyDBQuery(
             "songs-" + req.params.game,
@@ -23,7 +22,7 @@ router.get("/", async function(req,res){
             return res.status(r.statusCode).json(r.body);
         }
         else {
-            console.error(req.originalUrl);
+            console.error(req.originalUrl); 
             console.error(r);
             return res.status(500).json({
                 success: false,
