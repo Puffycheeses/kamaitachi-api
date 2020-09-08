@@ -161,6 +161,10 @@ router.get("/query", async function(req,res){
         }
     }
 
+    if (req.query.autocoerce !== "false"){
+        baseObj.isScorePB = true;
+    }
+
     if (!req.query.allowInvalid || req.query.allowInvalid !== "true"){
         baseObj.validity = {$ne: "invalid"}
     }
