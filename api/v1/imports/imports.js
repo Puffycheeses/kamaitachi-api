@@ -83,11 +83,7 @@ router.get("/:importID/scores", GetImportWithID, async function(req,res){
         let charts = [];
         if (scores.length !== 0){
             charts = await db.get("charts-" + importObj.game).find({
-                $or: scores.map(e => ({
-                    id: e.songID,
-                    difficulty: e.scoreData.difficulty,
-                    playtype: e.scoreData.playtype
-                }))
+                chartID: {$in: scores.map(e => e.chartID)}
             });
         }
 
