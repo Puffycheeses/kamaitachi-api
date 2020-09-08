@@ -4,7 +4,7 @@ const router = express.Router({mergeParams: true});
 // mounted on /v1
 
 const MAJOR_VER = 2;
-const MINOR_VER = 1;
+const MINOR_VER = 2;
 const PATCH_VER = 0;
 
 router.get("/", async function(req,res){
@@ -32,6 +32,7 @@ const clansRouter = require("./clans/clans.js");
 const importsRouter = require("./imports/imports.js");
 const statsRouter = require("./stats/stats.js");
 const queryRouter = require("./queries/queries.js");
+const folderRouter = require("./folders/folders.js");
 
 router.use("/users", usersRouter);
 router.use("/rivals", rivalsRouter);
@@ -43,5 +44,6 @@ router.use("/clans", clansRouter);
 router.use("/imports", importsRouter);
 router.use("/stats", statsRouter);
 router.use("/queries", queryRouter);
+router.use("/folders", folderRouter);
 
 module.exports = router;
