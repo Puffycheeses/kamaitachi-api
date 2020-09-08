@@ -28,6 +28,13 @@ console.log(`
 
 console.log("Running in env: " + process.env.NODE_ENV);
 
+// taken from https://nodejs.org/api/process.html#process_event_unhandledrejection
+// to avoid future deprecation.
+process.on('unhandledRejection', (reason, promise) => {
+    console.log('Unhandled Rejection at:', promise, 'reason:', reason);
+    // Application specific logging, throwing an error, or other logic here
+});
+
 // hack fix for cors preflight
 // in order to send CORS requests with methods other than GET or POST
 // an OPTIONS request to the same endpoint must return EXACTLY
