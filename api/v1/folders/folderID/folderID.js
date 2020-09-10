@@ -4,6 +4,7 @@ const router = express.Router({mergeParams: true});
 const db = require("../../../../db.js");
 const config = require("../../../../config/config.js");
 const scoreCore = require("../../../../core/score-core.js");
+const folderCore = require("../../../../core/folder-core.js");
 
 // mounted on /api/v1/folders/:folderID
 
@@ -21,6 +22,12 @@ async function RequireValidFolderID(req, res, next){
 
     req.folderData = folder;
 
+    db.get("folders").update({
+        _id: folder._id
+    }, {
+        $inc: {"views": 1}
+    })
+
     next();
 }
 
@@ -33,52 +40,6 @@ router.get("/", async function(req,res){
         body: req.folderData
     });
 });
-
-// originally, folder queries were way more powerful.
-// but it was a lot of work, for something nobody would ever care about.
-// apologies.
-async function GetDataFromFolderQuery(folder, playtype){
-    let coll = folder.query.collection;
-
-    if (coll === "charts"){
-        coll = "charts-" + folder.game;
-        if (playtype){
-            folder.query.query.playtype = playtype;
-        }
-    }
-    else if (coll === "songs"){
-        coll = "songs-" + folder.game;
-    }
-
-    let r = await db.get(coll).find(folder.query.query);
-
-    if (folder.query.collection === "charts"){
-        let songs = await db.get("songs-" + folder.game).find({
-            id: {$in: r.map(e => e.id)}
-        });
-
-        return {
-            songs: songs,
-            charts: r,
-        }
-    }
-    else if (folder.query.collection === "songs"){
-        let chartQuery = {
-            id: {$in: r.map(e => e.id)},
-        };
-
-        if (playtype){
-            chartQuery.playtype = playtype;
-        }
-
-        let charts = await db.get("charts-" + folder.game).find(chartQuery);
-
-        return {
-            songs: r,
-            charts: charts
-        }
-    }
-}
 
 async function ValidateUserID(req, res, next){
     if (parseInt(req.query.userID)){
@@ -138,7 +99,7 @@ router.get("/scores", ValidateUserID, ValidateRivalGroupID, async function(req,r
         }
     }
 
-    let {songs, charts} = await GetDataFromFolderQuery(folder, playtype);
+    let {songs, charts} = await folderCore.GetDataFromFolderQuery(folder, playtype);
 
     let scores = [];
 
