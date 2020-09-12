@@ -33,6 +33,7 @@ const importsRouter = require("./imports/imports.js");
 const statsRouter = require("./stats/stats.js");
 const queryRouter = require("./queries/queries.js");
 const folderRouter = require("./folders/folders.js");
+const sessionRouter = require("./sessions/sessions.js");
 
 router.use("/users", usersRouter);
 router.use("/rivals", rivalsRouter);
@@ -45,5 +46,6 @@ router.use("/imports", importsRouter);
 router.use("/stats", statsRouter);
 router.use("/queries", queryRouter);
 router.use("/folders", folderRouter);
+router.use("/sessions", sessionRouter);
 
 module.exports = router;

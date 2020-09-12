@@ -3,7 +3,7 @@ const db = require("../db.js");
 // originally, folder queries were way more powerful.
 // but it was a lot of work, for something nobody would ever care about.
 // apologies.
-async function GetDataFromFolderQuery(folder, playtype, onlyGetCharts){
+async function GetDataFromFolderQuery(folder, playtype, difficulty, onlyGetCharts){
     let coll = folder.query.collection;
 
     if (coll === "charts"){
@@ -11,12 +11,21 @@ async function GetDataFromFolderQuery(folder, playtype, onlyGetCharts){
         if (playtype){
             folder.query.query.playtype = playtype;
         }
+        if (difficulty){
+            folder.query.query.difficulty = difficulty;
+        }
     }
     else if (coll === "songs"){
         coll = "songs-" + folder.game;
     }
 
-    let r = await db.get(coll).find(folder.query.query);
+    let queryObj = {};
+
+    for (const key in folder.query.query) {
+        queryObj[key.replace(/¬/g, ".")] = folder.query.query[key];
+    }
+
+    let r = await db.get(coll).find(queryObj);
 
     if (folder.query.collection === "charts"){
         let songs = [];

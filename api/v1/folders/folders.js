@@ -67,6 +67,23 @@ router.get("/default-folders", async function(req,res){
 
     let playtype = config.validPlaytypes[game].includes(req.query.playtype) || config.defaultPlaytype[game];
 
+    // we are going to make a COOL caching optimisation here
+    let dataCache = await db.get("defaultfolder-cache").findOne({
+        game: game,
+        playtype: playtype,
+        userID: userID,
+        validUntil: {$gt: Date.now()}
+    });
+
+    if (dataCache){
+        console.timeEnd("default folders");
+        console.log("cache hit");
+        return res.status(200).json({
+            success: true,
+            body: dataCache.body
+        });
+    }
+
     let defaultFolders = await db.get("folders").find({
         game: game,
         custom: false
@@ -79,7 +96,7 @@ router.get("/default-folders", async function(req,res){
     let folderProm = [];
 
     for (const folder of defaultFolders) {
-        folderProm.push(folderCore.GetDataFromFolderQuery(folder, playtype, true).then(async data => {
+        folderProm.push(folderCore.GetDataFromFolderQuery(folder, playtype, null, true).then(async data => {
             let [scores, uniqueScores, uniqueOnLamp] = await Promise.all([
                 db.get("scores").find({
                     userID: userID,
@@ -105,10 +122,31 @@ router.get("/default-folders", async function(req,res){
                 stats[folder.folderID] = {};
             }
 
+            let gradeDist = {};
+            let lampDist = {};
+            for (const sc of uniqueScores) {
+                if (gradeDist[sc.scoreData.grade]){
+                    gradeDist[sc.scoreData.grade] += 1;
+                }
+                else {
+                    gradeDist[sc.scoreData.grade] = 1;
+                }
+            }
+            for (const sc of uniqueOnLamp) {
+                if (lampDist[sc.scoreData.lamp]){
+                    lampDist[sc.scoreData.lamp] += 1;
+                }
+                else {
+                    lampDist[sc.scoreData.lamp] = 1;
+                }
+            }
+
             stats[folder.folderID][playtype] = {
                 allScores: scores.length,
                 uniqueScores: uniqueScores.length,
                 totalCharts: data.charts.length,
+                lampDist: lampDist,
+                gradeDist: gradeDist
             }
             
             if (uniqueScores.length === data.charts.length && uniqueScores.length + data.charts.length !== 0){
@@ -119,6 +157,17 @@ router.get("/default-folders", async function(req,res){
     }
 
     await Promise.all(folderProm);
+
+    await db.get("defaultfolder-cache").insert({
+        game: game,
+        playtype: playtype,
+        userID: userID,
+        body: {
+            folders: defaultFolders,
+            stats: stats
+        },
+        validUntil: Date.now() + 8.64e+7 // 24 hours
+    });
 
     console.timeEnd("default folders");
     return res.status(200).json({
