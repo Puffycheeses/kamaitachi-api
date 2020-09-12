@@ -1,26 +1,65 @@
-// always lowercase. list of supported games.
+// HUGE IMPORTANT NOTE
+// THIS IS A PUBLICLY ACCESSIBLE FILE
+// IF YOU PUT SECRETS IN HERE THEY WILL BE PUBLIC
+// I SWEAR TO GOD. DO NOT DO THAT. - ZKLDI
+
 const supportedGames = ["iidx","museca","maimai","jubeat","popn","sdvx","ddr","bms"];
 
 const serviceSupportedGames = {
-  PLI: ["iidx"],
-  ARC: ["iidx","jubeat","sdvx","ddr"],  // PERFECT!
-  FLO: ["iidx"],
-  "e-amusement": ["iidx"],
-  LR2: ["bms"],
-  beatoraja: ["bms"]
+    PLI: ["iidx"],
+    ARC: ["iidx","jubeat","sdvx","ddr"], // PERFECT!
+    FLO: ["iidx"],
+    EAG: ["iidx"],
+    "e-amusement": ["iidx"],
+    LR2: ["bms"],
+    beatoraja: ["bms"],
+    MER: ["iidx"],
+    SSS: ["iidx"],
+    "BATCH-MANUAL": supportedGames,
+    "DIRECT-MANUAL": supportedGames,
+    "MANUAL": supportedGames
+}
+
+const gameSpecificCalc = {
+    "iidx": {
+        "SP": ["BPI"]
+    }
+}
+
+const validHitData = {
+    "iidx": ["pgreat","great","good","bad","poor"],
+    "bms": ["pgreat","great","good","bad","poor"],
+    "museca": ["critical","near","miss"],
+    "ddr": ["marvelous","perfect","great","good","boo","miss","ok","ng"],
+    "sdvx": ["critical","near","miss"],
+    "popn": ["cool","great","good","bad"],
+    "maimai": ["perfect","great","good","miss"],
+    "jubeat": ["perfect","great","good","bad","miss"],
+}
+
+const BASE_VALID_HIT_META = ["fast","slow","maxCombo"]
+const validHitMeta = {
+    "iidx": ["bp", "gauge", ...BASE_VALID_HIT_META],
+    "museca": BASE_VALID_HIT_META,
+    "ddr": BASE_VALID_HIT_META,
+    "maimai": BASE_VALID_HIT_META,
+    "jubeat": BASE_VALID_HIT_META,
+    "popn": ["gauge", ...BASE_VALID_HIT_META],
+    "sdvx": ["gauge", ...BASE_VALID_HIT_META],
+    "bms": ["bp", "gauge", ...BASE_VALID_HIT_META],
 }
 
 const gameColours = {
-  iidx: "#E7BDB3",
-  museca: "#C9A4A0",
-  maimai: "#AE8094",
-  sdvx: "#D6B7B1",
-  ddr: "#CC5079",
-  gitadora: "#CA9CA9",
-  gfdm: "#DA836E",
-  jubeat: "#129A7D",
-  popn: "#F39CA4",
-  bms:"#B5DCCD",
+    iidx: "#E7BDB3",
+    museca: "#C9A4A0",
+    maimai: "#AE8094",
+    sdvx: "#D6B7B1",
+    ddr: "#CC5079",
+    gitadora: "#CA9CA9",
+    gfdm: "#DA836E",
+    jubeat: "#129A7D",
+    popn: "#F39CA4",
+    bms: "#B5DCCD",
 }
 
 const gameRelevantScoreBucket = {
@@ -38,350 +77,417 @@ const gameRelevantScoreBucket = {
 
 // human readable stuff for games
 const gameHuman = {
-  iidx: "beatmania IIDX",
-  museca: "MÚSECA",
-  maimai: "maimai",
-  sdvx: "SOUND VOLTEX",
-  ddr: "Dance Dance Revolution",
-  gitadora: "GITADORA",
-  gfdm: "GuitarFreaks & DrumMania",
-  jubeat: "jubeat",
-  popn: "pop'n music",
-  bms: "BMS"
+    iidx: "beatmania IIDX",
+    museca: "MÚSECA",
+    maimai: "maimai",
+    sdvx: "SOUND VOLTEX",
+    ddr: "Dance Dance Revolution",
+    gitadora: "GITADORA",
+    gfdm: "GuitarFreaks & DrumMania",
+    jubeat: "jubeat",
+    popn: "pop'n music",
+    bms: "BMS"
 }
 
 // human readable stuff for versions
 const versionHuman = {
-  iidx: {
-    "0": "1st Style",
-    "1": "substream",
-    "2": "2nd Style",
-    "3": "3rd Style",
-    "4": "4th Style",
-    "5": "5th Style",
-    "6": "6th Style",
-    "7": "7th Style",
-    "8": "8th Style",
-    "9": "9th Style",
-    "10": "10th Style",
-    "11": "IIDX RED",
-    "12": "HAPPY SKY",
-    "13": "DISTORTED",
-    "14": "GOLD",
-    "15": "DJ TROOPERS",
-    "16": "EMPRESS",
-    "17": "SIRIUS",
-    "18": "Resort Anthem",
-    "19": "Lincle",
-    "20": "tricoro",
-    "21": "SPADA",
-    "22": "PENDUAL",
-    "23": "copula",
-    "24": "SINOBUZ",
-    "25": "CANNON BALLERS",
-    "26": "ROOTAGE",
-    "27": "HEROIC VERSE",
-    "3CS": "3rd Style CS",
-    "4CS": "4th Style CS",
-    "5CS": "5th Style CS",
-    "6CS": "6th Style CS",
-    "7CS": "7th Style CS",
-    "8CS": "8th Style CS",
-    "9CS": "9th Style CS",
-    "10CS": "10th Style CS",
-    "11CS": "IIDX RED CS",
-    "12CS": "HAPPY SKY CS",
-    "13CS": "DISTORTED CS",
-    "14CS": "GOLD CS",
-    "15CS": "DJ TROOPERS CS",
-    "16CS": "EMPRESS + PREMIUM BEST CS",
-  },
-  museca: {
-    "1": "",
-    "1.5": "1+1/2"
-  },
-  maimai:{
-    maimai: "",
-    maimaiplus: "PLUS",
-    green: "GReeN",
-    greenplus: "GReeN PLUS",
-    orange: "ORANGE",
-    orangeplus: "ORANGE PLUS",
-    pink: "PiNK",
-    pinkplus: "PiNK PLUS",
-    murasaki: "MURASAKi",
-    murasakiplus: "MURASAKi PLUS",
-    milk: "MiLK",
-    milkplus: "MiLK PLUS",
-    finale: "FiNALE"
-  },
-  jubeat:{
-    jubeat: "",
-    ripples: "ripples",
-    knit: "knit",
-    copious: "copious",
-    saucer: "saucer",
-    saucerfulfill: "saucer fulfill",
-    prop: "prop",
-    qubell: "Qubell",
-    clan: "clan",
-    festo: "festo"
-  },
-  popn:{
-    1: "1",
-    2: "2",
-    3: "3",
-    4: "4",
-    5: "5",
-    6: "6",
-    7: "7",
-    8: "8",
-    9: "9",
-    10: "10",
-    11: "11",
-    12: "12 Iroha",
-    13: "13 CARNIVAL",
-    14: "14 FEVER!",
-    15: "15 ADVENTURE",
-    16: "16 PARTY♪",
-    17: "17 THE MOVIE",
-    18: "18 Sengoku",
-    19: "19 TUNE STREET",
-    20: "20 fantasia",
-    "park": "Sunny Park",
-    "lapis": "Lapistoria",
-    "eclale": "éclale",
-    "usaneko": "Usaneko",
-    "peace": "peace"
-  },
-  sdvx:{
-    booth: "BOOTH",
-    inf: "II -infinite infection-",
-    gw: "III GRAVITY WARS",
-    heaven: "IV HEAVENLY HAVEN",
-    vivid: "V VIVID WAVE"
-  },
-  ddr:{
-    "1": "1st Mix",
-    "2": "2nd Mix",
-    "3": "3rd Mix",
-    "4": "4th Mix",
-    "5": "5th Mix",
-    "max": "MAX",
-    "max2": "MAX2",
-    "extreme": "EXTREME",
-    "snova": "SuperNOVA",
-    "snova2": "SuperNOVA 2",
-    "x": "X",
-    "x2": "X2",
-    "x3": "X3 vs. 2nd Mix",
-    "2013": "(2013)",
-    "2014": "(2014)",
-    "a": "Ace",
-    "a20": "A20"
-  }
+    iidx: {
+        "0": "1st Style",
+        "1": "substream",
+        "2": "2nd Style",
+        "3": "3rd Style",
+        "4": "4th Style",
+        "5": "5th Style",
+        "6": "6th Style",
+        "7": "7th Style",
+        "8": "8th Style",
+        "9": "9th Style",
+        "10": "10th Style",
+        "11": "IIDX RED",
+        "12": "HAPPY SKY",
+        "13": "DISTORTED",
+        "14": "GOLD",
+        "15": "DJ TROOPERS",
+        "16": "EMPRESS",
+        "17": "SIRIUS",
+        "18": "Resort Anthem",
+        "19": "Lincle",
+        "20": "tricoro",
+        "21": "SPADA",
+        "22": "PENDUAL",
+        "23": "copula",
+        "24": "SINOBUZ",
+        "25": "CANNON BALLERS",
+        "26": "ROOTAGE",
+        "27": "HEROIC VERSE"
+    },
+    museca: {
+        "1": "",
+        "1.5": "1+1/2"
+    },
+    maimai:{
+        maimai: "",
+        maimaiplus: "PLUS",
+        green: "GReeN",
+        greenplus: "GReeN PLUS",
+        orange: "ORANGE",
+        orangeplus: "ORANGE PLUS",
+        pink: "PiNK",
+        pinkplus: "PiNK PLUS",
+        murasaki: "MURASAKi",
+        murasakiplus: "MURASAKi PLUS",
+        milk: "MiLK",
+        milkplus: "MiLK PLUS",
+        finale: "FiNALE"
+    },
+    jubeat:{
+        jubeat: "",
+        ripples: "ripples",
+        knit: "knit",
+        copious: "copious",
+        saucer: "saucer",
+        saucerfulfill: "saucer fulfill",
+        prop: "prop",
+        qubell: "Qubell",
+        clan: "clan",
+        festo: "festo"
+    },
+    popn:{
+        1: "1",
+        2: "2",
+        3: "3",
+        4: "4",
+        5: "5",
+        6: "6",
+        7: "7",
+        8: "8",
+        9: "9",
+        10: "10",
+        11: "11",
+        12: "12 Iroha",
+        13: "13 CARNIVAL",
+        14: "14 FEVER!",
+        15: "15 ADVENTURE",
+        16: "16 PARTY♪",
+        17: "17 THE MOVIE",
+        18: "18 Sengoku",
+        19: "19 TUNE STREET",
+        20: "20 fantasia",
+        "park": "Sunny Park",
+        "lapis": "Lapistoria",
+        "eclale": "éclale",
+        "usaneko": "Usaneko",
+        "peace": "peace"
+    },
+    sdvx:{
+        booth: "BOOTH",
+        inf: "II -infinite infection-",
+        gw: "III GRAVITY WARS",
+        heaven: "IV HEAVENLY HAVEN",
+        vivid: "V VIVID WAVE"
+    },
+    ddr:{
+        "1": "1st Mix",
+        "2": "2nd Mix",
+        "3": "3rd Mix",
+        "4": "4th Mix",
+        "5": "5th Mix",
+        "max": "MAX",
+        "max2": "MAX2",
+        "extreme": "EXTREME",
+        "snova": "SuperNOVA",
+        "snova2": "SuperNOVA 2",
+        "x": "X",
+        "x2": "X2",
+        "x3": "X3 vs. 2nd Mix",
+        "2013": "(2013)",
+        "2014": "(2014)",
+        "a": "Ace",
+        "a20": "A20"
+    }
 }
 
 // release orders of the games.
 const gameOrders = {
-  iidx: ["0","1","2","3","4","3CS","5","4CS","5CS","6","7","6CS","8","9","10","7CS","11","8CS","9CS","12","10CS","13","11CS","12CS","14","13CS","15","14CS","15CS","16","16CS","17","18","19","20","21","22","23","24","25","26","27"],
-  museca: ["1","1.5"],
-  maimai: ["maimai","maimaiplus","green","greenplus","orange","orangeplus","pink","pinkplus","murasaki","murasakiplus","milk","milkplus","finale"],
-  jubeat: ["jubeat","ripples","knit","copious","saucer","saucerfulfill","prop","qubell","clan","festo"],
-  popn: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","park","lapis","eclale","usaneko","peace"],
-  sdvx: ["booth","inf","gw","heaven","vivid"],
-  ddr: ["1","2","3","4","5","max","max2","extreme","snova","snova2","x","x2","x3","2013","2014","a","a20"],
-  bms: ["0"],
+    iidx: ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27"],
+    museca: ["1","1.5"],
+    maimai: ["maimai","maimaiplus","green","greenplus","orange","orangeplus","pink","pinkplus","murasaki","murasakiplus","milk","milkplus","finale"],
+    jubeat: ["jubeat","ripples","knit","copious","saucer","saucerfulfill","prop","qubell","clan","festo"],
+    popn: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","park","lapis","eclale","usaneko","peace"],
+    sdvx: ["booth","inf","gw","heaven","vivid"],
+    ddr: ["1","2","3","4","5","max","max2","extreme","snova","snova2","x","x2","x3","2013","2014","a","a20"],
+    bms: ["0"],
 }
 
 const defaultPlaytype = {
-  iidx: "SP",
-  museca: "Single",
-  maimai: "Single",
-  jubeat: "Single",
-  popn: "9B",
-  sdvx: "Single",
-  ddr: "SP",
-  bms: "7K",
+    iidx: "SP",
+    museca: "Single",
+    maimai: "Single",
+    jubeat: "Single",
+    popn: "9B",
+    sdvx: "Single",
+    ddr: "SP",
+    bms: "7K",
+}
+
+const validDifficulties = {
+    iidx: ["BEGINNER", "NORMAL", "HYPER", "ANOTHER", "LEGGENDARIA"],
+    museca: ["Green", "Yellow", "Red"],
+    maimai: ["Easy", "Basic", "Advanced", "Expert", "Master", "Re:Master"],
+    jubeat: ["BSC","ADV","EXT"],
+    popn: ["Easy", "Normal", "Hyper", "EX"],
+    sdvx: ["NOV", "ADV", "EXH", "MXM", "INF", "GRV", "HVN", "VVD"],
+    ddr: ["BEGINNER", "BASIC", "DIFFICULT", "EXPERT", "CHALLENGE"],
+    bms: []
 }
 
 // difficulty orders of games.
 const diffOrders = {
-  iidx: ["SP BEGINNER", "SP NORMAL","SP HYPER", "SP ANOTHER","SP LEGGENDARIA", "DP NORMAL", "DP HYPER","DP ANOTHER", "DP LEGGENDARIA"],
-  museca: ["Single Green","Single Yellow","Single Red"],
-  maimai: ["Single Easy","Single Basic","Single Advanced","Single Expert","Single Master","Single Re:Master"],
-  jubeat: ["Single BSC","Single ADV","Single EXT"],
-  popn: ["9B Easy","9B Normal","9B Hyper","9B EX"],
-  sdvx: ["Single NOV","Single ADV","Single EXH","Single MXM","Single INF","Single GRV","Single HVN","Single VVD"],
-  ddr: ["SP BEGINNER","SP BASIC","SP DIFFICULT","SP EXPERT","SP CHALLENGE","DP BASIC","DP DIFFICULT", "DP EXPERT","DP CHALLENGE"],
-  bms: [], // BMS does have difficulties, it just doesn't matter because root songs aren't properly defined.
+    iidx: ["SP BEGINNER", "SP NORMAL","SP HYPER", "SP ANOTHER","SP LEGGENDARIA", "DP NORMAL", "DP HYPER","DP ANOTHER", "DP LEGGENDARIA"],
+    museca: ["Single Green","Single Yellow","Single Red"],
+    maimai: ["Single Easy","Single Basic","Single Advanced","Single Expert","Single Master","Single Re:Master"],
+    jubeat: ["Single BSC","Single ADV","Single EXT"],
+    popn: ["9B Easy","9B Normal","9B Hyper","9B EX"],
+    sdvx: ["Single NOV","Single ADV","Single EXH","Single MXM","Single INF","Single GRV","Single HVN","Single VVD"],
+    ddr: ["SP BEGINNER","SP BASIC","SP DIFFICULT","SP EXPERT","SP CHALLENGE","DP BASIC","DP DIFFICULT", "DP EXPERT","DP CHALLENGE"],
+    bms: [], // BMS does have difficulties, it just doesn't matter because root songs aren't properly defined.
+}
+
+// inclusive on both ends.
+function __StringRange(min, max){
+    let arr = [];
+    for (let i = min; i<=max; i++) {
+        arr.push(""+i);
+    }
+
+    return arr;
+}
+
+// why are levels strings?
+// well, not all games use numerical levels - beatstreams highest is kanji,
+// but the more common offender is level+, like 7+ or something.
+// as such, we use strings to identify here.
+// note that all charts have a levelNum property that stores those 7+ things as 7.5 or equivalent.
+// and that can be used to query more logically.
+const levels = {
+    iidx: __StringRange(1,12),
+    museca: __StringRange(1,15),
+    popn: __StringRange(1,50),
+    ddr: __StringRange(1,20),
+    sdvx: __StringRange(1,20),
+    // weirdo games
+    jubeat: ["1","2","3","4","5","6","7","8","9.0","9.1","9.2","9.3","9.4","9.5","9.6","9.7","9.8","9.9","10.0","10.1","10.2","10.3","10.4","10.5","10.6","10.7","10.8","10.9"],
+    maimai: ["1","2","3","4","5","6","7","7+","8","8+","9","9+","10","10+","11","11+","12","12+","13","13+","14"],
+    bms: [] // doesnt have actual levels lmao
 }
 
 // valid folders for each game
 const folders = {
-  iidx: {
-    type: "static",
-    levels: ["1","2","3","4","5","6","7","8","9","10","11","12"],
-    versions: gameOrders["iidx"]
-  },
-  museca: {
-    type: "static",
-    levels: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"],
-    versions: gameOrders["museca"]
-  },
-  maimai: {
-    type: "static",
-    levels: ["1","2","3","4","5","6","7","7+","8","8+","9","9+","10","10+","11","11+","12","12+","13","13+","14"],
-    versions: gameOrders["maimai"]
-  },
-  jubeat:{
-    type: "static",
-    levels: ["1","2","3","4","5","6","7","8","9.0","9.1","9.2","9.3","9.4","9.5","9.6","9.7","9.8","9.9","10.0","10.1","10.2","10.3","10.4","10.5","10.6","10.7","10.8","10.9"],
-    versions: gameOrders["jubeat"]
-  },
-  popn:{
-    type: "static",
-    levels: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50"],
-    versions: gameOrders["popn"]
-  },
-  ddr: {
-    type: "static",
-    levels: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19"],
-    versions: gameOrders["ddr"]
-  },
-  sdvx:{
-    type: "static",
-    levels: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],
-    versions: gameOrders["sdvx"]
-  },
-  bms: {
-    type: "tierlist",
-    reasonableLevelMax: 30,
-    levels: [],
-    versions: []
-  },
+    iidx: {
+        type: "static",
+        levels: ["1","2","3","4","5","6","7","8","9","10","11","12"],
+        versions: gameOrders["iidx"]
+    },
+    museca: {
+        type: "static",
+        levels: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"],
+        versions: gameOrders["museca"]
+    },
+    maimai: {
+        type: "static",
+        levels: ["1","2","3","4","5","6","7","7+","8","8+","9","9+","10","10+","11","11+","12","12+","13","13+","14"],
+        versions: gameOrders["maimai"]
+    },
+    jubeat:{
+        type: "static",
+        levels: ["1","2","3","4","5","6","7","8","9.0","9.1","9.2","9.3","9.4","9.5","9.6","9.7","9.8","9.9","10.0","10.1","10.2","10.3","10.4","10.5","10.6","10.7","10.8","10.9"],
+        versions: gameOrders["jubeat"]
+    },
+    popn:{
+        type: "static",
+        levels: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50"],
+        versions: gameOrders["popn"]
+    },
+    ddr: {
+        type: "static",
+        levels: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19"],
+        versions: gameOrders["ddr"]
+    },
+    sdvx:{
+        type: "static",
+        levels: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],
+        versions: gameOrders["sdvx"]
+    },
+    bms: {
+        type: "tierlist",
+        reasonableLevelMax: 30,
+        levels: [],
+        versions: []
+    },
 }
 
 const validPlaytypes ={
-  iidx: ["SP","DP"],
-  popn: ["9B"],
-  sdvx: ["Single"],
-  ddr: ["SP","DP"],
-  maimai: ["Single"],
-  jubeat: ["Single"],
-  museca: ["Single"],
-  bms: ["7K","14K","5K","10K"]
+    iidx: ["SP","DP"],
+    popn: ["9B"],
+    sdvx: ["Single"],
+    ddr: ["SP","DP"],
+    maimai: ["Single"],
+    jubeat: ["Single"],
+    museca: ["Single"],
+    bms: ["7K","14K","5K","10K"]
 }
 
 const validTierlistTiers = {
-  iidx: ["clear","hardclear","exhardclear"],
-  museca: ["clear"],
-  maimai: [],
-  jubeat: [],
-  popn: [],
-  sdvx: [],
-  ddr: ["clear","perfectfullcombo"],
-  bms: ["easyclear","clear","hardclear","fullcombo"],
+    iidx: ["clear","hardclear","exhardclear"],
+    museca: ["clear"],
+    maimai: [],
+    jubeat: [],
+    popn: [],
+    sdvx: ["clear","excessiveclear"],
+    ddr: ["clear","perfectfullcombo"],
+    bms: ["easyclear","clear","hardclear","fullcombo"],
 }
 
 const judgements = {
-  iidx: ["MISS","BAD","GOOD","GREAT","PGREAT"],
-  bms: ["POOR","BAD","GOOD","GREAT","PGREAT"],
-  museca: ["MISS","NEAR","CRITICAL"],
-  maimai: ["MISS","GOOD","GREAT","PERFECT"],
-  jubeat: ["MISS","POOR","GOOD","GREAT","PERFECT"],
-  popn: ["BAD","GOOD","GREAT","COOL"],
-  sdvx: ["MISS","NEAR","CRITICAL"],
-  ddr: ["MISS","BOO","GOOD","GREAT","PERFECT","MARVELOUS"]
+    iidx: ["MISS","BAD","GOOD","GREAT","PGREAT"],
+    bms: ["POOR","BAD","GOOD","GREAT","PGREAT"],
+    museca: ["MISS","NEAR","CRITICAL"],
+    maimai: ["MISS","GOOD","GREAT","PERFECT"],
+    jubeat: ["MISS","POOR","GOOD","GREAT","PERFECT"],
+    popn: ["BAD","GOOD","GREAT","COOL"],
+    sdvx: ["MISS","NEAR","CRITICAL"],
+    ddr: ["MISS","BOO","GOOD","GREAT","PERFECT","MARVELOUS"]
 }
 
 // correct order for grades
 const grades = {
-  iidx: ["F","E","D","C","B","A","AA","AAA","MAX-","MAX"],
-  bms: ["F","E","D","C","B","A","AA","AAA","MAX-","MAX"],
-  museca: ["没","拙","凡","佳","良","優","秀","傑","傑G"],
-  maimai: ["F","E","D","C","B","A","AA","AAA","S","S+","SS","SS+","SSS","SSS+"],
-  jubeat: ["E","D","C","B","A","S","SS","SSS","EXC"],
-  popn: ["E","D","C","B","A","AA","AAA","S"],
-  sdvx: ["D","C","B","A","A+","AA","AA+","AAA","AAA+","S"],
-  ddr: ["D","C","B","A","AA","AAA"],
+    iidx: ["F","E","D","C","B","A","AA","AAA","MAX-","MAX"],
+    bms: ["F","E","D","C","B","A","AA","AAA","MAX-","MAX"],
+    museca: ["没","拙","凡","佳","良","優","秀","傑","傑G"],
+    maimai: ["F","E","D","C","B","A","AA","AAA","S","S+","SS","SS+","SSS","SSS+"],
+    jubeat: ["E","D","C","B","A","S","SS","SSS","EXC"],
+    popn: ["E","D","C","B","A","AA","AAA","S"],
+    sdvx: ["D","C","B","A","A+","AA","AA+","AAA","AAA+","S"],
+    ddr: ["D","C","B","A","AA","AAA"],
 }
 
 
 const gradeBoundaries = {
-  iidx: [0,22.22,33.33,44.44,55.55,66.66,77.77,88.88,94.44,100.00],
-  bms: [0,22.22,33.33,44.44,55.55,66.66,77.77,88.88,94.44,100.00],
-  museca: [0,60,70,80,85,90,95,97.5,100],
-  // maimai is fidgety with grades - SSS+ is only possible if you get above 100%, but what the limit is depends on the chart
-  // this is handled in importhelpers; go figure.
-  maimai: [0,10,20,40,60,80,90,94,97,98,99,99.5,100,9999],
-  jubeat: [0,50,70,80,85,90,95,98,100],
-  popn: [0,50,62,72,82,90,95,98],
-  // popn is fidgety with grades - A is the limit of grades if you fail. this NEEDS TO BE HANDLED in importhelpers. - 28/04/2020 isnt done yet lol
-  sdvx: [0,70,80,87,90,93,95,97,98,99],
-  ddr: [0,59,69,79,89,99,100],
+    iidx: [0,22.22,33.33,44.44,55.55,66.66,77.77,88.88,94.44,100.00],
+    bms: [0,22.22,33.33,44.44,55.55,66.66,77.77,88.88,94.44,100.00],
+    museca: [0,60,70,80,85,90,95,97.5,100],
+    // maimai is fidgety with grades - SSS+ is only possible if you get above 100%, but what the limit is depends on the chart
+    // this is handled in importhelpers; go figure.
+    maimai: [0,10,20,40,60,80,90,94,97,98,99,99.5,100,9999],
+    jubeat: [0,50,70,80,85,90,95,98,100],
+    popn: [0,50,62,72,82,90,95,98],
+    // popn is fidgety with grades - A is the limit of grades if you fail. this NEEDS TO BE HANDLED in importhelpers. - 28/04/2020 isnt done yet lol
+    sdvx: [0,70,80,87,90,93,95,97,98,99],
+    ddr: [0,59,69,79,89,99,100],
+}
+
+// this is to resolve some GARBAGE in chart.js
+const boundaryHCF = {
+    iidx: 5.555,
+    bms: 5.555,
+    museca: 2.5,
+    maimai: 0.5,
+    jubeat: 1,
+    popn: 1,
+    sdvx: 1,
+    ddr: 1
 }
 
 // correct order for lamps
 const lamps = {
-  iidx: ["NO PLAY","FAILED","ASSIST CLEAR","EASY CLEAR","CLEAR","HARD CLEAR","EX HARD CLEAR","FULL COMBO"],
-  bms: ["NO PLAY","FAILED","ASSIST CLEAR","EASY CLEAR","CLEAR","HARD CLEAR","EX HARD CLEAR","FULL COMBO"],
-  museca: ["FAILED","CLEAR","CONNECT ALL","PERFECT CONNECT ALL"],
-  maimai: ["FAILED","CLEAR","FULL COMBO","ALL PERFECT","ALL PERFECT+"],
-  jubeat: ["FAILED","CLEAR","FULL COMBO","EXCELLENT"],
-  popn: ["FAILED","CLEAR","FULL COMBO","PERFECT"],
-  sdvx: ["FAILED","CLEAR","EXCESSIVE CLEAR","ULTIMATE CHAIN","PERFECT ULTIMATE CHAIN"],
-  ddr: ["FAILED","CLEAR","LIFE4","FULL COMBO","GREAT FULL COMBO","PERFECT FULL COMBO","MARVELOUS FULL COMBO"],
+    iidx: ["NO PLAY","FAILED","ASSIST CLEAR","EASY CLEAR","CLEAR","HARD CLEAR","EX HARD CLEAR","FULL COMBO"],
+    bms: ["NO PLAY","FAILED","ASSIST CLEAR","EASY CLEAR","CLEAR","HARD CLEAR","EX HARD CLEAR","FULL COMBO"],
+    museca: ["FAILED","CLEAR","CONNECT ALL","PERFECT CONNECT ALL"],
+    maimai: ["FAILED","CLEAR","FULL COMBO","ALL PERFECT","ALL PERFECT+"],
+    jubeat: ["FAILED","CLEAR","FULL COMBO","EXCELLENT"],
+    popn: ["FAILED","CLEAR","FULL COMBO","PERFECT"],
+    sdvx: ["FAILED","CLEAR","EXCESSIVE CLEAR","ULTIMATE CHAIN","PERFECT ULTIMATE CHAIN"],
+    ddr: ["FAILED","CLEAR","LIFE4","FULL COMBO","GREAT FULL COMBO","PERFECT FULL COMBO","MARVELOUS FULL COMBO"],
+}
+
+const validAltScores = {
+    "iidx": ["money"],
+    "ddr": ["ex"],
+    "bms": ["money"],
+    "sdvx": [],
+    "museca": [],
+    "popn": [],
+    "maimai": [],
+    "jubeat": [],
 }
 
 // first lamp that is considered a "true clear" by the game.
 const clearLamp = {
-  iidx: "CLEAR",
-  bms: "CLEAR",
-  museca: "CLEAR",
-  maimai: "CLEAR",
-  jubeat: "CLEAR",
-  popn: "CLEAR",
-  sdvx: "CLEAR",
-  ddr: "CLEAR"
+    iidx: "CLEAR",
+    bms: "CLEAR",
+    museca: "CLEAR",
+    maimai: "CLEAR",
+    jubeat: "CLEAR",
+    popn: "CLEAR",
+    sdvx: "CLEAR",
+    ddr: "CLEAR"
 }
 
 const validModifiers = {
-  iidx: {
-    note: ["NONRAN","MIRROR","RANDOM","R-RANDOM","S-RANDOM"],
-    gauge: ["NORMAL","HARD"]
-  },
-  bms: {
-    note: ["NONRAN","MIRROR","RANDOM","R-RANDOM","S-RANDOM"],
-    gauge: ["NORMAL","HARD"]
-  },
-  ddr:{
-    speed: ["0.25x","0.5x","0.75x","1x","1.25x","1.5x","1.75x","2.0x","2.25x","2.5x", "2.75x","3.0x","3.25x","3.5x","3.75x","4.0x","4.5x","5.0x","5.5x","6.0x","6.5x","7.0x","7.5x","8.0x"]
-  }
+    iidx: {
+        note: ["NONRAN","MIRROR","RANDOM","R-RANDOM","S-RANDOM"],
+        gauge: ["NORMAL","HARD"]
+    },
+    bms: {
+        note: ["NONRAN","MIRROR","RANDOM","R-RANDOM","S-RANDOM"],
+        gauge: ["NORMAL","HARD"]
+    },
+    ddr:{
+        speed: ["0.25x","0.5x","0.75x","1x","1.25x","1.5x","1.75x","2.0x","2.25x","2.5x", "2.75x","3.0x","3.25x","3.5x","3.75x","4.0x","4.5x","5.0x","5.5x","6.0x","6.5x","7.0x","7.5x","8.0x"]
+    }
+}
+
+const judgementWindows = {
+    iidx: [
+        {name: "PGREAT", msBorder: 16.667, value: 2},
+        {name: "GREAT", msBorder: 33.333, value: 1},
+        {name: "GOOD", msBorder: 116.667, value: 0}
+    ],
+    ddr: [
+        {name: "MARVELOUS", msBorder: 15, value: 3},
+        {name: "PERFECT", msBorder: 30, value: 2},
+        {name: "GREAT", msBorder: 59, value: 1},
+        {name: "GOOD", msBorder: 89, value: 0},
+        {name: "BAD", msBorder: 119, value: 0}
+    ],
+    museca: [
+        {name: "CRITICAL", msBorder: 33.333, value: 2},
+        {name: "NEAR", msBorder: 66.667, value: 1}
+    ]
 }
 
 const _rootChartTags = ["INDIVIDUAL DIFFERENCE","DIFFICULT INTRO","DIFFICULT MIDDLE","DIFFICULT END"]
 
 const adviceChartTags = {
-  iidx: [..._rootChartTags,"GENOCLEAR","RANDOM DEPENDENT"],
-  bms: [..._rootChartTags,"GENOCLEAR","RANDOM DEPENDENT"],
-  ddr: [..._rootChartTags],
-  museca: [..._rootChartTags],
-  sdvx: [..._rootChartTags],
-  popn: [..._rootChartTags],
-  jubeat: [..._rootChartTags],
-  maimai: [..._rootChartTags],
+    iidx: [..._rootChartTags,"GENOCLEAR","RANDOM DEPENDENT"],
+    bms: [..._rootChartTags,"GENOCLEAR","RANDOM DEPENDENT"],
+    ddr: [..._rootChartTags],
+    museca: [..._rootChartTags],
+    sdvx: [..._rootChartTags],
+    popn: [..._rootChartTags],
+    jubeat: [..._rootChartTags],
+    maimai: [..._rootChartTags],
 }
 
 const adviceNoteTags = {
-  iidx: ["SCRATCHING","JACKS","SOFLAN","CHARGE NOTES","SCALES","CHORD SCALES","DENIM","TRILLS", "STREAMS","ROLLS","CHORDS","SPEED","STAMINA","TECHNICAL"],
-  bms: ["SCRATCHING","JACKS","SOFLAN","CHARGE NOTES","SCALES","CHORD SCALES","DENIM","TRILLS", "STREAMS","ROLLS","CHORDS","SPEED","STAMINA","TECHNICAL"],
-  ddr: ["CROSSOVERS","GALLOPS","JUMPS","SOFLAN","STOPS","TURNS","FREEZE NOTES","SHOCK ARROWS","DRILLS","JACKS","STEP-JUMPS","CANDLES","STAMINA","TECHNICAL"],
-  museca: ["STREAMS","TRILLS","SPINS","PEDAL","STAMINA","TECHNICAL"],
-  sdvx: ["STREAMS","JACKS","LASERS","SPEED","TRILLS","ONE-HANDING","STAMINA","TECHNICAL"],
-  popn: [],
-  jubeat: [],
-  maimai: []
+    iidx: ["SCRATCHING","JACKS","SOFLAN","CHARGE NOTES","SCALES","CHORD SCALES","DENIM","TRILLS", "STREAMS","ROLLS","CHORDS","SPEED","STAMINA","TECHNICAL"],
+    bms: ["SCRATCHING","JACKS","SOFLAN","CHARGE NOTES","SCALES","CHORD SCALES","DENIM","TRILLS", "STREAMS","ROLLS","CHORDS","SPEED","STAMINA","TECHNICAL"],
+    ddr: ["CROSSOVERS","GALLOPS","JUMPS","SOFLAN","STOPS","TURNS","FREEZE NOTES","SHOCK ARROWS","DRILLS","JACKS","STEP-JUMPS","CANDLES","STAMINA","TECHNICAL"],
+    museca: ["STREAMS","TRILLS","SPINS","PEDAL","STAMINA","TECHNICAL"],
+    sdvx: ["STREAMS","JACKS","LASERS","SPEED","TRILLS","ONE-HANDING","STAMINA","TECHNICAL"],
+    popn: [],
+    jubeat: [],
+    maimai: []
 }
 
 const COLOUR_SET = {
@@ -444,7 +550,7 @@ const gradeColours = {
         "EXC": COLOUR_SET.white
         }
     },
-    maimai: { // todo make this not repeat values for S, S+, etc.
+    maimai: {
         outline:{
             "F": COLOUR_SET.gray,
             "E": COLOUR_SET.red,
@@ -781,16 +887,21 @@ function GetXPForLevel(level){
 }
 
 function GetGrade(game, percent){
-    for (let i = grades[game].length; i >= 0; i--) {
-        var gradeName = grades[game][i]
-        var gradeBound = gradeBoundaries[game][i]
-        
-        if (percent >= gradeBound){
-        return gradeName;
-        }
+  // THIS FOR LOOP IS ITERATING DOWNWARDS
+  // JUST INCASE YOU DON'T ACTUALLY READ IT PROPERLY
+  for (let i = grades[game].length; i >= 0; i--) {
+    var gradeName = grades[game][i]
+    var gradeBound = gradeBoundaries[game][i]
+    
+    if (percent >= gradeBound){
+      return gradeName;
     }
+  }
 
-    return grades[game][0];
+  // if we get all this way they've got a negative score
+  // idk what to write in this case so ur gonna get the worst grade and throw an error in my logs
+  console.error("Negative score parsed?",percent)
+  return grades[game][0];
 }
 
 function GetGradeWithScore(score){
@@ -806,7 +917,7 @@ const ratingParameters = {
   iidx: {
       failHarshnessMultiplier: 0.3,
       pivotPercent: 0.7777, // Grade: AA
-      clearExpMultiplier: 1 
+      clearExpMultiplier: 1
   },
   bms: {
     failHarshnessMultiplier: 0.5,
@@ -845,86 +956,174 @@ const ratingParameters = {
   }
 }
 
+function ChangeAlpha(string, alpha){
+    let spl = string.split(",");
+    spl[spl.length - 1] = alpha + ")";
+    return spl.join(",");
+}
+
+function ScoreGradeDelta(game, score, chart, delta){
+    let nextGrade = grades[game][grades[game].indexOf(score.scoreData.grade) + delta];
+
+    if (nextGrade){
+        let nextGradePercent = gradeBoundaries[game][grades[game].indexOf(nextGrade)];
+
+        let nGScore = CalculateScore(game, nextGradePercent, chart);
+
+        if (nGScore){
+            let delta = score.scoreData.score - nGScore
+            let formattedString = nextGrade;
+            formattedString += delta >= 0 ? "+" + delta : "" + delta
+            return {
+                grade: nextGrade,
+                delta: delta,
+                formattedString: formattedString
+            }
+        }
+    }
+    else {
+        return null;
+    }
+}
+
+function CalculateScore(game, percent, chart){
+    let score;
+
+    if (game === "iidx" || game === "bms"){
+        score = (chart.notedata.notecount * 2) * (percent/100);
+    }
+    else if (game === "ddr"){
+        score = (chart.notedata.notecount + chart.notedata.shocks * 3.0) * (percent/100);
+    }
+    else if (game === "museca" || game === "jubeat"){
+        score = 1000000 * (percent/100);
+    }
+    else if (game === "popn"){
+        score = 100000 * (percent/100);
+    }
+    else if (game === "sdvx" || game === "usc"){
+        score = 10000000 * (percent/100);
+    }
+    else if (game === "maimai"){
+        return null; // this won't work.
+    }
+
+    if (score){
+        return Math.ceil(score);
+    }
+    else {
+        return null;
+    }
+}
+
 function CalculatePercent(game, score, chartData,hitData){
-  var percent;
-  if (game === "iidx" || game === "bms"){
-    // IIDX Percent Calculator
-    // total score possible on a chart is notecount * 2;
-    // ergo, return score/notecount*2 as percent
-    percent = (parseFloat(score) / (parseFloat(chartData.notedata.notecount) * 2.0)) * 100
-  }
-  else if (game === "ddr"){
-    // DDR Percent Calculator
-    // total score possible on a chart is notecount * 3 + shock arrows * 3;
-    percent = (parseFloat(score) / (parseFloat(chartData.notedata.notecount) * 3.0 + parseFloat(chartData.notedata.shocks) * 3.0)) * 100
-  }
-  else if (game === "museca" || game === "jubeat"){
-    // MUSECA & jubeat Percent Calculator
-    // Max score on every chart is 1,000,000.
-    // ergo, return score/1,000,000 as percent.
-    percent = (score / 1000000) * 100;
-  }
-  else if (game === "popn"){
-    // popn Percent Calculator
-    // Max score on every chart is 100,000.
-    // ergo, return score/100,000 as percent.
-    percent = (score / 100000) * 100;
-  }
-  else if (game === "sdvx"){
-    // sdvx percent calc
-    // max score on every chart is 10,000,000
-    // blah blah blah
-    percent = (score / 10000000) * 100;
-  }
+    let percent;
+    if (game === "iidx" || game === "bms"){
+        // IIDX Percent Calculator
+        // total score possible on a chart is notecount * 2;
+        // ergo, return score/notecount*2 as percent
+        percent = (parseFloat(score) / (parseFloat(chartData.notedata.notecount) * 2.0)) * 100
+    }
+    else if (game === "museca" || game === "jubeat" || game === "ddr"){
+        // MUSECA & jubeat Percent Calculator
+        // Max score on every chart is 1,000,000.
+        // ergo, return score/1,000,000 as percent.
+        percent = (score / 1000000) * 100;
+    }
+    else if (game === "popn"){
+        // popn Percent Calculator
+        // Max score on every chart is 100,000.
+        // ergo, return score/100,000 as percent.
+        percent = (score / 100000) * 100;
+    }
+    else if (game === "sdvx"){
+        // sdvx percent calc
+        // max score on every chart is 10,000,000
+        // blah blah blah
+        percent = (score / 10000000) * 100;
+    }
 
-  if (percent > 100){
-    console.error("WARNING: PERCENT CALCULATED FOR SCORE WAS GREATER THAN 100%. INVESTIGATE")
-    console.error(score);
-  }
+    if (percent > 100){
+        console.error("WARNING: PERCENT CALCULATED FOR SCORE WAS GREATER THAN 100%. INVESTIGATE")
+        console.error(score);
+    }
 
-  if (!percent){
-    percent = 0; // sanity check
-  }
+    if (!percent){
+        percent = 0; // sanity check
+    }
 
-  return percent;
+    return percent;
+}
+
+function PercentToScore(percent, game, chartData){
+    let eScore = 0;
+
+    if (game === "iidx" || game === "bms"){
+        eScore = percent * chartData.notedata.notecount * 2
+    }
+    else if (game === "museca" || game === "jubeat"){
+        eScore = percent * 1000000;
+    }
+    else if (game === "popn"){
+        eScore = percent * 100000;
+    }
+    else if (game === "sdvx"){
+        eScore = percent * 10000000;
+    }
+    else if (game === "ddr"){
+        // todo
+    }
+
+    return eScore;
 }
 
 
 
-if (typeof module !== 'undefined'){
-    module.exports = {
-        supportedGames,
-        gameOrders,
-        diffOrders,
-        GameToHuman,
-        HumanToGame,
-        folders,
-        VersionToHuman,
-        versionHuman,
-        grades,
-        lamps,
-        lampColours,
-        gradeColours,
-        GetLevel,
-        GetXPForLevel,
-        serviceSupportedGames,
-        defaultPlaytype,
-        gameChartIndicators,
-        GetGrade,
-        gradeBoundaries,
-        gameHuman,
-        ratingParameters,
-        validPlaytypes,
-        judgements,
-        judgeColours,
-        gameColours,
-        validTierlistTiers,
-        CalculatePercent,
-        clearLamp,
-        validModifiers,
-        adviceChartTags,
-        adviceNoteTags,
-        GetGradeWithScore,
-        gameRelevantScoreBucket
-    };
+if (typeof window === 'undefined'){
+  module.exports = {
+    supportedGames,
+    gameOrders,
+    diffOrders,
+    GameToHuman,
+    HumanToGame,
+    folders,
+    VersionToHuman,
+    versionHuman,
+    grades,
+    lamps,
+    lampColours,
+    gradeColours,
+    GetLevel,
+    GetXPForLevel,
+    serviceSupportedGames,
+    defaultPlaytype,
+    gameChartIndicators,
+    GetGrade,
+    gradeBoundaries,
+    gameHuman,
+    ratingParameters,
+    validPlaytypes,
+    ScoreGradeDelta,
+    judgements,
+    judgeColours,
+    gameColours,
+    validTierlistTiers,
+    CalculatePercent,
+    clearLamp,
+    validModifiers,
+    adviceChartTags,
+    adviceNoteTags,
+    GetGradeWithScore,
+    gameRelevantScoreBucket,
+    judgementWindows,
+    PercentToScore,
+    ChangeAlpha,
+    validDifficulties,
+    validHitData,
+    validHitMeta,
+    validAltScores,
+    levels,
+    boundaryHCF,
+    gameSpecificCalc
+  };
 }

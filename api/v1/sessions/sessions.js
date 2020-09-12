@@ -29,7 +29,6 @@ router.get("/", async function(req,res){
             });
         }
     }
-
 });
 
 async function GetSessionWithID(req,res,next){

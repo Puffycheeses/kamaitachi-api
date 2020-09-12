@@ -15,6 +15,11 @@ const validKeys = {
         userID: "integer",
         highlight: "boolean"
     },
+    "folders": {
+        name: "string",
+        game: "string",
+        custom: "boolean"
+    },
     "scores": {
         userID: "integer",
         songID: "integer",
@@ -100,7 +105,8 @@ const validSorts = {
     "charts": ["id","level","notedata.notecount"],
     "clans": ["xp","foundedTime"],
     "scores": ["timeAchieved","timeAdded","xp","scoreData.percent","scoreData.score","scoreData.lampIndex","scoreData.gradeIndex", "calculatedData.rating","calculatedData.notability", "calculatedData.lampRating", "calculatedData.gameSpecific.BPI", "calculatedData.gameSpecific.EPI"],
-    "queries": ["timeAdded"]
+    "queries": ["timeAdded"],
+    "folders": ["views"]
 }
 
 const defaultSorts = {
@@ -113,7 +119,8 @@ const defaultSorts = {
     "charts": "id",
     "clans": "xp",
     "scores": "timeAchieved",
-    "queries": "timeAdded"
+    "queries": "timeAdded",
+    "folders": "views" // temp
 }
 
 const VALID_FOLDER_TYPES = ["levels","versions"];

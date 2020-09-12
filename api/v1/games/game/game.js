@@ -69,11 +69,9 @@ router.get("/playercount", async function(req,res){
 
 // mounts
 const songsRouter = require("./songs/songs.js");
-const foldersRouter = require("./folders/folders.js");
 const chartsRouter = require("./charts/charts.js");
 
 router.use("/songs", songsRouter);
-router.use("/folders/:folderType", foldersRouter);
 router.use("/charts", chartsRouter);
 
 module.exports = router;
