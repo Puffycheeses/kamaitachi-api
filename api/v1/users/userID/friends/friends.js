@@ -1,9 +1,8 @@
 const express = require("express");
 const db = require("../../../../../db.js");
 const router = express.Router({mergeParams: true});
-const userHelpers = require("../../../../../core/user-core.js");
+const userCore = require("../../../../../core/user-core.js");
 const middlewares = require("../../../../../middlewares.js");
-const friendHelpers = require("./helpers.js");
 const apiConfig = require("../../../../../apiconfig.js");
 
 // mounted on /api/v1/users/:userID/friends
@@ -39,7 +38,15 @@ router.get("/online", async function(req,res){
 });
 
 router.patch("/add", middlewares.RequireUserKeyMatch, async function(req,res){
-    let friend = await friendHelpers.GetFriend(req.body.friendID);
+    let friend = await userCore.GetUser(req.body.friendID);
+
+    if (!friend){
+        return res.status(404).json({
+            success: false,
+            description: `This user ${req.body.friendID} does not exist.`
+        });
+    }
+    
     let user = req.user;
 
     if (user.friends.length > 100){
@@ -60,7 +67,7 @@ router.patch("/add", middlewares.RequireUserKeyMatch, async function(req,res){
     
     return res.status(201).json({
         success: true,
-        description: "Successfully added friendID '" + req.body.friendID + "' to user '" + req.params.userID + "'",
+        description: `Successfully added ${friend.displayname} as a friend!`,
         body: {
             item: friend
         }
@@ -68,7 +75,14 @@ router.patch("/add", middlewares.RequireUserKeyMatch, async function(req,res){
 });
 
 router.patch("/remove", middlewares.RequireUserKeyMatch, async function(req,res){
-    let friend = await friendHelpers.GetFriend(req.body.friendID);
+    let friend = await userCore.GetUser(req.body.friendID);
+
+    if (!friend){
+        return res.status(404).json({
+            success: false,
+            description: `This user ${req.body.friendID} does not exist.`
+        });
+    }
     let user = req.user;
 
     if (!user.friends.includes(friend.id)){
@@ -84,7 +98,7 @@ router.patch("/remove", middlewares.RequireUserKeyMatch, async function(req,res)
     
     return res.status(200).json({
         success: true,
-        description: "Successfully removed friendID '" + req.body.friendID + "' from user '" + req.params.userID + "'",
+        description: `Successfully removed ${friend.displayname} as a friend.`,
         body: {
             item: friend
         }

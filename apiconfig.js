@@ -1,5 +1,5 @@
 // fields that should not be exposed to the public for user returns.
-const REMOVE_PRIVATE_USER_RETURNS = {_id:0, password: 0,email:0,integrations:0};
+const REMOVE_PRIVATE_USER_RETURNS = {password: 0,email:0,integrations:0};
 
 // required amount of time between a user last being seen for them to be considered "online".
 // this is 5 minutes in miliseconds.
