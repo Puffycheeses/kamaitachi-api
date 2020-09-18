@@ -2,6 +2,7 @@ const express = require("express");
 const dbHelpers = require("../../../core/db-core.js");
 const router = express.Router({mergeParams: true});
 const db = require("../../../db.js");
+const apiConfig = require("../../../apiconfig.js");
 
 // mounted on /api/v1/sessions
 
@@ -14,6 +15,16 @@ router.get("/", async function(req,res){
             true,
             MAX_RETURNS
         );
+
+        if (dbRes.body.success){
+            if (req.query.getAssocData === "true"){
+                dbRes.body.body.users = await db.get("users").find({
+                    id: {$in: dbRes.body.body.items.map(e => e.userID)}
+                }, {
+                    fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS
+                });
+            }
+        }
         return res.status(dbRes.statusCode).json(dbRes.body);
     }
     catch (r) {

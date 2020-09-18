@@ -161,7 +161,7 @@ router.get("/query", async function(req,res){
         }
     }
 
-    if (req.query.autocoerce !== "false"){
+    if (req.query.autoCoerce !== "false"){
         baseObj.isScorePB = true;
     }
 
@@ -229,7 +229,7 @@ router.get("/query", async function(req,res){
     
         // there are some other options we can use if this operation is successful
         if (resBody.body.success){
-            if (req.query.autocoerce !== "false"){
+            if (req.query.autoCoerce !== "false"){
                 resBody.body.body.items = await scoreHelpers.AutoCoerce(resBody.body.body.items);
             }
             if (req.query.getAssocData && req.query.getAssocData !== "false") {
