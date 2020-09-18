@@ -35,7 +35,6 @@ router.get("/", async function(req,res){
 });
 
 router.get("/default-folders", async function(req,res){
-    console.time("default folders");
     if (!req.query.game || !config.supportedGames.includes(req.query.game)){
         return res.status(400).json({
             success: false,
@@ -76,8 +75,6 @@ router.get("/default-folders", async function(req,res){
     });
 
     if (dataCache){
-        console.timeEnd("default folders");
-        console.log("cache hit");
         return res.status(200).json({
             success: true,
             body: dataCache.body
@@ -169,7 +166,6 @@ router.get("/default-folders", async function(req,res){
         validUntil: Date.now() + 8.64e+7 // 24 hours
     });
 
-    console.timeEnd("default folders");
     return res.status(200).json({
         success: true,
         body: {

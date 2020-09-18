@@ -139,8 +139,6 @@ const SCORE_LIMIT = 100;
 router.get("/query", async function(req,res){
     let baseObj = {};
 
-    let hrtime = process.hrtime();
-
     if (req.query.queryID){
         let queryObj = await db.get("queries").findOne({
             queryID: req.query.queryID
@@ -247,13 +245,9 @@ router.get("/query", async function(req,res){
             }
         }
 
-        let prh = process.hrtime(hrtime);
-        console.log(prh[0] + (prh[1] / 1000000));
         return res.status(resBody.statusCode).json(resBody.body);
     }
     catch (r) {
-        let prh = process.hrtime(hrtime);
-        console.log(prh[0] + (prh[1] / 1000000));
         if (r.statusCode && r.body){
             return res.status(r.statusCode).json(r.body);
         }

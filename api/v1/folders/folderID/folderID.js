@@ -81,7 +81,6 @@ async function ValidateRivalGroupID(req, res, next){
 }
 
 router.get("/scores", ValidateUserID, ValidateRivalGroupID, async function(req,res){
-    console.time("folderscores");
     let folder = req.folderData;
     let requestedUserID = req.requestedUserID;
 
@@ -150,8 +149,6 @@ router.get("/scores", ValidateUserID, ValidateRivalGroupID, async function(req,r
 
         scores = await scoreCore.AutoCoerce(scorePBs);
     }
-
-    console.timeEnd("folderscores");
 
     return res.status(200).json({
         success: true,
