@@ -24,6 +24,7 @@ router.get("/", async function(req,res){
 router.get("/online", async function(req,res){
     let user = req.user;
 
+    let curTime = Date.now();
     let friends = await db.get("users").find({id: {$in: user.friends}, lastSeen: {
         $gt: curTime - apiConfig.TIME_DELTA_ONLINE
     }}, {fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
