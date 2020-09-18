@@ -13,7 +13,7 @@ router.get("/", async function(req,res){
     if (req.query.tierlistID){
         tierlist = await tierlistHelpers.GetTierlistWithID(req.query.tierlistID);
     }
-    else{
+    else {
         tierlist = await tierlistHelpers.GetDefaultTierlist(req.query.game, req.query.playtype);
     }
 
@@ -33,6 +33,10 @@ router.get("/", async function(req,res){
             true,
             RETURN_LIMIT
         );
+
+        if (dbRes.body.success){
+            dbRes.body.body.tierlist = tierlist;
+        }
     
         return res.status(dbRes.statusCode).json(dbRes.body);
     }

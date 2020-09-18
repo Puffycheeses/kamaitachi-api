@@ -4,8 +4,8 @@ const router = express.Router({mergeParams: true});
 // mounted on /v1
 
 const MAJOR_VER = 2;
-const MINOR_VER = 5;
-const PATCH_VER = 1;
+const MINOR_VER = 6;
+const PATCH_VER = 0;
 
 router.get("/", async function(req,res){
     return res.status(200).json({
