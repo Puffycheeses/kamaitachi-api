@@ -27,7 +27,7 @@ router.get("/", async function(req,res){
     }
 
 
-    if (user.ratings[game][playtype]){
+    if (user.ratings[game] && user.ratings[game][playtype]){
         let ranking = await db.get("users").count({["ratings." + game + "." + playtype]: {$gte: user.ratings[game][playtype]}});
         return res.status(200).json({
             success: true,
