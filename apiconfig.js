@@ -60,6 +60,7 @@ const validKeys = {
     },
     "imports": {
         userID: "integer",
+        isNewImport: "boolean",
         importID: "string",
         service: "string",
         game: "string"

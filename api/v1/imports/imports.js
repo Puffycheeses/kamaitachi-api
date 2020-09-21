@@ -38,7 +38,7 @@ async function GetImportWithID(req,res,next){
     });
 
     if (!importObj){
-        return res.status(400).json({
+        return res.status(404).json({
             success: false,
             description: "Import with ID " + req.params.importID + " could not be found."
         });
