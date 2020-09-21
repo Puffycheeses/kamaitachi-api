@@ -1,0 +1,25 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@4.0.0
+jobs:
+  deploy:
+    machine:
+      enabled: true
+    steps:
+      - add_ssh_keys
+      - run:
+          name: Deploy Over SSH
+          command: |
+            ssh ktchi@185.41.243.99 "bash /home/ktchi/deploy-ktchi-api.sh;"
+workflows:
+  version: 2.1
+  build-and-deploy:
+    jobs:
+      - node/test
+      - deploy:
+          requires:
+            - node/test # only deploy once build job has completed
+          filters:
+            branches:
+              only: master # only deploy on the master branch
