@@ -10,7 +10,6 @@ const apiConfig = require("../../../apiconfig.js");
 // mounted on /api/v1/fun-facts
 
 router.get("/", async function(req,res){
-
     let requestingUser = await db.get("users").findOne({id: req.apikey.assignedTo}, {fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
 
     let aggPipe = [{
