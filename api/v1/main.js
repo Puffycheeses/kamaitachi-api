@@ -4,8 +4,8 @@ const router = express.Router({mergeParams: true});
 // mounted on /v1
 
 const MAJOR_VER = 2;
-const MINOR_VER = 6;
-const PATCH_VER = 2;
+const MINOR_VER = 7;
+const PATCH_VER = 0;
 
 router.get("/", async function(req,res){
     return res.status(200).json({
@@ -34,6 +34,7 @@ const statsRouter = require("./stats/stats.js");
 const queryRouter = require("./queries/queries.js");
 const folderRouter = require("./folders/folders.js");
 const sessionRouter = require("./sessions/sessions.js");
+const ffactRouter = require("./funfacts/fun-facts.js");
 
 router.use("/users", usersRouter);
 router.use("/rivals", rivalsRouter);
@@ -47,5 +48,6 @@ router.use("/stats", statsRouter);
 router.use("/queries", queryRouter);
 router.use("/folders", folderRouter);
 router.use("/sessions", sessionRouter);
+router.use("/fun-facts", ffactRouter);
 
 module.exports = router;
