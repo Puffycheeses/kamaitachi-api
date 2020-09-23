@@ -27,7 +27,7 @@ async function GetUsers(userIDs){
 }
 
 async function GetUserWithAPIKey(aKey){
-    let apiKey = await db.get("public-api-keys").findOne({apiKey: aKey});
+    let apiKey = await db.get("public-api-keys").findOne({apiKey: aKey}, {fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
 
     if (!apiKey){
         console.error("apiKey removed during query.", aKey);
@@ -37,7 +37,7 @@ async function GetUserWithAPIKey(aKey){
     let user = await db.get("users").findOne({id: apiKey.assignedTo});
 
     if (!user){
-        console.error("FATAL. KEY ASSIGNED TO USER WHO DOES NOT EXIST", aKey);
+        console.error("KEY ASSIGNED TO USER WHO DOES NOT EXIST", aKey);
         return null;
     }
 
