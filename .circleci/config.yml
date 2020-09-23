@@ -19,7 +19,7 @@ workflows:
       - node/test
       - deploy:
           requires:
-            - node/test # only deploy once build job has completed
+            - node/test
           filters:
             branches:
-              only: master # only deploy on the master branch
+              only: master
