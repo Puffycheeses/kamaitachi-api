@@ -6,16 +6,7 @@ const config = require("./config/config.js");
 
 async function RequireAPIKey(req,res,next)
 {
-    let givenKey;
-    if (req.query.key && req.method === "GET"){
-        givenKey = req.query.key;
-    }
-    else if (req.body.key){
-        givenKey = req.body.key;
-    }
-    else {
-        givenKey = req.cookies.apikey;
-    }
+    let givenKey = req.cookies.apikey;
     
     let key = await db.get("public-api-keys").findOne({apiKey: givenKey});
     
