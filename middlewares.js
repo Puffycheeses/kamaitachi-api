@@ -18,7 +18,7 @@ async function RequireAPIKey(req,res,next)
     }
 
     let requestingUser = await db.get("users").findOne({
-        id: req.assignedTo
+        id: key.assignedTo
     }, {
         fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS
     });
