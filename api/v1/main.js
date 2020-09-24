@@ -35,6 +35,8 @@ const queryRouter = require("./queries/queries.js");
 const folderRouter = require("./folders/folders.js");
 const sessionRouter = require("./sessions/sessions.js");
 const ffactRouter = require("./fun-facts/fun-facts.js");
+const goalRouter = require("./goals/goals.js");
+const goalSetsRouter = require("./goal-sets/goal-sets.js");
 
 router.use("/users", usersRouter);
 router.use("/rivals", rivalsRouter);
@@ -49,5 +51,7 @@ router.use("/queries", queryRouter);
 router.use("/folders", folderRouter);
 router.use("/sessions", sessionRouter);
 router.use("/fun-facts", ffactRouter);
+router.use("/goals", goalRouter);
+router.use("/goal-sets", goalSetsRouter);
 
 module.exports = router;
