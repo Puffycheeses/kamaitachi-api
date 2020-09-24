@@ -8,7 +8,7 @@ const userHelpers = require("../../../../core/user-core.js");
 router.use(middlewares.RequireExistingUser);
 
 router.get("/", async function(req,res){
-    let user = req.user;
+    let user = req.requestedUser;
 
     return res.status(200).json({
         success: true,

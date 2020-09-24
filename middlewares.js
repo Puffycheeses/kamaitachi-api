@@ -26,13 +26,27 @@ async function RequireAPIKey(req,res,next)
         });
     }
 
+    let requestingUser = await db.get("users").findOne({
+        id: req.assignedTo
+    }, {
+        fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS
+    });
+
+    if (!requestingUser){
+        return res.status(401).json({
+            success: false,
+            description: "This key has been revoked."
+        });
+    }
+
+    req.user = requestingUser;
     req.apikey = key;
 
     next();
 }
 
 async function RequireExistingUser(req,res,next){
-    let user = req.user || await userHelpers.GetUser(req.params.userID);
+    let user = await userHelpers.GetUser(req.params.userID);
     if (!user){
         return res.status(404).json({
             success: false,
@@ -40,9 +54,7 @@ async function RequireExistingUser(req,res,next){
         });
     }
 
-    if (!req.user){
-        req.user = user;
-    }
+    req.requestedUser = user;
 
     next();
 }
