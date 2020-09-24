@@ -23,7 +23,7 @@ router.get("/", async function(req,res){
         let gameObj = {
             game: game,
             playtypes: config.validPlaytypes[game],
-            gameHuman: config.GameToHuman(game),
+            gameHuman: config.gameHuman[game],
             scoreCount: scoreCount,
             songCount: songCount,
             chartCount: chartCount

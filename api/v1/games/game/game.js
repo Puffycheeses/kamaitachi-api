@@ -17,7 +17,7 @@ router.get("/", async function(req,res){
 
     let gameObj = {
         game: game,
-        gameHuman: config.GameToHuman(game),
+        gameHuman: config.gameHuman[game],
         validPlaytypes: config.validPlaytypes[game],
         versions: config.gameOrders[game],
         versionsHuman: config.versionHuman[game],
