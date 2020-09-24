@@ -23,7 +23,21 @@ const serviceSupportedGames = {
 const gameSpecificCalc = {
     "iidx": {
         "SP": ["BPI"]
+    },
+    "sdvx": {
+        "Single": ["VF4", "VF5"]
     }
+}
+
+const validDifficulties = {
+    iidx: ["BEGINNER", "NORMAL", "HYPER", "ANOTHER", "LEGGENDARIA"],
+    museca: ["Green", "Yellow", "Red"],
+    maimai: ["Easy", "Basic", "Advanced", "Expert", "Master", "Re:Master"],
+    jubeat: ["BSC","ADV","EXT"],
+    popn: ["Easy", "Normal", "Hyper", "EX"],
+    sdvx: ["NOV", "ADV", "EXH", "MXM", "INF", "GRV", "HVN", "VVD"],
+    ddr: ["BEGINNER", "BASIC", "DIFFICULT", "EXPERT", "CHALLENGE"],
+    bms: ["BEGINNER", "NORMAL", "HYPER", "ANOTHER", "CUSTOM"]
 }
 
 const validHitData = {
@@ -230,28 +244,17 @@ const defaultPlaytype = {
     bms: "7K",
 }
 
-const validDifficulties = {
-    iidx: ["BEGINNER", "NORMAL", "HYPER", "ANOTHER", "LEGGENDARIA"],
-    museca: ["Green", "Yellow", "Red"],
-    maimai: ["Easy", "Basic", "Advanced", "Expert", "Master", "Re:Master"],
-    jubeat: ["BSC","ADV","EXT"],
-    popn: ["Easy", "Normal", "Hyper", "EX"],
-    sdvx: ["NOV", "ADV", "EXH", "MXM", "INF", "GRV", "HVN", "VVD"],
-    ddr: ["BEGINNER", "BASIC", "DIFFICULT", "EXPERT", "CHALLENGE"],
-    bms: []
-}
+// todo, maybe
+// const difficultyColours = {
+//     iidx: {
+//         "BEGINNER": ,
+//         "NORMAL": ,
+//         "HYPER": ,
+//         "ANOTHER": ,
+//         "LEGGENDARIA": ,
+//     }
+// }
 
-// difficulty orders of games.
-const diffOrders = {
-    iidx: ["SP BEGINNER", "SP NORMAL","SP HYPER", "SP ANOTHER","SP LEGGENDARIA", "DP NORMAL", "DP HYPER","DP ANOTHER", "DP LEGGENDARIA"],
-    museca: ["Single Green","Single Yellow","Single Red"],
-    maimai: ["Single Easy","Single Basic","Single Advanced","Single Expert","Single Master","Single Re:Master"],
-    jubeat: ["Single BSC","Single ADV","Single EXT"],
-    popn: ["9B Easy","9B Normal","9B Hyper","9B EX"],
-    sdvx: ["Single NOV","Single ADV","Single EXH","Single MXM","Single INF","Single GRV","Single HVN","Single VVD"],
-    ddr: ["SP BEGINNER","SP BASIC","SP DIFFICULT","SP EXPERT","SP CHALLENGE","DP BASIC","DP DIFFICULT", "DP EXPERT","DP CHALLENGE"],
-    bms: [], // BMS does have difficulties, it just doesn't matter because root songs aren't properly defined.
-}
 
 // inclusive on both ends.
 function __StringRange(min, max){
@@ -281,7 +284,7 @@ const levels = {
     bms: [] // doesnt have actual levels lmao
 }
 
-// valid folders for each game
+// legacy
 const folders = {
     iidx: {
         type: "static",
@@ -368,7 +371,7 @@ const grades = {
     jubeat: ["E","D","C","B","A","S","SS","SSS","EXC"],
     popn: ["E","D","C","B","A","AA","AAA","S"],
     sdvx: ["D","C","B","A","A+","AA","AA+","AAA","AAA+","S"],
-    ddr: ["D","C","B","A","AA","AAA"],
+    ddr: ["D","D+","C-","C","C+","B-","B","B+","A-","A","A+","AA-","AA","AA+","AAA","MAX"],
 }
 
 
@@ -377,16 +380,15 @@ const gradeBoundaries = {
     bms: [0,22.22,33.33,44.44,55.55,66.66,77.77,88.88,94.44,100.00],
     museca: [0,60,70,80,85,90,95,97.5,100],
     // maimai is fidgety with grades - SSS+ is only possible if you get above 100%, but what the limit is depends on the chart
-    // this is handled in importhelpers; go figure.
     maimai: [0,10,20,40,60,80,90,94,97,98,99,99.5,100,9999],
     jubeat: [0,50,70,80,85,90,95,98,100],
     popn: [0,50,62,72,82,90,95,98],
-    // popn is fidgety with grades - A is the limit of grades if you fail. this NEEDS TO BE HANDLED in importhelpers. - 28/04/2020 isnt done yet lol
+    // popn is fidgety with grades - A is the limit of grades if you fail. this NEEDS TO BE HANDLED in importhelpers. - 18/09/2020 isnt done yet lol
     sdvx: [0,70,80,87,90,93,95,97,98,99],
-    ddr: [0,59,69,79,89,99,100],
+    ddr: [0,55,59,60,65,69,70,75,79,80,85,89,90,95,99,100],
 }
 
-// this is to resolve some GARBAGE in chart.js
+// these are to resolve some GARBAGE in chart.js
 const boundaryHCF = {
     iidx: 5.555,
     bms: 5.555,
@@ -397,8 +399,18 @@ const boundaryHCF = {
     sdvx: 1,
     ddr: 1
 }
+const expChartScale = {
+    iidx: 1,
+    bms: 1,
+    museca: 1,
+    maimai: 8,
+    jubeat: 5,
+    popn: 1,
+    sdvx: 7,
+    ddr: 6
+}
 
-// correct order for lamps
+// valid lamps for a game, and also in order.
 const lamps = {
     iidx: ["NO PLAY","FAILED","ASSIST CLEAR","EASY CLEAR","CLEAR","HARD CLEAR","EX HARD CLEAR","FULL COMBO"],
     bms: ["NO PLAY","FAILED","ASSIST CLEAR","EASY CLEAR","CLEAR","HARD CLEAR","EX HARD CLEAR","FULL COMBO"],
@@ -410,6 +422,8 @@ const lamps = {
     ddr: ["FAILED","CLEAR","LIFE4","FULL COMBO","GREAT FULL COMBO","PERFECT FULL COMBO","MARVELOUS FULL COMBO"],
 }
 
+// Alternative scores that make sense for the game, note that iidx's money score isn't actually used by anyone
+// and is removed in IIDX 28, to nobodies dismay.
 const validAltScores = {
     "iidx": ["money"],
     "ddr": ["ex"],
@@ -422,6 +436,8 @@ const validAltScores = {
 }
 
 // first lamp that is considered a "true clear" by the game.
+// laugh now, but who'll be laughing when some nerds at sega come up with a brand new
+// minimal clear grade called "SOFTER EASIER ASSIST CLEAR EPIC X3"
 const clearLamp = {
     iidx: "CLEAR",
     bms: "CLEAR",
@@ -503,51 +519,58 @@ const COLOUR_SET = {
     teal: "rgba(127, 255, 212, 1)",
     white: "rgba(192, 192, 192, 1)",
     purple: "rgba(153, 50, 204, 1)",
+    vibrantPurple: "rgba(161, 23, 230, 1)",
     paleOrange: "rgba(235, 151, 78, 1)",
-    orange: "rgba(248, 148, 6, 1)"
+    orange: "rgba(248, 148, 6, 1)",
+    vibrantOrange: "rgba(248, 175, 6, 1)",
+    vibrantBlue: "rgba(43, 149, 237, 1)",
+    vibrantGreen: "rgba(26, 232, 26, 1)",
 }
 
-// hi, outline colours are the same as the fill colours but with the opacities changed
-// you might say this is inefficient - it is
-// but writing any sort of fix for it would take longer than the time it takes for me to update a value twice.
-
-// todo, just put this out of its misery
-// it's not even difficult to update it's just taking up too much of my IDE and i don't like it.
 const gradeColours = {
     museca: {
         outline:{
-        "没": COLOUR_SET.gray,
-        "拙": COLOUR_SET.maroon,
-        "凡": COLOUR_SET.red,
-        "佳": COLOUR_SET.paleGreen,
-        "良": COLOUR_SET.paleBlue,
-        "優": COLOUR_SET.green,
-        "秀": COLOUR_SET.blue,
-        "傑": COLOUR_SET.teal,
-        "傑G": COLOUR_SET.gold
+            "没": COLOUR_SET.gray,
+            "拙": COLOUR_SET.maroon,
+            "凡": COLOUR_SET.red,
+            "佳": COLOUR_SET.paleGreen,
+            "良": COLOUR_SET.paleBlue,
+            "優": COLOUR_SET.green,
+            "秀": COLOUR_SET.blue,
+            "傑": COLOUR_SET.teal,
+            "傑G": COLOUR_SET.gold
         }
     },
     ddr: {
         outline:{
-        "D": COLOUR_SET.maroon,
-        "C": COLOUR_SET.purple,
-        "B": COLOUR_SET.paleBlue,
-        "A": COLOUR_SET.paleGreen,
-        "AA": COLOUR_SET.blue,
-        "AAA": COLOUR_SET.gold
+            "D": COLOUR_SET.gray,
+            "D+": COLOUR_SET.maroon,
+            "C-": COLOUR_SET.red,
+            "C": COLOUR_SET.purple,
+            "C+": COLOUR_SET.vibrantPurple,
+            "B-": COLOUR_SET.paleBlue,
+            "B": COLOUR_SET.blue,
+            "B+": COLOUR_SET.vibrantBlue,
+            "A-": COLOUR_SET.paleGreen,
+            "A": COLOUR_SET.green,
+            "A+": COLOUR_SET.vibrantGreen,
+            "AA-": COLOUR_SET.paleOrange,
+            "AA": COLOUR_SET.orange,
+            "AA+": COLOUR_SET.vibrantOrange,
+            "AAA": COLOUR_SET.gold
         }
     },
     jubeat: {
         outline:{
-        "E": COLOUR_SET.gray,
-        "D": COLOUR_SET.maroon,
-        "C": COLOUR_SET.purple,
-        "B": COLOUR_SET.paleBlue,
-        "A": COLOUR_SET.paleGreen,
-        "S": COLOUR_SET.blue,
-        "SS": COLOUR_SET.gold,
-        "SSS": COLOUR_SET.teal,
-        "EXC": COLOUR_SET.white
+            "E": COLOUR_SET.gray,
+            "D": COLOUR_SET.maroon,
+            "C": COLOUR_SET.purple,
+            "B": COLOUR_SET.paleBlue,
+            "A": COLOUR_SET.paleGreen,
+            "S": COLOUR_SET.blue,
+            "SS": COLOUR_SET.gold,
+            "SSS": COLOUR_SET.teal,
+            "EXC": COLOUR_SET.white
         }
     },
     maimai: {
@@ -569,17 +592,17 @@ const gradeColours = {
         }
     },
     popn: {
-      outline: {
-        "F": COLOUR_SET.gray,
-        "E": COLOUR_SET.red,
-        "D": COLOUR_SET.maroon,
-        "C": COLOUR_SET.purple,
-        "B": COLOUR_SET.paleBlue,
-        "A": COLOUR_SET.green,
-        "AA": COLOUR_SET.paleOrange,
-        "AAA": COLOUR_SET.gold,
-        "S": COLOUR_SET.teal,
-      }
+        outline: {
+            "F": COLOUR_SET.gray,
+            "E": COLOUR_SET.red,
+            "D": COLOUR_SET.maroon,
+            "C": COLOUR_SET.purple,
+            "B": COLOUR_SET.paleBlue,
+            "A": COLOUR_SET.green,
+            "AA": COLOUR_SET.paleOrange,
+            "AAA": COLOUR_SET.gold,
+            "S": COLOUR_SET.teal,
+        }
     },
     iidx: {
         outline: {
@@ -630,6 +653,7 @@ const lampColours = {
         outline:{
             "FAILED": COLOUR_SET.red,
             "CLEAR": COLOUR_SET.paleGreen,
+            "LIFE4": COLOUR_SET.orange,
             "FULL COMBO": COLOUR_SET.paleBlue,
             "GREAT FULL COMBO": COLOUR_SET.green,
             "PERFECT FULL COMBO": COLOUR_SET.gold,
@@ -713,247 +737,225 @@ for (const colourConfig of [lampColours, gradeColours]) {
             for (const key in colourConfig[game].outline) {
                 if (colourConfig[game].outline.hasOwnProperty(key)) {
                     const element = colourConfig[game].outline[key];
+                    if (!element){continue;}
                     let fadedEl = element.split(",");
                     fadedEl[fadedEl.length - 1] = "0.2)";
 
                     colourConfig[game].fill[key] = fadedEl.join(",");
                 }
             }
-
         }
     }
 }
 
 
 const judgeColours = {
-  iidx: {
-    fill: {
-      "MISS": "rgba(211, 38, 38, 0.2)",
-      "BAD": "rgba(165, 38, 211, 0.2)",
-      "GOOD": "rgba(38, 211, 78, 0.2)",
-      "GREAT": "rgba(241, 245, 24, 0.2)",
-      "PGREAT": "rgba(158, 248, 255, 0.2)"
+    iidx: {
+        fill: {
+            "MISS": "rgba(211, 38, 38, 0.2)",
+            "BAD": "rgba(165, 38, 211, 0.2)",
+            "GOOD": "rgba(38, 211, 78, 0.2)",
+            "GREAT": "rgba(241, 245, 24, 0.2)",
+            "PGREAT": "rgba(158, 248, 255, 0.2)"
+        },
+        outline:{
+            "MISS": "rgba(211, 38, 38, 1)",
+            "BAD": "rgba(165, 38, 211, 1)",
+            "GOOD": "rgba(38, 211, 78, 1)",
+            "GREAT": "rgba(241, 245, 24, 1)",
+            "PGREAT": "rgba(158, 248, 255, 1)"
+        }
     },
-    outline:{
-      "MISS": "rgba(211, 38, 38, 1)",
-      "BAD": "rgba(165, 38, 211, 1)",
-      "GOOD": "rgba(38, 211, 78, 1)",
-      "GREAT": "rgba(241, 245, 24, 1)",
-      "PGREAT": "rgba(158, 248, 255, 1)"
-    }
-  },
-  bms: {
-    fill: {
-      "MISS": "rgba(211, 38, 38, 0.2)",
-      "BAD": "rgba(165, 38, 211, 0.2)",
-      "GOOD": "rgba(38, 211, 78, 0.2)",
-      "GREAT": "rgba(241, 245, 24, 0.2)",
-      "PGREAT": "rgba(158, 248, 255, 0.2)"
+    bms: {
+        fill: {
+            "MISS": "rgba(211, 38, 38, 0.2)",
+            "BAD": "rgba(165, 38, 211, 0.2)",
+            "GOOD": "rgba(38, 211, 78, 0.2)",
+            "GREAT": "rgba(241, 245, 24, 0.2)",
+            "PGREAT": "rgba(158, 248, 255, 0.2)"
+        },
+        outline:{
+            "MISS": "rgba(211, 38, 38, 1)",
+            "BAD": "rgba(165, 38, 211, 1)",
+            "GOOD": "rgba(38, 211, 78, 1)",
+            "GREAT": "rgba(241, 245, 24, 1)",
+            "PGREAT": "rgba(158, 248, 255, 1)"
+        }
     },
-    outline:{
-      "MISS": "rgba(211, 38, 38, 1)",
-      "BAD": "rgba(165, 38, 211, 1)",
-      "GOOD": "rgba(38, 211, 78, 1)",
-      "GREAT": "rgba(241, 245, 24, 1)",
-      "PGREAT": "rgba(158, 248, 255, 1)"
-    }
-  },
-  ddr: {
-    fill: {
-      "MISS": "rgba(211, 38, 38, 0.2)",
-      "BOO": "rgba(165, 38, 211, 0.2)",
-      "GOOD": "rgba(38, 211, 78, 0.2)",
-      "GREAT": "rgba(241, 245, 24, 0.2)",
-      "PERFECT": "rgba(158, 248, 255, 0.2)",
-      "MARVELOUS": "rgba(241, 245, 24, 0.2)"
+    ddr: {
+        fill: {
+            "MISS": "rgba(211, 38, 38, 0.2)",
+            "BOO": "rgba(165, 38, 211, 0.2)",
+            "GOOD": "rgba(38, 211, 78, 0.2)",
+            "GREAT": "rgba(241, 245, 24, 0.2)",
+            "PERFECT": "rgba(158, 248, 255, 0.2)",
+            "MARVELOUS": "rgba(241, 245, 24, 0.2)"
+        },
+        outline:{
+            "MISS": "rgba(211, 38, 38, 1)",
+            "BOO": "rgba(165, 38, 211, 1)",
+            "GOOD": "rgba(38, 211, 78, 1)",
+            "GREAT": "rgba(241, 245, 24, 1)",
+            "PERFECT": "rgba(158, 248, 255, 1)",
+            "MARVELOUS": "rgba(241, 245, 24, 1)"
+        }
     },
-    outline:{
-      "MISS": "rgba(211, 38, 38, 1)",
-      "BOO": "rgba(165, 38, 211, 1)",
-      "GOOD": "rgba(38, 211, 78, 1)",
-      "GREAT": "rgba(241, 245, 24, 1)",
-      "PERFECT": "rgba(158, 248, 255, 1)",
-      "MARVELOUS": "rgba(241, 245, 24, 1)"
-    }
-  },
-  museca: {
-    fill: {
-      "MISS": "rgba(211, 38, 38, 0.2)",
-      "NEAR": "rgba(20, 210, 223, 0.2)",
-      "CRITICAL": "rgba(241, 245, 24, 0.2)" 
+    museca: {
+        fill: {
+            "MISS": "rgba(211, 38, 38, 0.2)",
+            "NEAR": "rgba(20, 210, 223, 0.2)",
+            "CRITICAL": "rgba(241, 245, 24, 0.2)" 
+        },
+        outline:{
+            "MISS": "rgba(211, 38, 38, 1)",
+            "NEAR": "rgba(20, 210, 223, 1)",
+            "CRITICAL": "rgba(241, 245, 24, 1)" 
+        }
     },
-    outline:{
-      "MISS": "rgba(211, 38, 38, 1)",
-      "NEAR": "rgba(20, 210, 223, 1)",
-      "CRITICAL": "rgba(241, 245, 24, 1)" 
-    }
-  },
-  sdvx: {
-    fill: {
-      "MISS": "rgba(211, 38, 38, 0.2)",
-      "NEAR": "rgba(20, 210, 223, 0.2)",
-      "CRITICAL": "rgba(241, 245, 24, 0.2)" 
+    sdvx: {
+        fill: {
+            "MISS": "rgba(211, 38, 38, 0.2)",
+            "NEAR": "rgba(20, 210, 223, 0.2)",
+            "CRITICAL": "rgba(241, 245, 24, 0.2)" 
+        },
+        outline:{
+            "MISS": "rgba(211, 38, 38, 1)",
+            "NEAR": "rgba(20, 210, 223, 1)",
+            "CRITICAL": "rgba(241, 245, 24, 1)" 
+        }
     },
-    outline:{
-      "MISS": "rgba(211, 38, 38, 1)",
-      "NEAR": "rgba(20, 210, 223, 1)",
-      "CRITICAL": "rgba(241, 245, 24, 1)" 
-    }
-  },
-  popn: {
-    fill: {
-      "BAD": "rgba(165, 38, 211, 0.2)",
-      "GOOD": "rgba(239, 84, 81, 0.2)",
-      "GREAT": "rgba(241, 245, 24, 0.2)",
-      "PGREAT": "rgba(158, 248, 255, 0.2)"
+    popn: {
+        fill: {
+            "BAD": "rgba(165, 38, 211, 0.2)",
+            "GOOD": "rgba(239, 84, 81, 0.2)",
+            "GREAT": "rgba(241, 245, 24, 0.2)",
+            "PGREAT": "rgba(158, 248, 255, 0.2)"
+        },
+        outline:{
+            "BAD": "rgba(165, 38, 211, 1)",
+            "GOOD": "rgba(239, 84, 81, 1)",
+            "GREAT": "rgba(241, 245, 24, 1)",
+            "PGREAT": "rgba(158, 248, 255, 1)"
+        }
     },
-    outline:{
-      "BAD": "rgba(165, 38, 211, 1)",
-      "GOOD": "rgba(239, 84, 81, 1)",
-      "GREAT": "rgba(241, 245, 24, 1)",
-      "PGREAT": "rgba(158, 248, 255, 1)"
-    }
-  },
-  maimai: {
-    fill: {
-      "MISS": "rgba(211, 38, 38, 0.2)",
-      "GOOD": "rgba(38, 211, 78, 0.2)",
-      "GREAT": "rgba(228, 62, 225, 0.2)",
-      "PERFECT": "rgba(241, 245, 24, 0.2)"
+    maimai: {
+        fill: {
+            "MISS": "rgba(211, 38, 38, 0.2)",
+            "GOOD": "rgba(38, 211, 78, 0.2)",
+            "GREAT": "rgba(228, 62, 225, 0.2)",
+            "PERFECT": "rgba(241, 245, 24, 0.2)"
+        },
+        outline:{
+            "MISS": "rgba(211, 38, 38, 1)",
+            "GOOD": "rgba(38, 211, 78, 1)",
+            "GREAT": "rgba(228, 62, 225,1)",
+            "PERFECT": "rgba(241, 245, 24, 1)"
+        }
     },
-    outline:{
-      "MISS": "rgba(211, 38, 38, 1)",
-      "GOOD": "rgba(38, 211, 78, 1)",
-      "GREAT": "rgba(228, 62, 225,1)",
-      "PERFECT": "rgba(241, 245, 24, 1)"
-    }
-  },
-  jubeat: {
-    fill: {
-      "MISS": "rgba(211, 38, 38, 0.2)",
-      "POOR": "rgba(165, 38, 211, 0.2)",
-      "GOOD": "rgba(39, 190, 117,0.2)",
-      "GREAT": "rgba(38, 211, 78, 0.2)",
-      "PERFECT": "rgba(241, 245, 24, 0.2)"
+    jubeat: {
+        fill: {
+            "MISS": "rgba(211, 38, 38, 0.2)",
+            "POOR": "rgba(165, 38, 211, 0.2)",
+            "GOOD": "rgba(39, 190, 117,0.2)",
+            "GREAT": "rgba(38, 211, 78, 0.2)",
+            "PERFECT": "rgba(241, 245, 24, 0.2)"
+        },
+        outline:{
+            "MISS": "rgba(211, 38, 38, 1)",
+            "POOR": "rgba(165, 38, 211, 1)",
+            "GOOD": "rgba(39, 190, 117, 1)",
+            "GREAT": "rgba(38, 211, 78, 1)",
+            "PERFECT": "rgba(241, 245, 24, 1)"
+        }
     },
-    outline:{
-      "MISS": "rgba(211, 38, 38, 1)",
-      "POOR": "rgba(165, 38, 211, 1)",
-      "GOOD": "rgba(39, 190, 117, 1)",
-      "GREAT": "rgba(38, 211, 78, 1)",
-      "PERFECT": "rgba(241, 245, 24, 1)"
-    }
-  },
 }
 
 const gameChartIndicators = {
-  iidx: ["cn","bss","hcn","hbss"],
-  popn: ["holds"],
-  ddr: ["shocks","freezes"],
-  museca: [],
-  maimai: [],
-  jubeat: ["holds"],
-  sdvx: [],
-  bms: [],
+    iidx: ["cn","bss","hcn","hbss"],
+    popn: ["holds"],
+    ddr: ["shocks","freezes"],
+    museca: [],
+    maimai: [],
+    jubeat: ["holds"],
+    sdvx: [],
+    bms: [],
 }
 
-// getter functions
-function GameToHuman(game){
-  return gameHuman[game];
-}
-
-function VersionToHuman(version, game){
-  return versionHuman[game][version];
-}
-
-function HumanToGame(human){
-  return Object.keys(gameHuman).find(key => gameHuman[key] === human);
-}
 /// XP STUFFS
 const LEVEL_INCREASE = 0.1; // exponentiation such that XP(level+1) = XP(level) * 1.25
 const MULTIPLIER = 1000; // multiplies all xp values by this so we get nice things like 125 instead of 1.25
 const LNELEVENTENTHS = Math.log(1 + LEVEL_INCREASE); // ln(1.1); that's ln(1+b).
 
 function GetLevel(xp){
-  // invXP curve: log1b((x/t)+1) where log1b is log to the base 1+b.
-  // i did the maths, u can check it urself with algebra
-  return Math.floor((Math.log((xp/MULTIPLIER) + 1)/LNELEVENTENTHS));
+    // invXP curve: log1b((x/t)+1) where log1b is log to the base 1+b.
+    // i did the maths, u can check it urself with algebra
+    return Math.floor((Math.log((xp/MULTIPLIER) + 1)/LNELEVENTENTHS));
 }
 
 function GetXPForLevel(level){
-  // xp curve: https://www.desmos.com/calculator/cpvz7g5sy7
-  // (t(1+b)^x) - t
-  return Math.ceil((MULTIPLIER * (1+LEVEL_INCREASE) ** level) - MULTIPLIER);
+    // xp curve: https://www.desmos.com/calculator/cpvz7g5sy7
+    // (t(1+b)^x) - t
+    return Math.ceil((MULTIPLIER * (1+LEVEL_INCREASE) ** level) - MULTIPLIER);
 }
 
 function GetGrade(game, percent){
-  // THIS FOR LOOP IS ITERATING DOWNWARDS
-  // JUST INCASE YOU DON'T ACTUALLY READ IT PROPERLY
-  for (let i = grades[game].length; i >= 0; i--) {
-    var gradeName = grades[game][i]
-    var gradeBound = gradeBoundaries[game][i]
-    
-    if (percent >= gradeBound){
-      return gradeName;
+    // THIS FOR LOOP IS ITERATING DOWNWARDS
+    // JUST INCASE YOU DON'T ACTUALLY READ IT PROPERLY
+    for (let i = grades[game].length; i >= 0; i--) {
+        var gradeName = grades[game][i]
+        var gradeBound = gradeBoundaries[game][i]
+        
+        if (percent >= gradeBound){
+        return gradeName;
+        }
     }
-  }
 
-  // if we get all this way they've got a negative score
-  // idk what to write in this case so ur gonna get the worst grade and throw an error in my logs
-  console.error("Negative score parsed?",percent)
-  return grades[game][0];
-}
-
-function GetGradeWithScore(score){
-  // if (score.game === "ddr"){
-  //   return GetGrade(score.game, score.scoreData.score / 1000000);
-  // }
-  // else {
-    return GetGrade(score.game, score.scoreData.percent);
-  // }
+    // if we get all this way they've got a negative score
+    // idk what to write in this case so ur gonna get null and throw an error in my logs
+    return null;
 }
 
 const ratingParameters = {
-  iidx: {
-      failHarshnessMultiplier: 0.3,
-      pivotPercent: 0.7777, // Grade: AA
-      clearExpMultiplier: 1
-  },
-  bms: {
-    failHarshnessMultiplier: 0.5,
-    pivotPercent: 0.7777, // Grade: AA
-    clearExpMultiplier: 0.75
-  },
-  museca: {
-    failHarshnessMultiplier: 1,
-    pivotPercent: 0.8, // grade: not fail
-    clearExpMultiplier: 1 // no real reason
-  },
-  popn: {
-    failHarshnessMultiplier: 1,
-    pivotPercent: 0.8, // grade: A
-    clearExpMultiplier: 0.4 // no real reason
-  },
-  maimai: {
-    failHarshnessMultiplier: 1,
-    pivotPercent: 0.8,
-    clearExpMultiplier: 1
-  },
-  jubeat: {
-    failHarshnessMultiplier: 0.9,
-    pivotPercent: 0.7, // grade: A (clear)
-    clearExpMultiplier: 1
-  },
-  sdvx: {
-    failHarshnessMultiplier: 1,
-    pivotPercent: 0.92,
-    clearExpMultiplier: 1.45 // testing
-  },
-  ddr: {
-    failHarshnessMultiplier: 0.9,
-    pivotPercent: 0.9,
-    clearExpMultiplier: 1.45
-  }
+    iidx: {
+        failHarshnessMultiplier: 0.3,
+        pivotPercent: 0.7777, // Grade: AA
+        clearExpMultiplier: 1
+    },
+    bms: {
+        failHarshnessMultiplier: 0.5,
+        pivotPercent: 0.7777, // Grade: AA
+        clearExpMultiplier: 0.75
+    },
+    museca: {
+        failHarshnessMultiplier: 1,
+        pivotPercent: 0.8, // grade: not fail
+        clearExpMultiplier: 1 // no real reason
+    },
+    popn: {
+        failHarshnessMultiplier: 1,
+        pivotPercent: 0.8, // grade: A
+        clearExpMultiplier: 0.4 // no real reason
+    },
+    maimai: {
+        failHarshnessMultiplier: 1,
+        pivotPercent: 0.8,
+        clearExpMultiplier: 1
+    },
+    jubeat: {
+        failHarshnessMultiplier: 0.9,
+        pivotPercent: 0.7, // grade: A (clear)
+        clearExpMultiplier: 1
+    },
+    sdvx: {
+        failHarshnessMultiplier: 1,
+        pivotPercent: 0.92,
+        clearExpMultiplier: 1.45 // testing
+    },
+    ddr: {
+        failHarshnessMultiplier: 0.9,
+        pivotPercent: 0.9,
+        clearExpMultiplier: 1
+    }
 }
 
 function ChangeAlpha(string, alpha){
@@ -972,7 +974,7 @@ function ScoreGradeDelta(game, score, chart, delta){
 
         if (nGScore){
             let delta = score.scoreData.score - nGScore
-            let formattedString = nextGrade;
+            let formattedString = `(${nextGrade})`;
             formattedString += delta >= 0 ? "+" + delta : "" + delta
             return {
                 grade: nextGrade,
@@ -993,7 +995,7 @@ function CalculateScore(game, percent, chart){
         score = (chart.notedata.notecount * 2) * (percent/100);
     }
     else if (game === "ddr"){
-        score = (chart.notedata.notecount + chart.notedata.shocks * 3.0) * (percent/100);
+        score = 1000000 * (percent / 100);
     }
     else if (game === "museca" || game === "jubeat"){
         score = 1000000 * (percent/100);
@@ -1014,45 +1016,6 @@ function CalculateScore(game, percent, chart){
     else {
         return null;
     }
-}
-
-function CalculatePercent(game, score, chartData,hitData){
-    let percent;
-    if (game === "iidx" || game === "bms"){
-        // IIDX Percent Calculator
-        // total score possible on a chart is notecount * 2;
-        // ergo, return score/notecount*2 as percent
-        percent = (parseFloat(score) / (parseFloat(chartData.notedata.notecount) * 2.0)) * 100
-    }
-    else if (game === "museca" || game === "jubeat" || game === "ddr"){
-        // MUSECA & jubeat Percent Calculator
-        // Max score on every chart is 1,000,000.
-        // ergo, return score/1,000,000 as percent.
-        percent = (score / 1000000) * 100;
-    }
-    else if (game === "popn"){
-        // popn Percent Calculator
-        // Max score on every chart is 100,000.
-        // ergo, return score/100,000 as percent.
-        percent = (score / 100000) * 100;
-    }
-    else if (game === "sdvx"){
-        // sdvx percent calc
-        // max score on every chart is 10,000,000
-        // blah blah blah
-        percent = (score / 10000000) * 100;
-    }
-
-    if (percent > 100){
-        console.error("WARNING: PERCENT CALCULATED FOR SCORE WAS GREATER THAN 100%. INVESTIGATE")
-        console.error(score);
-    }
-
-    if (!percent){
-        percent = 0; // sanity check
-    }
-
-    return percent;
 }
 
 function PercentToScore(percent, game, chartData){
@@ -1077,53 +1040,56 @@ function PercentToScore(percent, game, chartData){
     return eScore;
 }
 
-
+function FormatDifficulty(chart, game){
+    if (validPlaytypes[game].length > 1){
+        return `${chart.playtype} ${chart.difficulty}`;
+    }
+    else {
+        return chart.difficulty;
+    }
+}
 
 if (typeof window === 'undefined'){
-  module.exports = {
-    supportedGames,
-    gameOrders,
-    diffOrders,
-    GameToHuman,
-    HumanToGame,
-    folders,
-    VersionToHuman,
-    versionHuman,
-    grades,
-    lamps,
-    lampColours,
-    gradeColours,
-    GetLevel,
-    GetXPForLevel,
-    serviceSupportedGames,
-    defaultPlaytype,
-    gameChartIndicators,
-    GetGrade,
-    gradeBoundaries,
-    gameHuman,
-    ratingParameters,
-    validPlaytypes,
-    ScoreGradeDelta,
-    judgements,
-    judgeColours,
-    gameColours,
-    validTierlistTiers,
-    CalculatePercent,
-    clearLamp,
-    validModifiers,
-    adviceChartTags,
-    adviceNoteTags,
-    GetGradeWithScore,
-    gameRelevantScoreBucket,
-    judgementWindows,
-    PercentToScore,
-    ChangeAlpha,
-    validDifficulties,
-    validHitData,
-    validHitMeta,
-    validAltScores,
-    levels,
-    boundaryHCF,
-    gameSpecificCalc
-  };
+    module.exports = {
+        supportedGames,
+        gameOrders,
+        folders,
+        versionHuman,
+        grades,
+        lamps,
+        lampColours,
+        gradeColours,
+        GetLevel,
+        GetXPForLevel,
+        serviceSupportedGames,
+        defaultPlaytype,
+        gameChartIndicators,
+        GetGrade,
+        gradeBoundaries,
+        gameHuman,
+        ratingParameters,
+        validPlaytypes,
+        ScoreGradeDelta,
+        judgements,
+        judgeColours,
+        gameColours,
+        validTierlistTiers,
+        clearLamp,
+        validModifiers,
+        adviceChartTags,
+        adviceNoteTags,
+        gameRelevantScoreBucket,
+        judgementWindows,
+        PercentToScore,
+        ChangeAlpha,
+        validDifficulties,
+        validHitData,
+        validHitMeta,
+        validAltScores,
+        levels,
+        boundaryHCF,
+        gameSpecificCalc,
+        expChartScale,
+        FormatDifficulty
+    };
 }
