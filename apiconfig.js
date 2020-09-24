@@ -93,6 +93,25 @@ const validKeys = {
         name: "string",
         motd: "string",
         founderID: "integer"
+    },
+    "goals": {
+        goalID: "string",
+        createdBy: "integer",
+        title: "string",
+        desc: "string",
+        note: "string",
+        game: "string",
+        playtype: "string",
+        timeAdded: "float"
+    },
+    "user-goals": {
+        goalID: "string",
+        userID: "integer",
+        timeSet: "float",
+        timeAchieved: "float",
+        achieved: "boolean",
+        game: "string",
+        playtype: "string"
     }
 }
 
@@ -107,11 +126,14 @@ const validSorts = {
     "clans": ["xp","foundedTime"],
     "scores": ["timeAchieved","timeAdded","xp","scoreData.percent","scoreData.score","scoreData.lampIndex","scoreData.gradeIndex", "calculatedData.rating","calculatedData.notability", "calculatedData.lampRating", "calculatedData.gameSpecific.BPI", "calculatedData.gameSpecific.EPI"],
     "queries": ["timeAdded"],
-    "folders": ["views"]
+    "folders": ["views"],
+    "goals": ["timeAdded"],
+    "user-goals": ["timeSet", "timeAchieved"]
 }
 
 const defaultSorts = {
     "sessions": "timeEnded",
+    "goals": "timeAdded",
     "notifications": "timeSent",
     "imports": "timeEnded",
     "tierlistdata": "songID",
@@ -121,9 +143,11 @@ const defaultSorts = {
     "clans": "xp",
     "scores": "timeAchieved",
     "queries": "timeAdded",
-    "folders": "views" // temp
+    "folders": "views", // temp
+    "user-goals": "timeSet"
 }
 
+// deprecated
 const VALID_FOLDER_TYPES = ["levels","versions"];
 
 module.exports = {
