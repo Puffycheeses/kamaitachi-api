@@ -34,7 +34,7 @@ const statsRouter = require("./stats/stats.js");
 const queryRouter = require("./queries/queries.js");
 const folderRouter = require("./folders/folders.js");
 const sessionRouter = require("./sessions/sessions.js");
-const ffactRouter = require("./funfacts/fun-facts.js");
+const ffactRouter = require("./fun-facts/fun-facts.js");
 
 router.use("/users", usersRouter);
 router.use("/rivals", rivalsRouter);

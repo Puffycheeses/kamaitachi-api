@@ -1,5 +1,5 @@
 const db = require("../../../db.js");
-const dbHelpers = require("../../../core/db-core.js");
+const dbCore = require("../../../core/db-core.js");
 const userHelpers = require("../../../core/user-core.js");
 const express = require("express");
 const crypto = require("crypto");
@@ -11,7 +11,7 @@ const router = express.Router({mergeParams: true});
 const RETURN_LIMIT = 50;
 router.get("/", async function(req,res){
     try {
-        let rivalsBody = await dbHelpers.FancyDBQuery("rivals",req.query, true, RETURN_LIMIT);
+        let rivalsBody = await dbCore.FancyDBQuery("rivals",req.query, true, RETURN_LIMIT);
 
         return res.status(rivalsBody.statusCode).json(rivalsBody.body);
     }

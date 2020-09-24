@@ -1,5 +1,5 @@
 const express = require("express");
-const dbHelpers = require("../../../../core/db-core.js");
+const dbCore = require("../../../../core/db-core.js");
 const router = express.Router({mergeParams: true});
 const db = require("../../../../db.js");
 const config = require("../../../../config/config.js");

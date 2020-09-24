@@ -1,5 +1,5 @@
 const express = require("express");
-const dbHelpers = require("../../../../../core/db-core.js");
+const dbCore = require("../../../../../core/db-core.js");
 const router = express.Router({mergeParams: true});
 const userHelpers = require("../../../../../core/user-core.js");
 const db = require("../../../../../db.js");
@@ -13,7 +13,7 @@ router.get("/", async function(req,res){
     req.query.userID = "" + user.id;
 
     try {
-        let dbRes = await dbHelpers.FancyDBQuery(
+        let dbRes = await dbCore.FancyDBQuery(
             "imports",
             req.query,
             true,

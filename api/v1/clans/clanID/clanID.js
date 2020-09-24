@@ -2,7 +2,7 @@ const db = require("../../../../db.js");
 const middlewares = require("../../../../middlewares.js");
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const dbHelpers = require("../../../../core/db-core.js");
+const dbCore = require("../../../../core/db-core.js");
 
 // mounted on /api/v1/clans/:clanID
 router.use(middlewares.RequireExistingClan)

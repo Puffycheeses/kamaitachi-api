@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const userHelpers = require("../../../../../core/user-core.js");
 const middlewares = require("../../../../../middlewares.js");
-const dbHelpers = require("../../../../../core/db-core.js");
+const dbCore = require("../../../../../core/db-core.js");
 
 // mounted on /api/v1/users/:userID/notifications
 router.use(middlewares.RequireUserKeyMatch);
@@ -15,7 +15,7 @@ router.get("/", async function(req,res){
     req.query.toUserID = "" + user.id;
 
     try {
-        let dbRes = await dbHelpers.FancyDBQuery(
+        let dbRes = await dbCore.FancyDBQuery(
             "notifications",
             req.query,
             true,
@@ -47,7 +47,7 @@ router.get("/unread", async function(req,res){
     req.query.read = "false";
 
     try {
-        let dbRes = await dbHelpers.FancyDBQuery(
+        let dbRes = await dbCore.FancyDBQuery(
             "notifications",
             req.query,
             true,

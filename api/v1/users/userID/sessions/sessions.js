@@ -4,7 +4,7 @@ const middlewares = require("../../../../../middlewares.js");
 const userHelpers = require("../../../../../core/user-core.js");
 const apiConfig = require("../../../../../apiconfig.js");
 const db = require("../../../../../db.js");
-const dbHelpers = require("../../../../../core/db-core.js");
+const dbCore = require("../../../../../core/db-core.js");
 // mounted on /api/v1/users/:userID/sessions
 
 router.use(middlewares.RequireExistingUser);
@@ -31,7 +31,7 @@ router.get("/", async function(req,res){
     req.query.userID = "" + user.id;
 
     try {
-        let dbRes = await dbHelpers.FancyDBQuery(
+        let dbRes = await dbCore.FancyDBQuery(
             "sessions",
             req.query,
             true,

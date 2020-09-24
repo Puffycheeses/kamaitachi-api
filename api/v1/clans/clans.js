@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const dbHelpers = require("../../../core/db-core.js");
+const dbCore = require("../../../core/db-core.js");
 
 // mounted on /api/v1/clans
 
 router.get("/", async function(req,res){
 
     try {
-        let dbRes = await dbHelpers.FancyDBQuery(
+        let dbRes = await dbCore.FancyDBQuery(
             "clans",
             req.query,
             true

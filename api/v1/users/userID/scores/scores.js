@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const userHelpers = require("../../../../../core/user-core.js");
 const middlewares = require("../../../../../middlewares.js");
-const dbHelpers = require("../../../../../core/db-core.js");
+const dbCore = require("../../../../../core/db-core.js");
 const db = require("../../../../../db.js");
 
 // mounted on /api/v1/users/:userID/scores
@@ -17,7 +17,7 @@ router.get("/count", async function(req,res){
     }
 
     try {
-        let dbRes = await dbHelpers.FancyDBQuery(
+        let dbRes = await dbCore.FancyDBQuery(
             "scores",
             req.query,
             false,

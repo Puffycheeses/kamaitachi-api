@@ -1,5 +1,5 @@
 const express = require("express");
-const dbHelpers = require("../../../core/db-core.js");
+const dbCore = require("../../../core/db-core.js");
 const router = express.Router({mergeParams: true});
 const db = require("../../../db.js");
 const config = require("../../../config/config.js");
@@ -11,7 +11,7 @@ const folderCore = require("../../../core/folder-core.js");
 const MAX_RETURNS = 100;
 router.get("/", async function(req,res){
     try {
-        let dbRes = await dbHelpers.FancyDBQuery(
+        let dbRes = await dbCore.FancyDBQuery(
             "folders",
             req.query,
             true,

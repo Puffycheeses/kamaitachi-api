@@ -2,7 +2,7 @@ const db = require("../../../../../../db.js");
 const express = require("express");
 const router = express.Router({mergeParams: true});
 const middlewares = require("../../../../../../middlewares.js");
-const dbHelpers = require("../../../../../../core/db-core.js");
+const dbCore = require("../../../../../../core/db-core.js");
 
 // mounted on /api/v1/games/:game/songs/:songID
 
@@ -32,7 +32,7 @@ router.get("/charts", async function(req,res){
     req.query.id = req.params.songID;
 
     try {
-        let dbRes = await dbHelpers.FancyDBQuery(
+        let dbRes = await dbCore.FancyDBQuery(
             "charts-" + req.params.game,
             req.query,
             true,

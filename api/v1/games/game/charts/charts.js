@@ -1,5 +1,5 @@
 const db = require("../../../../../db.js");
-const dbHelpers = require("../../../../../core/db-core.js");
+const dbCore = require("../../../../../core/db-core.js");
 const express = require("express");
 const router = express.Router({mergeParams: true});
 
@@ -14,7 +14,7 @@ router.get("/", async function(req,res){
     }
 
     try {
-        let dbRes = await dbHelpers.FancyDBQuery(
+        let dbRes = await dbCore.FancyDBQuery(
             "charts-" + req.params.game,
             req.query,
             true,

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const dbHelpers = require("../../../core/db-core.js");
+const dbCore = require("../../../core/db-core.js");
 
 // mounted on /api/v1/tierlists
 
@@ -12,7 +12,7 @@ router.get("/", async function(req,res){
     // (TODO)
 
     try {
-        let dbRes = await dbHelpers.FancyDBQuery(
+        let dbRes = await dbCore.FancyDBQuery(
             "tierlist",
             req.query,
             true,
