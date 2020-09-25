@@ -4,7 +4,7 @@ const router = express.Router({mergeParams: true});
 // mounted on /v1
 
 const MAJOR_VER = 3;
-const MINOR_VER = 1;
+const MINOR_VER = 2;
 const PATCH_VER = 0;
 
 router.get("/", async function(req,res){
@@ -36,7 +36,7 @@ const folderRouter = require("./folders/folders.js");
 const sessionRouter = require("./sessions/sessions.js");
 const ffactRouter = require("./fun-facts/fun-facts.js");
 const goalRouter = require("./goals/goals.js");
-const goalSetsRouter = require("./goal-sets/goal-sets.js");
+const milestonesRouter = require("./milestones/milestones.js");
 const userGoalsRouter = require("./user-goals/user-goals.js");
 
 router.use("/users", usersRouter);
@@ -53,7 +53,7 @@ router.use("/folders", folderRouter);
 router.use("/sessions", sessionRouter);
 router.use("/fun-facts", ffactRouter);
 router.use("/goals", goalRouter);
-router.use("/goal-sets", goalSetsRouter);
+router.use("/milestones", milestonesRouter);
 router.use("/user-goals", userGoalsRouter);
 
 module.exports = router;

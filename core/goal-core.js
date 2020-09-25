@@ -95,6 +95,10 @@ function ConvertKeynames(obj){
     return newObj;
 }
 
+function GetGoalIDsFromMilestone(milestone){
+    return milestone.milestoneData.map(e => e.goals.map(e => e.goalID)).flat();
+}
+
 async function GetChartIDsFromGoal(goalObj){
     if (goalObj.directChartID) {
         return [goalObj.directChartID];
@@ -106,6 +110,30 @@ async function GetChartIDsFromGoal(goalObj){
     return charts.map(e => e.chartID);
 }
 
+async function CreateUserGoal(goal, userID){
+    let ugObj = {
+        goalID: goal.goalID,
+        userID: userID,
+        game: goal.game,
+        playtype: goal.playtype,
+        timeSet: Date.now(),
+        achieved: false,
+        timeAchieved: null,
+        note: null,
+        progress: null
+    }
+
+    let goalStatus = goalCore.EvaluateGoalForUser(req.params.goalID, userID);
+
+    ugObj.achieved = goalStatus.success;
+    ugObj.progress = goalStatus.result;
+    await db.get("user-goals").insert(ugObj);
+    
+    return ugObj;
+}
+
 module.exports = {
-    EvaluateGoalForUser
+    EvaluateGoalForUser,
+    GetGoalIDsFromMilestone,
+    CreateUserGoal
 }
