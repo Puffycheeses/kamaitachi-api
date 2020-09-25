@@ -4,6 +4,7 @@ const router = express.Router({mergeParams: true});
 const db = require("../../../db.js");
 const config = require("../../../config/config.js");
 const JSum = require("jsum");
+const apiConfig = require("../../../apiconfig.js");
 
 // mounted on /api/v1/goals
 
@@ -16,6 +17,16 @@ router.get("/", async function(req,res){
             true,
             MAX_RETURNS
         );
+
+        if (dbRes.body.success){
+            if (req.query.getAssocUsers){
+                dbRes.body.body.users = await db.get("users").find({
+                    id: {$in: dbRes.body.body.items.map(e => e.createdBy)}
+                }, {
+                    projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS
+                });
+            }
+        }
         return res.status(dbRes.statusCode).json(dbRes.body);
     }
     catch (r) {
@@ -56,7 +67,7 @@ const SUPPORTED_SCORE_GOAL_KEYS = {
     "scoreData.percent": "float",
     "scoreData.gradeIndex": "integer",
     "scoreData.lampIndex": "integer",
-    "scoreData.esd": "float",
+    // "scoreData.esd": "float",
     // isScorePB: "boolean",
     // isLampPB: "boolean"
 }
@@ -73,7 +84,7 @@ const HUMAN_SCORE_GOAL_KEY = {
     "scoreData.percent": "Percent",
     "scoreData.gradeIndex": "Grade",
     "scoreData.lampIndex": "Lamp",
-    "scoreData.esd": "ESD",
+    // "scoreData.esd": "ESD",
 }
 
 router.put("/create-simple-chart-goal", RequireValidGame, async function(req,res) {
@@ -108,7 +119,6 @@ router.put("/create-simple-chart-goal", RequireValidGame, async function(req,res
     }
 
     let game = req.body.game;
-
     let chart = await db.get(`charts-${game}`).findOne({
         chartID: req.body.chartID
     });
@@ -120,6 +130,58 @@ router.put("/create-simple-chart-goal", RequireValidGame, async function(req,res
         });
     }
 
+    if (req.body.scoreGoalKey === "scoreData.lampIndex"){
+        if (!config.lamps[game][gVal]) {
+            return res.status(400).json({
+                success: false,
+                description: "Invalid value for lamp."
+            });
+        }
+    }
+    else if (req.body.scoreGoalKey === "scoreData.gradeIndex"){
+        if (!config.grades[game][gVal]) {
+            return res.status(400).json({
+                success: false,
+                description: "Invalid value for grade."
+            });
+        }
+    }
+    else if (req.body.scoreGoalKey === "scoreData.percent"){
+        if (game !== "maimai" && gVal > 100.00){
+            return res.status(400).json({
+                success: false,
+                description: "Invalid value for percent."
+            });
+        }
+    }
+    // todo, obvious refactor
+    else if (req.body.scoreGoalKey === "scoreData.score"){
+        if (game === "iidx" && gVal > chart.notedata.notecount * 2){
+            return res.status(400).json({
+                success: false,
+                description: `Invalid value for score, cannot be greater than ${chart.notedata.notecount * 2}`
+            });
+        }
+        else if (game === "sdvx" && gVal > 10000000){
+            return res.status(400).json({
+                success: false,
+                description: `Invalid value for score, cannot be greater than 10,000,000`
+            });
+        }
+        else if (["jubeat","museca","ddr"].includes(game) && gVal > 1000000){
+            return res.status(400).json({
+                success: false,
+                description: "Invalid value for score, cannot be greater than 1,000,000"
+            });
+        }
+        else if (game === "popn" && gVal > 100000){
+            return res.status(400).json({
+                success: false,
+                description: "Invalid value for score, cannot be greater than 100,000"
+            });
+        }
+    }
+
     // mongoDB (sensibly) doesn't let us use .'s or $'s in keynames
     // as they're special characters for special mongo functions.
     // given that we want to store queries, we are going to use the following replacement.
@@ -129,18 +191,19 @@ router.put("/create-simple-chart-goal", RequireValidGame, async function(req,res
 
     let queryVal = {"~gte": gVal};
 
-    if (req.body.scoreGoalOpt === "lte"){
-        queryVal = {"~lte": gVal}
-    }
-    else if (req.body.scoreGoalOpt === "lt"){
-        queryVal = {"~lt": gVal}
-    }
-    else if (req.body.scoreGoalOpt === "gt"){
-        queryVal = {"~gt": gVal}
-    }
-    else if (req.body.scoreGoalOpt === "gte"){
-        queryVal = {"~gte": gVal}
-    }
+    // there's literally no point in having any of these BUT gte. will just be confusing - zkldi.
+    // if (req.body.scoreGoalOpt === "lte"){
+    //     queryVal = {"~lte": gVal}
+    // }
+    // else if (req.body.scoreGoalOpt === "lt"){
+    //     queryVal = {"~lt": gVal}
+    // }
+    // else if (req.body.scoreGoalOpt === "gt"){
+    //     queryVal = {"~gt": gVal}
+    // }
+    // else if (req.body.scoreGoalOpt === "gte"){
+    //     queryVal = {"~gte": gVal}
+    // }
 
     let scoreQuery = {
         [req.body.scoreGoalKey.replace(/\./g, "¬")]: queryVal
@@ -163,6 +226,11 @@ router.put("/create-simple-chart-goal", RequireValidGame, async function(req,res
     });
 
     if (exists){
+        // TECHNICALLY this should be a 409, but the api docs indicate that an erroneous response should not have a body.
+        // BUT, we want to send a body to the user so they can be redirected to the already existing goalID.
+        // so, we're going to deviate from the spec a little here.
+        // plus, the outcome is still that of a success.
+            
         return res.status(200).json({
             success: true,
             description: "Goal already exists.",
