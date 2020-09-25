@@ -1,10 +1,11 @@
 const express = require("express");
 const dbCore = require("../../../../core/db-core.js");
+const goalCore = require("../../../../core/goal-core.js");
 const router = express.Router({mergeParams: true});
 const db = require("../../../../db.js");
 const config = require("../../../../config/config.js");
 
-// mounted on /api/v1/goals
+// mounted on /api/v1/goals/goal/:goalID
 
 async function ValidateGoalID(req, res, next){
     let goal = await db.get("goals").findOne({
@@ -33,7 +34,7 @@ router.get("/", async function (req,res) {
     });
 });
 
-router.patch("/assign-self-goal", async function (req,res){
+router.patch("/assign-goal", async function (req,res){
     let exists = await db.get("user-goals").findOne({
         userID: req.apikey.assignedTo,
         goalID: req.params.goalID
@@ -55,9 +56,14 @@ router.patch("/assign-self-goal", async function (req,res){
         timeSet: Date.now(),
         achieved: false,
         timeAchieved: null,
-        note: null
+        note: null,
+        progress: null
     }
 
+    let goalStatus = await goalCore.EvaluateGoalForUser(req.params.goalID, req.apikey.assignedTo);
+
+    ugObj.achieved = goalStatus.success;
+    ugObj.progress = goalStatus.result;
     await db.get("user-goals").insert(ugObj);
 
     return res.status(201).json({
@@ -65,6 +71,30 @@ router.patch("/assign-self-goal", async function (req,res){
         description: `Successfully added goal ${req.ktchiGoal.title}.`,
         body: ugObj
     })
+});
+
+router.delete("/remove-goal", async function (req,res) {
+    let exists = await db.get("user-goals").findOne({
+        userID: req.apikey.assignedTo,
+        goalID: req.params.goalID
+    });
+
+    if (!exists){
+        return res.status(404).json({
+            success: false,
+            description: `You do not have the goal ${req.params.goalID} assigned.`
+        });
+    }
+
+    await db.get("user-goals").remove({
+        _id: exists._id
+    });
+
+    return res.status(200).json({
+        success: true,
+        description: "Successfully removed goal.",
+        body: exists
+    });
 });
 
 module.exports = router;

@@ -26,6 +26,14 @@ router.get("/", async function(req,res){
 
                 dbRes.body.body.users = assocUsers;
             }
+
+            if (req.query.getAssocGoals){
+                let assocGoals = await db.get("goals").find({
+                    goalID: {$in: dbRes.body.body.items.map(e => e.goalID)}
+                });
+
+                dbRes.body.body.goals = assocGoals;
+            }
         }
         return res.status(dbRes.statusCode).json(dbRes.body);
     }
