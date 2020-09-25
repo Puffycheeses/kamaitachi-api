@@ -4,7 +4,7 @@ const router = express.Router({mergeParams: true});
 // mounted on /v1
 
 const MAJOR_VER = 3;
-const MINOR_VER = 2;
+const MINOR_VER = 3;
 const PATCH_VER = 0;
 
 router.get("/", async function(req,res){
