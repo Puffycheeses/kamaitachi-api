@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const dbCore = require("../../../../../core/db-core.js");;
-
+const dbCore = require("../../../../../core/db-core.js");
+const db = require("../../../../../db.js");
 // mounted on /api/v1/games/:game/songs
 
 const MAX_RETURNS = 100;
@@ -15,6 +15,16 @@ router.get("/", async function(req,res){
             MAX_RETURNS,
             "songs"
         );
+
+        if (dbRes.body.success){
+            if (req.query.getAssocCharts){
+                let charts = await db.get(`charts-${req.params.game}`).find({
+                    id: {$in: dbRes.body.body.items.map(e => e.id)}
+                });
+
+                dbRes.body.body.charts = charts;
+            }
+        }
         return res.status(dbRes.statusCode).json(dbRes.body);
     }
     catch (r) {
@@ -30,8 +40,6 @@ router.get("/", async function(req,res){
             });
         }
     }
-
-
 });
 
 // mounts
