@@ -111,6 +111,14 @@ const validKeys = {
         achieved: "boolean",
         game: "string",
         playtype: "string"
+    },
+    "milestones": {
+        milestoneID: "string",
+        createdBy: "integer",
+        game: "string",
+        playtype: "string",
+        title: "string",
+        users: "integer", // smart mongo array stuff!
     }
 }
 
