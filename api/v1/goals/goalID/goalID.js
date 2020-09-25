@@ -35,6 +35,7 @@ router.get("/", async function (req,res) {
 });
 
 router.patch("/assign-goal", async function (req,res){
+    let goal = req.ktchiGoal;
     let exists = await db.get("user-goals").findOne({
         userID: req.apikey.assignedTo,
         goalID: req.params.goalID
@@ -48,23 +49,7 @@ router.patch("/assign-goal", async function (req,res){
     }
 
     // else create user-goals obj
-    let ugObj = {
-        goalID: req.params.goalID,
-        userID: req.apikey.assignedTo,
-        game: req.ktchiGoal.game,
-        playtype: req.ktchiGoal.playtype,
-        timeSet: Date.now(),
-        achieved: false,
-        timeAchieved: null,
-        note: null,
-        progress: null
-    }
-
-    let goalStatus = await goalCore.EvaluateGoalForUser(req.params.goalID, req.apikey.assignedTo);
-
-    ugObj.achieved = goalStatus.success;
-    ugObj.progress = goalStatus.result;
-    await db.get("user-goals").insert(ugObj);
+    let ugObj = await goalCore.CreateUserGoal(goal, req.apikey.assignedTo);
 
     return res.status(201).json({
         success: true,

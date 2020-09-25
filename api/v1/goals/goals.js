@@ -26,6 +26,27 @@ router.get("/", async function(req,res){
                     projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS
                 });
             }
+
+            // lol
+            if (req.query.getAssocUserGoalCounts){
+                let ugc = await db.get("user-goals").aggregate([{
+                    $match: {
+                        goalID: {$in: dbRes.body.body.items.map(e => e.goalID)}
+                    },
+                }, {
+                    $group: {
+                        _id: "$goalID",
+                        count: {$sum: 1}
+                    }
+                }]);
+
+                let ugcObj = {}
+                for (const ug of ugc) {
+                    ugcObj[ug._id] = ug.count
+                }
+
+                dbRes.body.body.ugc = ugcObj;
+            }
         }
         return res.status(dbRes.statusCode).json(dbRes.body);
     }
@@ -262,7 +283,7 @@ router.put("/create-simple-chart-goal", RequireValidGame, async function(req,res
         prettyValue = config.grades[game][gVal];
     }
 
-    let humanTitle = `${song.title} (${config.FormatDifficulty(chart, game)}) ${HUMAN_SCORE_GOAL_KEY[req.body.scoreGoalKey]} ${HUMAN_SCORE_GOAL_OPT[req.body.scoreGoalOpt] || ">="} ${prettyValue}`;
+    let humanTitle = `${song.title} (${config.FormatDifficulty(chart, game)}) ${HUMAN_SCORE_GOAL_KEY[req.body.scoreGoalKey]}: ${prettyValue}`;
 
     goalObj.title = humanTitle;
     goalObj.goalID = goalID;
