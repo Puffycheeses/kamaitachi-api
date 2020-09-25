@@ -76,6 +76,10 @@ router.patch("/set-milestone", async function (req,res){
             continue;
         }
 
+        let goal = await db.get("goals").findOne({
+            goalID: goalID
+        });
+
         let ugObj = await goalCore.CreateUserGoal(goal, req.apikey.assignedTo);
 
         if (ugObj.achieved) { successCount++; }
@@ -83,11 +87,14 @@ router.patch("/set-milestone", async function (req,res){
 
     umObj.progress = successCount;
 
-    if (milestone.criteria === -1){
+    if (milestone.criteria.type === "all"){
         umObj.achieved = successCount >= goalIDs.length;
     }
-    else {
-        umObj.achieved = successCount >= milestone.criteria;
+    else if (milestone.criteria.type === "percent"){
+        umObj.achieved = successCount >= goalIDs.length * milestone.criteria.value;
+    }
+    else if (milestone.criteria.type === "count") {
+        umObj.achieved = successCount >= milestone.criteria.value;
     }
 
     if (umObj.achieved){
@@ -98,7 +105,7 @@ router.patch("/set-milestone", async function (req,res){
 
     return res.status(201).json({
         success: true,
-        description: `Successfully added milestone ${req.milestone.title}.`,
+        description: `Successfully added milestone ${milestone.title}.`,
         body: umObj
     })
 });

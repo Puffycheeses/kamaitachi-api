@@ -123,7 +123,7 @@ async function CreateUserGoal(goal, userID){
         progress: null
     }
 
-    let goalStatus = goalCore.EvaluateGoalForUser(req.params.goalID, userID);
+    let goalStatus = await EvaluateGoalForUser(goal.goalID, userID);
 
     ugObj.achieved = goalStatus.success;
     ugObj.progress = goalStatus.result;
