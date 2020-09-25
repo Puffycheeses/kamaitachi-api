@@ -98,11 +98,10 @@ const validKeys = {
         goalID: "string",
         createdBy: "integer",
         title: "string",
-        desc: "string",
-        note: "string",
         game: "string",
         playtype: "string",
-        timeAdded: "float"
+        timeAdded: "float",
+        directChartID: "string"
     },
     "user-goals": {
         goalID: "string",
