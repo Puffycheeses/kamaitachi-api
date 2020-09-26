@@ -120,7 +120,8 @@ async function CreateUserGoal(goal, userID){
         achieved: false,
         timeAchieved: null,
         note: null,
-        progress: null
+        progress: null,
+        progressHuman: null
     }
 
     let goalStatus = await EvaluateGoalForUser(goal.goalID, userID);

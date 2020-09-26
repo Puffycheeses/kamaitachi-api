@@ -38,6 +38,7 @@ const ffactRouter = require("./fun-facts/fun-facts.js");
 const goalRouter = require("./goals/goals.js");
 const milestonesRouter = require("./milestones/milestones.js");
 const userGoalsRouter = require("./user-goals/user-goals.js");
+const userMilestoneRouter = require("./user-milestones/user-milestones.js");
 
 router.use("/users", usersRouter);
 router.use("/rivals", rivalsRouter);
@@ -55,5 +56,6 @@ router.use("/fun-facts", ffactRouter);
 router.use("/goals", goalRouter);
 router.use("/milestones", milestonesRouter);
 router.use("/user-goals", userGoalsRouter);
+router.use("/user-milestones", userMilestoneRouter);
 
 module.exports = router;

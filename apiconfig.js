@@ -112,6 +112,15 @@ const validKeys = {
         game: "string",
         playtype: "string"
     },
+    "user-milestones": {
+        milestoneID: "string",
+        userID: "integer",
+        timeSet: "float",
+        timeAchieved: "float",
+        achieved: "boolean",
+        game: "string",
+        playtype: "string"
+    },
     "milestones": {
         milestoneID: "string",
         createdBy: "integer",
@@ -135,7 +144,8 @@ const validSorts = {
     "queries": ["timeAdded"],
     "folders": ["views"],
     "goals": ["timeAdded"],
-    "user-goals": ["timeSet", "timeAchieved"]
+    "user-goals": ["timeSet", "timeAchieved"],
+    "user-milestones": ["timeSet", "timeAchieved"]
 }
 
 const defaultSorts = {
@@ -151,7 +161,8 @@ const defaultSorts = {
     "scores": "timeAchieved",
     "queries": "timeAdded",
     "folders": "views", // temp
-    "user-goals": "timeSet"
+    "user-goals": "timeSet",
+    "user-milestones": "timeSet",
 }
 
 // deprecated
