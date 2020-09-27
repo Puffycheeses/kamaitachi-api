@@ -127,16 +127,20 @@ async function SanitiseInput(req,res,next){
     }
 
     Sanitise(req.body);
-    for (const key in req.body) {
-        if (typeof req.body[key] === "object" && req.body[key]) {
-            return res.status(400).json({
-                success: false,
-                description: "Passed data was determined to be malicious. Nesting objects is not allowed."
-            });
-        }
 
-        req.body[key] = "" + req.body[key] // potentially safety critical, apologies.
+    if (!(req.apikey.assignedTo === 1 && req.body.punchthrough)) {
+        for (const key in req.body) {
+            if (typeof req.body[key] === "object" && req.body[key]) {
+                return res.status(400).json({
+                    success: false,
+                    description: "Passed data was determined to be malicious. Nesting objects is not allowed."
+                });
+            }
+    
+            req.body[key] = "" + req.body[key] // potentially safety critical, apologies.
+        }
     }
+
 
     next();
 }
@@ -294,6 +298,19 @@ async function RequireValidGame(req,res,next){
     next();
 }
 
+// TEMP, DO NOT TOUCH
+// im the only person who ever tests this stuff anyway
+async function RequireAdmin(req, res, next){
+    if (req.apikey.assignedTo !== 1){
+        return res.status(403).json({
+            success: false,
+            description: "Forbidden."
+        })
+    }
+
+    next();
+}
+
 module.exports = {
     SanitiseInput,
     MaintenanceMode,
@@ -310,5 +327,6 @@ module.exports = {
     RequireInClan,
     RequireClanFounder,
     InvitedToClan,
-    RequireValidGame
+    RequireValidGame,
+    RequireAdmin
 };
