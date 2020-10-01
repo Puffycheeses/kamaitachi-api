@@ -77,6 +77,10 @@ async function EvaluateGoalForUser(goalID, userID){
     
     let value = goalObj.criteria.value;
 
+    if (goalObj.criteria.mode === "proportion"){
+        value = Math.ceil(chartIDs.length * value);
+    }
+
     if (goalObj.criteria.type === "gt"){
         return {result, success: result > value, goalObj};
     }

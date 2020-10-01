@@ -337,7 +337,8 @@ router.put("/create-advanced-goal", RequireValidGame, middlewares.RequireAdmin, 
         scoreQuery,
         criteria: {
             type: req.body.criteria,
-            value: parseInt(req.body.value)
+            value: parseFloat(req.body.value),
+            mode: req.body.mode || null
         }
     }
 
