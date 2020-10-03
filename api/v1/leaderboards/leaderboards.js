@@ -40,9 +40,19 @@ router.get("/games/:game", async function(req,res){
 
     let playtype = req.query.playtype ? req.query.playtype : config.defaultPlaytype[req.params.game];
 
+    let sortCriteria = "ratings." + req.params.game + "." + playtype;
+
+    if (req.query.sortCriteria === "lampRating"){
+        sortCriteria = "lampRatings." + req.params.game + "." + playtype;
+    }
+
+    if (req.query.customRatings && req.query.sortCriteria){
+        sortCriteria = `customRatings.${req.params.game}.${playtype}.${req.query.sortCriteria}`;
+    }
+
     let settings = {
         fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
-        sort: {["ratings." + req.params.game + ". " + playtype]: -1}
+        sort: {[]: -1}
     }
     
     settings.skip = req.query.start ? parseInt(req.query.start) : 0
