@@ -52,7 +52,7 @@ router.get("/games/:game", async function(req,res){
 
     let settings = {
         fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
-        sort: {[]: -1}
+        sort: {[sortCriteria]: -1}
     }
     
     settings.skip = req.query.start ? parseInt(req.query.start) : 0
