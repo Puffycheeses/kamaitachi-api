@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/zkldi/kamaitachi-api#readme",
   "devDependencies": {
+    "eslint": "^7.10.0",
     "supertest": "^4.0.2"
   },
   "dependencies": {
