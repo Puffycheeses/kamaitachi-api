@@ -8,7 +8,7 @@ const db = require("../../../../../db.js");
 
 const MAX_RETURNS = 100;
 router.get("/", async function(req,res){
-    let user = req.user;
+    let user = req.requestedUser;
 
     req.query.userID = "" + user.id;
 

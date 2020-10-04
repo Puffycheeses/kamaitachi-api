@@ -6,7 +6,7 @@ const db = require("../../../../../db.js");
 // mounted on /api/v1/users/:userID/ranking
 
 router.get("/", async function(req,res){
-    let user = req.user;
+    let user = req.requestedUser;
 
     let game = req.query.game;
 

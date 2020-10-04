@@ -11,7 +11,7 @@ router.use(middlewares.RequireUserKeyMatch);
 const MAX_RETURNS = 100;
 
 router.get("/", async function(req,res){
-    let user = req.user;
+    let user = req.requestedUser;
 
     req.query.toUserID = "" + user.id;
 
@@ -66,7 +66,7 @@ router.delete("/delete/:notifID", async function (req,res){
 
 // sugar for notifications?read=false
 router.get("/unread", async function(req,res){
-    let user = req.user;
+    let user = req.requestedUser;
 
     req.query.toUserID = "" + user.id;
     req.query.read = "false";

@@ -8,7 +8,7 @@ const apiConfig = require("../../../../../apiconfig.js");
 // mounted on /api/v1/users/:userID/friends
 
 router.get("/", async function(req,res){
-    let user = req.user;
+    let user = req.requestedUser;
     
     let friends = await db.get("users").find({id: {$in: user.friends}}, {fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
 
@@ -22,7 +22,7 @@ router.get("/", async function(req,res){
 });
 
 router.get("/online", async function(req,res){
-    let user = req.user;
+    let user = req.requestedUser;
 
     let curTime = Date.now();
     let friends = await db.get("users").find({id: {$in: user.friends}, lastSeen: {

@@ -8,7 +8,7 @@ const db = require("../../../../../db.js");
 // mounted on /api/v1/users/:userID/scores
 
 router.get("/count", async function(req,res){
-    let user = req.user;
+    let user = req.requestedUser;
 
     req.query.userID = "" + user.id;
 
@@ -44,7 +44,7 @@ router.get("/count", async function(req,res){
 });
 
 router.get("/heatmap", async function(req,res){
-    let user = req.user;
+    let user = req.requestedUser;
 
     // actually, its just 365 days, but you know how it is.
     const ONE_YEAR = 31536000000; // 1000 * 60 * 60 * 24 * 365
