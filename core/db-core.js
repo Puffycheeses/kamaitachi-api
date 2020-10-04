@@ -96,7 +96,6 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
     let itemsBody = {items};
 
     if (paginate && items.length === settings.limit && items.length !== 0){
-        // N+1, see rest N+1 problem.
         itemsBody.nextStartPoint = settings.skip + settings.limit;
     }
     
