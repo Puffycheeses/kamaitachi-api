@@ -18,7 +18,8 @@ const validKeys = {
     "folders": {
         name: "string",
         game: "string",
-        custom: "boolean"
+        custom: "boolean",
+        meaningfulLamp: "boolean"
     },
     "scores": {
         userID: "integer",
