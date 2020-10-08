@@ -138,7 +138,7 @@ router.get("/scores", ValidateUserID, ValidateRivalGroupID, async function(req,r
         scores = aggScores.map(e => e.score);
     }
     else if (req.query.getServerRecords){
-
+        // unimplemented, sorry.
     }
     else {
         let scorePBs = await db.get("scores").find({
@@ -159,6 +159,39 @@ router.get("/scores", ValidateUserID, ValidateRivalGroupID, async function(req,r
             charts
         }
     })
+});
+
+router.get("/tierlist-data", async function (req,res) {
+    let folder = req.folderData;
+    let playtype = req.query.playtype || config.defaultPlaytype[folder.game];
+
+    if (!config.validPlaytypes[folder.game].includes(playtype)){
+        return res.status(400).json({
+            success: false,
+            description: "No playtype provided, or the one given was invalid."
+        });
+    }
+
+    let charts = (await folderCore.GetDataFromFolderQuery(folder, playtype, null, true)).charts;
+
+    let tierlist = await db.get("tierlist").findOne({
+        game: folder.game,
+        isDefault: true
+    });
+
+    let tierlistData = await db.get("tierlistdata").find({
+        chartID: {$in: charts.map(e => e.chartID)},
+        tierlistID: tierlist.tierlistID,
+    });
+
+    return res.status(200).json({
+        success: true,
+        description: "Successfully found tierlist information.",
+        body: {
+            tierlist,
+            tierlistData
+        }
+    });
 });
 
 module.exports = router;
