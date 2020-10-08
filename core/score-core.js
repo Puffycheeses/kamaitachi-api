@@ -8,9 +8,7 @@ async function AutoCoerce(scores){
         if (!s.isLampPB){
             notPBsArr.push({
                 userID: s.userID,
-                songID: s.songID,
-                "scoreData.playtype": s.scoreData.playtype,
-                "scoreData.difficulty": s.scoreData.difficulty,
+                chartID: s.chartID,
                 isLampPB: true
             });
         }
@@ -25,7 +23,7 @@ async function AutoCoerce(scores){
 
     let lampPBs = {}
     for (const score of lampPBsArr) {
-        lampPBs[score.userID + "-" + score.songID + "-" + score.scoreData.playtype + "-" + score.game + "-" + score.scoreData.playtype + "-" + score.scoreData.difficulty] = score;
+        lampPBs[score.userID + "-" + score.chartID] = score;
     }
     
     for (const score of scores) {
@@ -41,10 +39,11 @@ async function AutoCoerce(scores){
             });
             */
 
-            let lampPB = lampPBs[score.userID + "-" + score.songID + "-" + score.scoreData.playtype + "-" + score.game + "-" + score.scoreData.playtype + "-" + score.scoreData.difficulty];
+            let lampPB = lampPBs[score.userID + "-" + score.chartID];
 
             if (lampPB){
                 score.scoreData.lamp = lampPB.scoreData.lamp;
+                score.scoreData.lampIndex = lampPB.scoreData.lampIndex;
                 score.calculatedData.lampRating = lampPB.calculatedData.lampRating;
                 score.isLampPB = true;
             }
