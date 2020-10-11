@@ -176,6 +176,7 @@ router.get("/tierlist-data", async function (req,res) {
 
     let tierlist = await db.get("tierlist").findOne({
         game: folder.game,
+        playtype: playtype,
         isDefault: true
     });
 
