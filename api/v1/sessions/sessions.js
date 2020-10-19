@@ -9,11 +9,33 @@ const apiConfig = require("../../../apiconfig.js");
 const MAX_RETURNS = 100;
 router.get("/", async function(req,res){
     try {
+        let queryObj = {};
+        if (req.query.myRivals){
+            let rivalGroups = await db.get("rivals").find({
+                isDefault: true,
+                founderID: req.user.id
+            });
+
+            queryObj = {
+                $or: rivalGroups.map(e => ({
+                    userID: {$in: e.members.filter(m => m !== req.user.id)},
+                    game: e.game,
+                    playtype: e.playtype
+                })
+            )}
+        }
+        else if (req.query.myFriends) {
+            queryObj.userID = {$in: req.user.friends}
+        }
+
         let dbRes = await dbCore.FancyDBQuery(
             "sessions",
             req.query,
             true,
-            MAX_RETURNS
+            MAX_RETURNS,
+            null,
+            false,
+            queryObj
         );
 
         if (dbRes.body.success){
