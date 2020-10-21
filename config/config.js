@@ -3,7 +3,7 @@
 // IF YOU PUT SECRETS IN HERE THEY WILL BE PUBLIC
 // I SWEAR TO GOD. DO NOT DO THAT. - ZKLDI
 
-const supportedGames = ["iidx","museca","maimai","jubeat","popn","sdvx","ddr","bms","chunithm"];
+const supportedGames = ["iidx","museca","maimai","jubeat","popn","sdvx","ddr","bms","chunithm","gitadora"];
 
 const serviceSupportedGames = {
     PLI: ["iidx"],
@@ -65,7 +65,8 @@ const validDifficulties = {
     sdvx: ["NOV", "ADV", "EXH", "MXM", "INF", "GRV", "HVN", "VVD"],
     ddr: ["BEGINNER", "BASIC", "DIFFICULT", "EXPERT", "CHALLENGE"],
     bms: ["BEGINNER", "NORMAL", "HYPER", "ANOTHER", "CUSTOM"],
-    chunithm: ["BASIC", "ADVANCED", "EXPERT", "MASTER", "WORLD'S END"]
+    chunithm: ["BASIC", "ADVANCED", "EXPERT", "MASTER", "WORLD'S END"],
+    gitadora: ["BASIC", "ADVANCED", "EXTREME", "MASTER", "BASS BASIC", "BASS ADVANCED", "BASS EXTREME", "BASS MASTER"]
 }
 
 const difficultyShorthand = {
@@ -130,32 +131,44 @@ const difficultyShorthand = {
         "EXPERT": "EXP",
         "MASTER": "MAS",
         "WORLD'S END": "END"
+    },
+    gitadora: {
+        "BASIC": "BSC",
+        "ADVANCED": "ADV",
+        "EXTREME": "EXT",
+        "MASTER": "MAS",
+        "BASS BASIC": "BASS BSC",
+        "BASS ADVANCED": "BASS ADV",
+        "BASS EXTREME": "BASS EXT",
+        "BASS MASTER": "BASS MAS",
     }
 }
 
 const validHitData = {
-    "iidx": ["pgreat","great","good","bad","poor"],
-    "bms": ["pgreat","great","good","bad","poor"],
-    "museca": ["critical","near","miss"],
-    "ddr": ["marvelous","perfect","great","good","boo","miss","ok","ng"],
-    "sdvx": ["critical","near","miss"],
-    "popn": ["cool","great","good","bad"],
-    "maimai": ["perfect","great","good","miss"],
-    "jubeat": ["perfect","great","good","bad","miss"],
-    "chunithm": ["jcrit", "justice", "attack", "miss"]
+    iidx: ["pgreat","great","good","bad","poor"],
+    bms: ["pgreat","great","good","bad","poor"],
+    museca: ["critical","near","miss"],
+    ddr: ["marvelous","perfect","great","good","boo","miss","ok","ng"],
+    sdvx: ["critical","near","miss"],
+    popn: ["cool","great","good","bad"],
+    maimai: ["perfect","great","good","miss"],
+    jubeat: ["perfect","great","good","bad","miss"],
+    chunithm: ["jcrit", "justice", "attack", "miss"],
+    gitadora: ["perfect", "great", "good", "ok", "miss"]
 }
 
 const BASE_VALID_HIT_META = ["fast","slow","maxCombo"]
 const validHitMeta = {
-    "iidx": ["bp", "gauge", ...BASE_VALID_HIT_META],
-    "museca": BASE_VALID_HIT_META,
-    "ddr": BASE_VALID_HIT_META,
-    "maimai": BASE_VALID_HIT_META,
-    "jubeat": BASE_VALID_HIT_META,
-    "popn": ["gauge", ...BASE_VALID_HIT_META],
-    "sdvx": ["gauge", ...BASE_VALID_HIT_META],
-    "bms": ["bp", "gauge", "lbd","ebd","lpr","epr","lgd","egd","lgr","egr","lpg","epg", ...BASE_VALID_HIT_META],
-    "chunithm": [...BASE_VALID_HIT_META]
+    iidx: ["bp", "gauge", ...BASE_VALID_HIT_META],
+    museca: BASE_VALID_HIT_META,
+    ddr: BASE_VALID_HIT_META,
+    maimai: BASE_VALID_HIT_META,
+    jubeat: BASE_VALID_HIT_META,
+    popn: ["gauge", ...BASE_VALID_HIT_META],
+    sdvx: ["gauge", ...BASE_VALID_HIT_META],
+    bms: ["bp", "gauge", "lbd","ebd","lpr","epr","lgd","egd","lgr","egr","lpg","epg", ...BASE_VALID_HIT_META],
+    chunithm: [...BASE_VALID_HIT_META],
+    gitadora: [...BASE_VALID_HIT_META],
 }
 
 const gameColours = {
@@ -328,6 +341,18 @@ const versionHuman = {
         "amazonplus": "AMAZON PLUS",
         "crystal": "CRYSTAL",
         "crystalplus": "CRYSTAL PLUS",
+    },
+    gitadora: {
+        "xg": "XG",
+        "xg2": "XG2",
+        "xg3": "XG3",
+        "gitadora": "",
+        "overdrive": "OverDrive",
+        "triboost": "Tri-Boost",
+        "triboostplus": "Tri-Boost (Re:EVOLVE)",
+        "matixx": "Matixx",
+        "exchain": "EXCHAIN",
+        "nextage": "NEX+AGE"
     }
 }
 
@@ -341,7 +366,8 @@ const gameOrders = {
     sdvx: ["booth","inf","gw","heaven","vivid"],
     ddr: ["1","2","3","4","5","max","max2","extreme","snova","snova2","x","x2","x3","2013","2014","a","a20"],
     bms: ["0"],
-    chunithm: ["chuni", "chuniplus", "air", "airplus", "star", "starplus", "amazon", "amazonplus", "crystal", "crystalplus"]
+    chunithm: ["chuni", "chuniplus", "air", "airplus", "star", "starplus", "amazon", "amazonplus", "crystal", "crystalplus"],
+    gitadora: ["gf1","gf2dm1","gf3dm2","gf4dm3","gf5dm4","gf6dm5","gf7dm6","gf8dm7","gf8dm7plus","gf9dm8","gf10dm9","gf11dm10", "v","v2","v3","v4","v5","v6","v7","v8","xg", "xg2","xg3","gitadora","overdrive","triboost","triboostplus","matixx","exchain","nextage"]
 }
 
 const defaultPlaytype = {
@@ -353,7 +379,8 @@ const defaultPlaytype = {
     sdvx: "Single",
     ddr: "SP",
     bms: "7K",
-    chunithm: "Single"
+    chunithm: "Single",
+    gitadora: "Dora"
 }
 
 // todo, maybe
@@ -394,7 +421,8 @@ const levels = {
     jubeat: ["1","2","3","4","5","6","7","8","9.0","9.1","9.2","9.3","9.4","9.5","9.6","9.7","9.8","9.9","10.0","10.1","10.2","10.3","10.4","10.5","10.6","10.7","10.8","10.9"],
     maimai: ["1","2","3","4","5","6","7","7+","8","8+","9","9+","10","10+","11","11+","12","12+","13","13+","14"],
     bms: [], // doesnt have actual levels lmao
-    chunithm: ["1","2","3","4","5","6","7","7+","8","8+","9","9+","10","10+","11","11+","12","12+","13","13+","14", "14+"]
+    chunithm: ["1","2","3","4","5","6","7","7+","8","8+","9","9+","10","10+","11","11+","12","12+","13","13+","14", "14+"],
+    gitadora: [] // continuous between 1-10
 }
 
 // legacy
@@ -419,7 +447,7 @@ const folders = {
         levels: ["1","2","3","4","5","6","7","8","9.0","9.1","9.2","9.3","9.4","9.5","9.6","9.7","9.8","9.9","10.0","10.1","10.2","10.3","10.4","10.5","10.6","10.7","10.8","10.9"],
         versions: gameOrders["jubeat"]
     },
-    popn:{
+    popn: {
         type: "static",
         levels: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50"],
         versions: gameOrders["popn"]
@@ -444,10 +472,16 @@ const folders = {
         type: "static",
         levels: ["1","2","3","4","5","6","7","7+","8","8+","9","9+","10","10+","11","11+","12","12+","13","13+","14", "14+"],
         versions: gameOrders.chunithm
+    },
+    gitadora: {
+        type: "dynamic",
+        levels: [],
+        versions: gameOrders.gitadora,
+        reasonableLevelMax: 10
     }
 }
 
-const validPlaytypes ={
+const validPlaytypes = {
     iidx: ["SP","DP"],
     popn: ["9B"],
     sdvx: ["Single"],
@@ -456,7 +490,8 @@ const validPlaytypes ={
     jubeat: ["Single"],
     museca: ["Single"],
     bms: ["7K","14K","5K","10K"],
-    chunithm: ["Single"]
+    chunithm: ["Single"],
+    gitadora: ["Gita", "Dora"]
 }
 
 const validTierlistTiers = {
@@ -468,7 +503,8 @@ const validTierlistTiers = {
     sdvx: ["clear","excessiveclear"],
     ddr: ["clear","perfectfullcombo"],
     bms: ["easyclear","clear","hardclear","fullcombo"],
-    chunithm: []
+    chunithm: [],
+    gitadora: []
 }
 
 const judgements = {
@@ -480,7 +516,8 @@ const judgements = {
     popn: ["BAD","GOOD","GREAT","COOL"],
     sdvx: ["MISS","NEAR","CRITICAL"],
     ddr: ["MISS","BOO","GOOD","GREAT","PERFECT","MARVELOUS"],
-    chunithm: ["MISS", "ATTACK", "JUSTICE", "JCRIT"]
+    chunithm: ["MISS", "ATTACK", "JUSTICE", "JCRIT"],
+    gitadora: ["MISS", "OK", "GOOD", "GREAT", "PERFECT"]
 }
 
 // correct order for grades
@@ -493,7 +530,8 @@ const grades = {
     popn: ["E","D","C","B","A","AA","AAA","S"],
     sdvx: ["D","C","B","A","A+","AA","AA+","AAA","AAA+","S"],
     ddr: ["D","D+","C-","C","C+","B-","B","B+","A-","A","A+","AA-","AA","AA+","AAA","MAX"],
-    chunithm: ["D", "C", "B", "BB", "BBB", "A", "AA", "AAA", "S", "SS", "SSS"]
+    chunithm: ["D", "C", "B", "BB", "BBB", "A", "AA", "AAA", "S", "SS", "SSS"],
+    gitadora: ["C", "B", "A", "S", "SS", "MAX"]
 }
 
 
@@ -508,7 +546,8 @@ const gradeBoundaries = {
     // popn is fidgety with grades - A is the limit of grades if you fail. this NEEDS TO BE HANDLED in importhelpers. - 18/09/2020 isnt done yet lol
     sdvx: [0,70,80,87,90,93,95,97,98,99],
     ddr: [0,55,59,60,65,69,70,75,79,80,85,89,90,95,99,100],
-    chunithm: [0,50,60,70,80,90,92.5,95.0,97.5,100,107.5,101]
+    chunithm: [0,50,60,70,80,90,92.5,95.0,97.5,100,107.5,101],
+    gitadora: [0, 63, 73, 80, 95, 100]
 }
 
 // these are to resolve some GARBAGE in chart.js
@@ -521,7 +560,8 @@ const boundaryHCF = {
     popn: 1,
     sdvx: 1,
     ddr: 1,
-    chunithm: 0.5
+    chunithm: 0.5,
+    gitadora: 1
 }
 const expChartScale = {
     iidx: 1,
@@ -532,7 +572,8 @@ const expChartScale = {
     popn: 1,
     sdvx: 7,
     ddr: 6,
-    chunithm: 4
+    chunithm: 4,
+    gitadora: 3
 }
 
 // valid lamps for a game, and also in order.
@@ -545,21 +586,23 @@ const lamps = {
     popn: ["FAILED","CLEAR","FULL COMBO","PERFECT"],
     sdvx: ["FAILED","CLEAR","EXCESSIVE CLEAR","ULTIMATE CHAIN","PERFECT ULTIMATE CHAIN"],
     ddr: ["FAILED","CLEAR","LIFE4","FULL COMBO","GREAT FULL COMBO","PERFECT FULL COMBO","MARVELOUS FULL COMBO"],
-    chunithm: ["FAILED", "CLEAR", "FULL COMBO", "ALL JUSTICE", "ALL JUSTICE CRITICAL"]
+    chunithm: ["FAILED", "CLEAR", "FULL COMBO", "ALL JUSTICE", "ALL JUSTICE CRITICAL"],
+    gitadora: ["FAILED", "CLEAR", "FULL COMBO", "EXCELLENT"]
 }
 
 // Alternative scores that make sense for the game, note that iidx's money score isn't actually used by anyone
 // and is removed in IIDX 28, to nobodies dismay.
 const validAltScores = {
-    "iidx": ["money"],
-    "ddr": ["ex"],
-    "bms": ["money"],
-    "sdvx": [],
-    "museca": [],
-    "popn": [],
-    "maimai": [],
-    "jubeat": [],
-    "chunithm": []
+    iidx: ["money"],
+    ddr: ["ex"],
+    bms: ["money"],
+    sdvx: [],
+    museca: [],
+    popn: [],
+    maimai: [],
+    jubeat: [],
+    chunithm: [],
+    gitadora: []
 }
 
 // first lamp that is considered a "true clear" by the game.
@@ -574,7 +617,8 @@ const clearLamp = {
     popn: "CLEAR",
     sdvx: "CLEAR",
     ddr: "CLEAR",
-    chunithm: "CLEAR"
+    chunithm: "CLEAR",
+    gitadora: "CLEAR"
 }
 
 const validModifiers = {
@@ -592,22 +636,54 @@ const validModifiers = {
 }
 
 const judgementWindows = {
-    iidx: [
-        {name: "PGREAT", msBorder: 16.667, value: 2},
-        {name: "GREAT", msBorder: 33.333, value: 1},
-        {name: "GOOD", msBorder: 116.667, value: 0}
-    ],
-    ddr: [
-        {name: "MARVELOUS", msBorder: 15, value: 3},
-        {name: "PERFECT", msBorder: 30, value: 2},
-        {name: "GREAT", msBorder: 59, value: 1},
-        {name: "GOOD", msBorder: 89, value: 0},
-        {name: "BAD", msBorder: 119, value: 0}
-    ],
-    museca: [
-        {name: "CRITICAL", msBorder: 33.333, value: 2},
-        {name: "NEAR", msBorder: 66.667, value: 1}
-    ]
+    iidx: {
+        SP: [
+            {name: "PGREAT", msBorder: 16.667, value: 2},
+            {name: "GREAT", msBorder: 33.333, value: 1},
+            {name: "GOOD", msBorder: 116.667, value: 0}
+        ],
+        DP: [
+            {name: "PGREAT", msBorder: 16.667, value: 2},
+            {name: "GREAT", msBorder: 33.333, value: 1},
+            {name: "GOOD", msBorder: 116.667, value: 0}
+        ]
+    },
+    ddr: {
+        SP: [
+            {name: "MARVELOUS", msBorder: 15, value: 3},
+            {name: "PERFECT", msBorder: 30, value: 2},
+            {name: "GREAT", msBorder: 59, value: 1},
+            {name: "GOOD", msBorder: 89, value: 0},
+            {name: "BAD", msBorder: 119, value: 0}
+        ],
+        DP: [
+            {name: "MARVELOUS", msBorder: 15, value: 3},
+            {name: "PERFECT", msBorder: 30, value: 2},
+            {name: "GREAT", msBorder: 59, value: 1},
+            {name: "GOOD", msBorder: 89, value: 0},
+            {name: "BAD", msBorder: 119, value: 0}
+        ]
+    },
+    museca: {
+        Single: [
+            {name: "CRITICAL", msBorder: 33.333, value: 2},
+            {name: "NEAR", msBorder: 66.667, value: 1}
+        ]
+    },
+    gitadora: {
+        Gita: [
+            {name: "PERFECT", msBorder: 33, value: 1},
+            {name: "GREAT", msBorder: 57, value: 0.5},
+            {name: "GOOD", msBorder: 81, value: 0.2},
+            {name: "OK", msBorder: 116.667 /* not really, but yknow */, value: 0}
+        ],
+        Dora: [
+            {name: "PERFECT", msBorder: 27, value: 1},
+            {name: "GREAT", msBorder: 48, value: 0.5},
+            {name: "GOOD", msBorder: 72, value: 0.2},
+            {name: "OK", msBorder: 116.667 /* not really, but yknow */, value: 0}
+        ]
+    }
 }
 
 const _rootChartTags = ["INDIVIDUAL DIFFERENCE","DIFFICULT INTRO","DIFFICULT MIDDLE","DIFFICULT END"]
@@ -621,7 +697,8 @@ const adviceChartTags = {
     popn: [..._rootChartTags],
     jubeat: [..._rootChartTags],
     maimai: [..._rootChartTags],
-    chunithm: [..._rootChartTags]
+    chunithm: [..._rootChartTags],
+    gitadora: [..._rootChartTags],
 }
 
 const adviceNoteTags = {
@@ -633,7 +710,8 @@ const adviceNoteTags = {
     popn: [],
     jubeat: [],
     maimai: [],
-    chunithm: []
+    chunithm: [],
+    gitadora: []
 }
 
 const COLOUR_SET = {
@@ -669,6 +747,16 @@ const gradeColours = {
             "秀": COLOUR_SET.blue,
             "傑": COLOUR_SET.teal,
             "傑G": COLOUR_SET.gold
+        }
+    },
+    gitadora: {
+        outline: {
+            "MAX": COLOUR_SET.white,
+            "SS": COLOUR_SET.gold,
+            "S": COLOUR_SET.orange,
+            "A": COLOUR_SET.green,
+            "B": COLOUR_SET.blue,
+            "C": COLOUR_SET.purple
         }
     },
     ddr: {
@@ -794,6 +882,14 @@ const gradeColours = {
 }
 
 const lampColours = {
+    gitadora: {
+        outline: {
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.blue,
+            "FULL COMBO": COLOUR_SET.teal,
+            "EXCELLENT": COLOUR_SET.gold
+        }
+    },
     ddr: {
         outline:{
             "FAILED": COLOUR_SET.red,
@@ -1035,6 +1131,22 @@ const judgeColours = {
             "JUSTICE": ChangeAlpha(COLOUR_SET.orange, "1"),
             "JCRIT": ChangeAlpha(COLOUR_SET.gold, "1")
         }
+    },
+    gitadora: {
+        outline: {
+            "MISS": COLOUR_SET.red,
+            "OK": COLOUR_SET.purple,
+            "GOOD": COLOUR_SET.blue,
+            "GREAT": COLOUR_SET.green,
+            "PERFECT": COLOUR_SET.gold
+        },
+        fill: {
+            "MISS": ChangeAlpha(COLOUR_SET.red, "1"),
+            "OK": ChangeAlpha(COLOUR_SET.purple, "1"),
+            "GOOD": ChangeAlpha(COLOUR_SET.blue, "1"),
+            "GREAT": ChangeAlpha(COLOUR_SET.green, "1"),
+            "PERFECT": ChangeAlpha(COLOUR_SET.gold, "1")
+        }
     }
 }
 
@@ -1047,7 +1159,8 @@ const gameChartIndicators = {
     jubeat: ["holds"],
     sdvx: [],
     bms: [],
-    chunithm: []
+    chunithm: [],
+    gitadora: []
 }
 
 /// XP STUFFS
@@ -1129,6 +1242,11 @@ const ratingParameters = {
         failHarshnessMultiplier: 1,
         pivotPercent: 0.975,
         clearExpMultiplier: 1.1
+    },
+    gitadora: { // GENERIC PARAMS. THIS IS **NOT** THE USED CALC.
+        failHarshnessMultiplier: 1,
+        pivotPercent: 0.8,
+        clearExpMultiplier: 1.1
     }
 }
 
@@ -1197,6 +1315,9 @@ function CalculateScore(game, percent, chart){
     else if (game === "chunithm"){
         score = 1000000 * (percent/100);
     }
+    else if (game === "gitadora"){
+        score = percent;
+    }
 
     if (score){
         return Math.ceil(score);
@@ -1226,6 +1347,9 @@ function PercentToScore(percent, game, chartData){
     }
     else if (game === "chunithm") {
         eScore = percent * 1000000;
+    }
+    else if (game === "gitadora"){
+        eScore = percent;
     }
 
     return eScore;
