@@ -3,7 +3,7 @@
 // IF YOU PUT SECRETS IN HERE THEY WILL BE PUBLIC
 // I SWEAR TO GOD. DO NOT DO THAT. - ZKLDI
 
-const supportedGames = ["iidx","museca","maimai","jubeat","popn","sdvx","ddr","bms"];
+const supportedGames = ["iidx","museca","maimai","jubeat","popn","sdvx","ddr","bms","chunithm"];
 
 const serviceSupportedGames = {
     PLI: ["iidx"],
@@ -21,11 +21,38 @@ const serviceSupportedGames = {
 }
 
 const gameSpecificCalc = {
-    "iidx": {
-        "SP": ["BPI"]
+    iidx: {
+        SP: ["BPI", "K%"]
     },
-    "sdvx": {
-        "Single": ["VF4", "VF5"]
+    sdvx: {
+        Single: ["VF4", "VF5"]
+    },
+    ddr: {
+        SP: ["MFCP"],
+        DP: ["MFCP"]
+    },
+}
+
+const gameSpecificCalcDescriptions = {
+    iidx: {
+        SP: {
+            BPI: "Beat Power Index: How good a score is relative to Kaiden Average (BPI 0) and the World Record (BPI 100).",
+            "K%": "Kaiden Percentile: How many Kaidens you're ahead of on a given chart."
+        }
+    },
+    sdvx: {
+        Single: {
+            VF4: "VOLFORCE as calculated in SOUND VOLTEX IV: HEAVENLY HAVEN.",
+            VF5: "VOLFORCE as calculated in SOUND VOLTEX V: VIVID WAVE."
+        }
+    },
+    ddr: {
+        SP: {
+            MFCP: "MFC Points as described in LIFE4."
+        },
+        DP: {
+            MFCP: "MFC Points as described in LIFE4."
+        }
     }
 }
 
@@ -37,7 +64,73 @@ const validDifficulties = {
     popn: ["Easy", "Normal", "Hyper", "EX"],
     sdvx: ["NOV", "ADV", "EXH", "MXM", "INF", "GRV", "HVN", "VVD"],
     ddr: ["BEGINNER", "BASIC", "DIFFICULT", "EXPERT", "CHALLENGE"],
-    bms: ["BEGINNER", "NORMAL", "HYPER", "ANOTHER", "CUSTOM"]
+    bms: ["BEGINNER", "NORMAL", "HYPER", "ANOTHER", "CUSTOM"],
+    chunithm: ["BASIC", "ADVANCED", "EXPERT", "MASTER", "WORLD'S END"]
+}
+
+const difficultyShorthand = {
+    iidx: {
+        "BEGINNER": "B",
+        "NORMAL": "N",
+        "HYPER": "H",
+        "ANOTHER": "A",
+        "LEGGENDARIA": "L"
+    },
+    museca: {
+        "Green": "G",
+        "Yellow": "Y",
+        "Red": "R"
+    },
+    maimai: {
+        "Easy": "e",
+        "Basic": "B",
+        "Advanced": "A",
+        "Expert": "E",
+        "Master": "M",
+        "Re:Master": "Re"
+    },
+    jubeat: {
+        "BSC": "BSC",
+        "ADV": "ADV",
+        "EXT": "EXT"
+    },
+    popn: {
+        "Easy": "E",
+        "Normal": "N",
+        "Hyper": "H",
+        "EX": "EX"
+    },
+    sdvx: {
+        "NOV": "NOV",
+        "ADV": "ADV",
+        "EXH": "EXH",
+        "MXM": "MXM",
+        "INF": "INF",
+        "GRV": "GRV",
+        "HVN": "HVN",
+        "VVD": "VVD"
+    },
+    ddr: {
+        "BEGINNER": "BG",
+        "BASIC": "B",
+        "DIFFICULT": "D",
+        "EXPERT": "E",
+        "CHALLENGE": "C"
+    },
+    bms: {
+        "BEGINNER": "B",
+        "NORMAL": "N",
+        "HYPER": "H",
+        "ANOTHER": "A",
+        "CUSTOM": "X"
+    },
+    chunithm: {
+        "BASIC": "BSC",
+        "ADVANCED": "ADV",
+        "EXPERT": "EXP",
+        "MASTER": "MAS",
+        "WORLD'S END": "END"
+    }
 }
 
 const validHitData = {
@@ -49,6 +142,7 @@ const validHitData = {
     "popn": ["cool","great","good","bad"],
     "maimai": ["perfect","great","good","miss"],
     "jubeat": ["perfect","great","good","bad","miss"],
+    "chunithm": ["jcrit", "justice", "attack", "miss"]
 }
 
 const BASE_VALID_HIT_META = ["fast","slow","maxCombo"]
@@ -60,7 +154,8 @@ const validHitMeta = {
     "jubeat": BASE_VALID_HIT_META,
     "popn": ["gauge", ...BASE_VALID_HIT_META],
     "sdvx": ["gauge", ...BASE_VALID_HIT_META],
-    "bms": ["bp", "gauge", ...BASE_VALID_HIT_META],
+    "bms": ["bp", "gauge", "lbd","ebd","lpr","epr","lgd","egd","lgr","egr","lpg","epg", ...BASE_VALID_HIT_META],
+    "chunithm": [...BASE_VALID_HIT_META]
 }
 
 const gameColours = {
@@ -74,6 +169,7 @@ const gameColours = {
     jubeat: "#129A7D",
     popn: "#F39CA4",
     bms: "#B5DCCD",
+    chunithm: "#AE8094" // TODO
 }
 
 const gameRelevantScoreBucket = {
@@ -87,6 +183,7 @@ const gameRelevantScoreBucket = {
     jubeat: "grade",
     popn: "grade",
     bms: "lamp",
+    chunithm: "grade"
 }
 
 // human readable stuff for games
@@ -100,7 +197,8 @@ const gameHuman = {
     gfdm: "GuitarFreaks & DrumMania",
     jubeat: "jubeat",
     popn: "pop'n music",
-    bms: "BMS"
+    bms: "BMS",
+    chunithm: "CHUNITHM"
 }
 
 // human readable stuff for versions
@@ -218,6 +316,18 @@ const versionHuman = {
         "2014": "(2014)",
         "a": "Ace",
         "a20": "A20"
+    },
+    chunithm: {
+        "chuni": "",
+        "chuniplus": "PLUS",
+        "air": "AIR",
+        "airplus": "AIR PLUS",
+        "star": "STAR",
+        "starplus": "STAR PLUS",
+        "amazon": "AMAZON",
+        "amazonplus": "AMAZON PLUS",
+        "crystal": "CRYSTAL",
+        "crystalplus": "CRYSTAL PLUS",
     }
 }
 
@@ -231,6 +341,7 @@ const gameOrders = {
     sdvx: ["booth","inf","gw","heaven","vivid"],
     ddr: ["1","2","3","4","5","max","max2","extreme","snova","snova2","x","x2","x3","2013","2014","a","a20"],
     bms: ["0"],
+    chunithm: ["chuni", "chuniplus", "air", "airplus", "star", "starplus", "amazon", "amazonplus", "crystal", "crystalplus"]
 }
 
 const defaultPlaytype = {
@@ -242,6 +353,7 @@ const defaultPlaytype = {
     sdvx: "Single",
     ddr: "SP",
     bms: "7K",
+    chunithm: "Single"
 }
 
 // todo, maybe
@@ -281,7 +393,8 @@ const levels = {
     // weirdo games
     jubeat: ["1","2","3","4","5","6","7","8","9.0","9.1","9.2","9.3","9.4","9.5","9.6","9.7","9.8","9.9","10.0","10.1","10.2","10.3","10.4","10.5","10.6","10.7","10.8","10.9"],
     maimai: ["1","2","3","4","5","6","7","7+","8","8+","9","9+","10","10+","11","11+","12","12+","13","13+","14"],
-    bms: [] // doesnt have actual levels lmao
+    bms: [], // doesnt have actual levels lmao
+    chunithm: ["1","2","3","4","5","6","7","8","9","9+","10","10+","11","11+","12","12+","13","13+","14", "14+"]
 }
 
 // legacy
@@ -327,6 +440,11 @@ const folders = {
         levels: [],
         versions: []
     },
+    chunithm: {
+        type: "static",
+        levels: [],
+        versions: gameOrders.chunithm
+    }
 }
 
 const validPlaytypes ={
@@ -337,7 +455,8 @@ const validPlaytypes ={
     maimai: ["Single"],
     jubeat: ["Single"],
     museca: ["Single"],
-    bms: ["7K","14K","5K","10K"]
+    bms: ["7K","14K","5K","10K"],
+    chunithm: ["Single"]
 }
 
 const validTierlistTiers = {
@@ -349,6 +468,7 @@ const validTierlistTiers = {
     sdvx: ["clear","excessiveclear"],
     ddr: ["clear","perfectfullcombo"],
     bms: ["easyclear","clear","hardclear","fullcombo"],
+    chunithm: []
 }
 
 const judgements = {
@@ -359,7 +479,8 @@ const judgements = {
     jubeat: ["MISS","POOR","GOOD","GREAT","PERFECT"],
     popn: ["BAD","GOOD","GREAT","COOL"],
     sdvx: ["MISS","NEAR","CRITICAL"],
-    ddr: ["MISS","BOO","GOOD","GREAT","PERFECT","MARVELOUS"]
+    ddr: ["MISS","BOO","GOOD","GREAT","PERFECT","MARVELOUS"],
+    chunithm: ["MISS", "ATTACK", "JUSTICE", "JCRIT"]
 }
 
 // correct order for grades
@@ -372,6 +493,7 @@ const grades = {
     popn: ["E","D","C","B","A","AA","AAA","S"],
     sdvx: ["D","C","B","A","A+","AA","AA+","AAA","AAA+","S"],
     ddr: ["D","D+","C-","C","C+","B-","B","B+","A-","A","A+","AA-","AA","AA+","AAA","MAX"],
+    chunithm: ["D", "C", "B", "BB", "BBB", "A", "AA", "AAA", "S", "SS", "SSS"]
 }
 
 
@@ -386,6 +508,7 @@ const gradeBoundaries = {
     // popn is fidgety with grades - A is the limit of grades if you fail. this NEEDS TO BE HANDLED in importhelpers. - 18/09/2020 isnt done yet lol
     sdvx: [0,70,80,87,90,93,95,97,98,99],
     ddr: [0,55,59,60,65,69,70,75,79,80,85,89,90,95,99,100],
+    chunithm: [0,50,60,70,80,90,92.5,95.0,97.5,100,107.5,101]
 }
 
 // these are to resolve some GARBAGE in chart.js
@@ -397,17 +520,19 @@ const boundaryHCF = {
     jubeat: 1,
     popn: 1,
     sdvx: 1,
-    ddr: 1
+    ddr: 1,
+    chunithm: 0.5
 }
 const expChartScale = {
     iidx: 1,
     bms: 1,
-    museca: 1,
+    museca: 5,
     maimai: 8,
     jubeat: 5,
     popn: 1,
     sdvx: 7,
-    ddr: 6
+    ddr: 6,
+    chunithm: 1
 }
 
 // valid lamps for a game, and also in order.
@@ -420,6 +545,7 @@ const lamps = {
     popn: ["FAILED","CLEAR","FULL COMBO","PERFECT"],
     sdvx: ["FAILED","CLEAR","EXCESSIVE CLEAR","ULTIMATE CHAIN","PERFECT ULTIMATE CHAIN"],
     ddr: ["FAILED","CLEAR","LIFE4","FULL COMBO","GREAT FULL COMBO","PERFECT FULL COMBO","MARVELOUS FULL COMBO"],
+    chunithm: ["FAILED", "CLEAR", "FULL COMBO", "ALL JUSTICE", "ALL JUSTICE CRITICAL"]
 }
 
 // Alternative scores that make sense for the game, note that iidx's money score isn't actually used by anyone
@@ -433,6 +559,7 @@ const validAltScores = {
     "popn": [],
     "maimai": [],
     "jubeat": [],
+    "chunithm": []
 }
 
 // first lamp that is considered a "true clear" by the game.
@@ -446,7 +573,8 @@ const clearLamp = {
     jubeat: "CLEAR",
     popn: "CLEAR",
     sdvx: "CLEAR",
-    ddr: "CLEAR"
+    ddr: "CLEAR",
+    chunithm: "CLEAR"
 }
 
 const validModifiers = {
@@ -458,7 +586,7 @@ const validModifiers = {
         note: ["NONRAN","MIRROR","RANDOM","R-RANDOM","S-RANDOM"],
         gauge: ["NORMAL","HARD"]
     },
-    ddr:{
+    ddr: {
         speed: ["0.25x","0.5x","0.75x","1x","1.25x","1.5x","1.75x","2.0x","2.25x","2.5x", "2.75x","3.0x","3.25x","3.5x","3.75x","4.0x","4.5x","5.0x","5.5x","6.0x","6.5x","7.0x","7.5x","8.0x"]
     }
 }
@@ -493,6 +621,7 @@ const adviceChartTags = {
     popn: [..._rootChartTags],
     jubeat: [..._rootChartTags],
     maimai: [..._rootChartTags],
+    chunithm: [..._rootChartTags]
 }
 
 const adviceNoteTags = {
@@ -503,7 +632,8 @@ const adviceNoteTags = {
     sdvx: ["STREAMS","JACKS","LASERS","SPEED","TRILLS","ONE-HANDING","STAMINA","TECHNICAL"],
     popn: [],
     jubeat: [],
-    maimai: []
+    maimai: [],
+    chunithm: []
 }
 
 const COLOUR_SET = {
@@ -632,7 +762,7 @@ const gradeColours = {
             "MAX": COLOUR_SET.white
         }
     },
-    sdvx:{
+    sdvx: {
         outline: {
             "D": COLOUR_SET.gray,
             "C": COLOUR_SET.red,
@@ -645,11 +775,26 @@ const gradeColours = {
             "AAA+": COLOUR_SET.vibrantYellow,
             "S": COLOUR_SET.teal
         }
+    },
+    chunithm: {
+        outline: {
+            "D": COLOUR_SET.red,
+            "C": COLOUR_SET.purple,
+            "B": COLOUR_SET.paleBlue,
+            "BB": COLOUR_SET.blue,
+            "BBB": COLOUR_SET.vibrantBlue,
+            "A": COLOUR_SET.paleGreen,
+            "AA": COLOUR_SET.green,
+            "AAA": COLOUR_SET.vibrantGreen,
+            "S": COLOUR_SET.vibrantOrange,
+            "SS": COLOUR_SET.vibrantYellow,
+            "SSS": COLOUR_SET.teal
+        }
     }
 }
 
 const lampColours = {
-    ddr:{
+    ddr: {
         outline:{
             "FAILED": COLOUR_SET.red,
             "CLEAR": COLOUR_SET.paleGreen,
@@ -724,6 +869,15 @@ const lampColours = {
             "CLEAR": COLOUR_SET.paleBlue,
             "FULL COMBO": COLOUR_SET.teal,
             "EXCELLENT": COLOUR_SET.gold
+        }
+    },
+    chunithm: {
+        outline: {
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.paleGreen,
+            "FULL COMBO": COLOUR_SET.paleBlue,
+            "ALL JUSTICE": COLOUR_SET.gold,
+            "ALL JUSTICE CRITICAL": COLOUR_SET.white
         }
     }
 }
@@ -868,6 +1022,20 @@ const judgeColours = {
             "PERFECT": "rgba(241, 245, 24, 1)"
         }
     },
+    chunithm: {
+        outline: {
+            "MISS": COLOUR_SET.gray,
+            "ATTACK": COLOUR_SET.green,
+            "JUSTICE": COLOUR_SET.orange,
+            "JCRIT": COLOUR_SET.gold
+        },
+        fill: {
+            "MISS": ChangeAlpha(COLOUR_SET.gray, "1"),
+            "ATTACK": ChangeAlpha(COLOUR_SET.green, "1"),
+            "JUSTICE": ChangeAlpha(COLOUR_SET.orange, "1"),
+            "JCRIT": ChangeAlpha(COLOUR_SET.gold, "1")
+        }
+    }
 }
 
 const gameChartIndicators = {
@@ -879,6 +1047,7 @@ const gameChartIndicators = {
     jubeat: ["holds"],
     sdvx: [],
     bms: [],
+    chunithm: []
 }
 
 /// XP STUFFS
@@ -955,6 +1124,11 @@ const ratingParameters = {
         failHarshnessMultiplier: 0.9,
         pivotPercent: 0.9,
         clearExpMultiplier: 1
+    },
+    chunithm: {
+        failHarshnessMultiplier: 1,
+        pivotPercent: 0.85,
+        clearExpMultiplier: 1
     }
 }
 
@@ -962,6 +1136,17 @@ function ChangeAlpha(string, alpha){
     let spl = string.split(",");
     spl[spl.length - 1] = alpha + ")";
     return spl.join(",");
+}
+
+function DirectScoreGradeDelta(game, score, percent, chart, delta){
+    let scoreObj = {
+        scoreData: {
+            score: score,
+            grade: GetGrade(game, percent)
+        }
+    };
+
+    return ScoreGradeDelta(game, scoreObj, chart, delta);
 }
 
 function ScoreGradeDelta(game, score, chart, delta){
@@ -1009,6 +1194,9 @@ function CalculateScore(game, percent, chart){
     else if (game === "maimai"){
         return null; // this won't work.
     }
+    else if (game === "chunithm"){
+        score = 1000000 * (percent/100);
+    }
 
     if (score){
         return Math.ceil(score);
@@ -1035,6 +1223,9 @@ function PercentToScore(percent, game, chartData){
     }
     else if (game === "ddr"){
         // todo
+    }
+    else if (game === "chunithm") {
+        eScore = percent * 1000000;
     }
 
     return eScore;
@@ -1090,6 +1281,9 @@ if (typeof window === 'undefined'){
         boundaryHCF,
         gameSpecificCalc,
         expChartScale,
-        FormatDifficulty
+        FormatDifficulty,
+        DirectScoreGradeDelta,
+        gameSpecificCalcDescriptions,
+        difficultyShorthand
     };
 }
