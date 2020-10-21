@@ -394,7 +394,7 @@ const levels = {
     jubeat: ["1","2","3","4","5","6","7","8","9.0","9.1","9.2","9.3","9.4","9.5","9.6","9.7","9.8","9.9","10.0","10.1","10.2","10.3","10.4","10.5","10.6","10.7","10.8","10.9"],
     maimai: ["1","2","3","4","5","6","7","7+","8","8+","9","9+","10","10+","11","11+","12","12+","13","13+","14"],
     bms: [], // doesnt have actual levels lmao
-    chunithm: ["1","2","3","4","5","6","7","8","9","9+","10","10+","11","11+","12","12+","13","13+","14", "14+"]
+    chunithm: ["1","2","3","4","5","6","7","7+","8","8+","9","9+","10","10+","11","11+","12","12+","13","13+","14", "14+"]
 }
 
 // legacy
@@ -442,7 +442,7 @@ const folders = {
     },
     chunithm: {
         type: "static",
-        levels: [],
+        levels: ["1","2","3","4","5","6","7","7+","8","8+","9","9+","10","10+","11","11+","12","12+","13","13+","14", "14+"],
         versions: gameOrders.chunithm
     }
 }
@@ -532,7 +532,7 @@ const expChartScale = {
     popn: 1,
     sdvx: 7,
     ddr: 6,
-    chunithm: 1
+    chunithm: 4
 }
 
 // valid lamps for a game, and also in order.
@@ -1127,8 +1127,8 @@ const ratingParameters = {
     },
     chunithm: {
         failHarshnessMultiplier: 1,
-        pivotPercent: 0.85,
-        clearExpMultiplier: 1
+        pivotPercent: 0.975,
+        clearExpMultiplier: 1.1
     }
 }
 
