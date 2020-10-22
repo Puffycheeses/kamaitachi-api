@@ -16,13 +16,15 @@ router.get("/", async function(req,res){
                 founderID: req.user.id
             });
 
-            queryObj = {
-                $or: rivalGroups.map(e => ({
-                    userID: {$in: e.members.filter(m => m !== req.user.id)},
-                    game: e.game,
-                    playtype: e.playtype
-                })
-            )}
+            if (rivalGroups.length){
+                queryObj = {
+                    $or: rivalGroups.map(e => ({
+                        userID: {$in: e.members.filter(m => m !== req.user.id)},
+                        game: e.game,
+                        playtype: e.playtype
+                    })
+                )}
+            }
         }
         else if (req.query.myFriends) {
             queryObj.userID = {$in: req.user.friends}
