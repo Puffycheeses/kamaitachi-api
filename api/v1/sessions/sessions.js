@@ -25,6 +25,16 @@ router.get("/", async function(req,res){
                     })
                 )}
             }
+            else {
+                return res.status(200).json({
+                    success: true,
+                    description: "No rival groups set up.",
+                    body: {
+                        items: [],
+                        users: []
+                    }
+                })
+            }
         }
         else if (req.query.myFriends) {
             queryObj.userID = {$in: req.user.friends}
