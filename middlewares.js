@@ -4,9 +4,15 @@ const userHelpers = require("./core/user-core.js");
 const apiConfig = require("./apiconfig.js");
 const config = require("./config/config.js");
 
-async function RequireAPIKey(req,res,next)
-{
+async function RequireAPIKey(req,res,next) {
     let givenKey = req.cookies.apikey;
+
+    if (!givenKey) {
+        givenKey = req.headers.authorization;
+        if (givenKey && givenKey.startsWith("Bearer ")) {
+            givenKey = givenKey.split(" ")[1];
+        }
+    }
     
     let key = await db.get("public-api-keys").findOne({apiKey: givenKey});
     
