@@ -31,6 +31,8 @@ router.get("/", async function(req, res){
             db.get(`songs-${game}`).find({
                 $or: [
                     {title: searchCriteria},
+                    {artist: searchCriteria},
+                    {genre: searchCriteria},
                     {"alt-titles": searchCriteria},
                     {"search-titles": searchCriteria}
                 ]
