@@ -42,7 +42,7 @@ router.get("/", async function(req, res){
                 for (const s of data) {
                     s.game = game
                     let titles = joinTitles(s);
-                    let accs = titles.map(e => (similar.compareTwoStrings(search.toLowerCase(), (e || "").toLowerCase()) || 0));
+                    let accs = titles.map(e => (similar.compareTwoStrings(search.toLowerCase(), ("" + e).toLowerCase()) || 0));
                     s.accuracy = Math.max(...accs);
                 }
                 return data;
