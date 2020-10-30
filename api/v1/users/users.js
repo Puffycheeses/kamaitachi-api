@@ -171,7 +171,6 @@ router.get("/search", async function(req,res){
         });
     }
 
-
     // return only the closest 100 matches. This doesn't matter now, but it might.
     users = users.slice(0, MAX_USER_RETURN_LIMIT);
 

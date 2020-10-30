@@ -140,15 +140,69 @@ router.get("/scores", ValidateUserID, ValidateRivalGroupID, async function(req,r
     else if (req.query.getServerRecords){
         // unimplemented, sorry.
     }
+    else if (req.query.beforeTimestamp) {
+        // because we're not using isScorePB/isLampPB anymore, we need to do some INTERESTING aggregate pipelining
+
+        let scPipe = await db.get("scores").aggregate([
+            {
+                // step 1: Filter all the scores to only those we care about
+                $match: {
+                    timeAchieved: {$lte: parseInt(req.query.beforeTimestamp)},
+                    userID: requestedUserID,
+                    chartID: {$in: charts.map(e => e.chartID)}
+                }
+            },
+            {
+                // step 2: MongoDB doesn't support returning the document that is the largest value on a certain column,
+                // so we sort the ENTIRE above db by scoreData.score, then use group, and select the first value in the DB.
+                // this is a disgusting hack, in my opinion, but there is genuinely no better way with mongo.
+                $sort: {"scoreData.score": -1}
+            },
+            {
+                // step 3: group on chartID, then pull the first value that matches.
+                // since the above step sorts all scores by their score value, we're guaranteed to get a score PB here.
+                // we then also grab the best lampIndex for the score, and we use this to overwrite the lamp status in
+                // scorePB.
+                $group: {
+                    _id: "$chartID",
+                    scorePB: {$first: "$$ROOT"}, // this is the only way to get the whole document that matches this expression, seriously.
+                    lampPB: {$max: "$scoreData.lampIndex"}
+                }
+            }
+        ]);
+
+        for (const scoreData of scPipe) {
+            let scDoc = scoreData.scorePB;
+            if (!scDoc) {
+                continue;
+            }
+            scDoc.scoreData.lampIndex = scoreData.lampPB;
+            scDoc.scoreData.lamp = config.lamps[scDoc.game][scoreData.lampPB];
+            scores.push(scDoc);
+        }
+    }
     else {
-        let scorePBs = await db.get("scores").find({
+        let scoreQueryObj = {
             chartID: {$in: charts.map(e => e.chartID)},
             userID: requestedUserID,
             isScorePB: true
-        });
+        };
+
+        let scorePBs = await db.get("scores").find(scoreQueryObj);
 
         scores = await scoreCore.AutoCoerce(scorePBs);
     }
+
+    let users = await db.get("users").find({
+        id: {$in: scores.map(e => e.userID)}
+    }, {
+        projection: {
+            _id: 0,
+            password: 0,
+            email: 0,
+            integrations: 0
+        }
+    });
 
     return res.status(200).json({
         success: true,
@@ -156,7 +210,38 @@ router.get("/scores", ValidateUserID, ValidateRivalGroupID, async function(req,r
         body: {
             scores,
             songs,
-            charts
+            charts,
+            users
+        }
+    })
+});
+
+router.get("/goals", ValidateUserID, async function (req,res) {
+    let folder = req.folderData;
+    
+    let {charts} = await folderCore.GetDataFromFolderQuery(folder, null, null, true);
+
+    let chartIDs = charts.map(e => e.chartID);
+
+    let queryObj = {
+        $or: [
+            {directChartID: {$in: chartIDs}},
+            {directChartIDs: {$in: chartIDs}}
+        ]
+    }
+
+    let goals = await db.get("goals").find(queryObj);
+    let userGoals = await db.get("user-goals").find({
+        goalID: {$in: goals.map(e => e.goalID)},
+        userID: req.requestedUserID
+    });
+
+    return res.status(200).json({
+        success: true,
+        description: `Successfully found ${userGoals.length} user goals.`,
+        body: {
+            goals,
+            userGoals
         }
     })
 });
