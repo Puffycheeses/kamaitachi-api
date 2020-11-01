@@ -7,6 +7,10 @@ const MAJOR_VER = 3;
 const MINOR_VER = 4;
 const PATCH_VER = 1;
 
+router.use((req, res, next) => {
+    res.set("Cache-Control", "no-cache");
+})
+
 router.get("/", async function(req,res){
     return res.status(200).json({
         success: true,
