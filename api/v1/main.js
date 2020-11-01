@@ -8,7 +8,7 @@ const MINOR_VER = 4;
 const PATCH_VER = 1;
 
 router.use((req, res, next) => {
-    res.set("Cache-Control", "no-cache");
+    res.header("Cache-Control", "max-age=0, must-revalidate");
 })
 
 router.get("/", async function(req,res){
