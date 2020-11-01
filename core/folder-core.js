@@ -46,8 +46,12 @@ async function GetDataFromFolderQuery(folder, playtype, difficulty, onlyGetChart
             id: {$in: r.map(e => e.id)},
         };
 
-        if (playtype){
+        if (playtype) {
             chartQuery.playtype = playtype;
+        }
+
+        if (difficulty) {
+            chartQuery.difficulty = difficulty;
         }
 
         let charts = await db.get("charts-" + folder.game).find(chartQuery);
