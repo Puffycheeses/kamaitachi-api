@@ -64,7 +64,7 @@ router.get("/default-folders", async function(req,res){
 
     let game = req.query.game;
 
-    let playtype = config.validPlaytypes[game].includes(req.query.playtype) || config.defaultPlaytype[game];
+    let playtype = config.validPlaytypes[game].includes(req.query.playtype) ? req.query.playtype :  config.defaultPlaytype[game];
 
     // we are going to make a COOL caching optimisation here
     let dataCache = await db.get("defaultfolder-cache").findOne({
