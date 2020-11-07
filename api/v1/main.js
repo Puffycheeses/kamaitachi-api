@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
+const middlewares = require("../../middlewares.js");
 
 // mounted on /v1
 
-const MAJOR_VER = 3;
-const MINOR_VER = 4;
-const PATCH_VER = 1;
+const MAJOR_VER = 4;
+const MINOR_VER = 0;
+const PATCH_VER = 0;
 
 router.use((req, res, next) => {
     res.header("Cache-Control", "max-age=0, must-revalidate");
@@ -46,23 +47,36 @@ const userGoalsRouter = require("./user-goals/user-goals.js");
 const userMilestoneRouter = require("./user-milestones/user-milestones.js");
 const searchRouter = require("./search/search.js");
 
+
 router.use("/users", usersRouter);
-router.use("/rivals", rivalsRouter);
-router.use("/tierlists", tierlistsRouter);
-router.use("/scores", scoresRouter);
-router.use("/leaderboards", leaderboardsRouter);
-router.use("/games", gamesRouter);
-router.use("/clans", clansRouter);
-router.use("/imports", importsRouter);
-router.use("/stats", statsRouter);
-router.use("/queries", queryRouter);
-router.use("/folders", folderRouter);
 router.use("/sessions", sessionRouter);
-router.use("/fun-facts", ffactRouter);
+router.use("/tierlists", tierlistsRouter);
+router.use("/leaderboards", leaderboardsRouter);
+router.use("/search", searchRouter);
+router.use("/queries", queryRouter);
+router.use("/stats", statsRouter);
+router.use("/scores", scoresRouter);
+router.use("/games", gamesRouter);
+router.use("/rivals", rivalsRouter);
 router.use("/goals", goalRouter);
 router.use("/milestones", milestonesRouter);
 router.use("/user-goals", userGoalsRouter);
 router.use("/user-milestones", userMilestoneRouter);
-router.use("/search", searchRouter);
+router.use("/imports", importsRouter);
+router.use("/folders", folderRouter);
+router.use("/fun-facts", ffactRouter);
+router.use("/clans", clansRouter);
+
+// require APIKey more or less means "require logged in".
+// since we're moving the API to be usable by people without accounts
+// we need only restrict certain things behind this.
+// people without accounts can ONLY make GET requests.
+// so the only things we really need to look out for are get requests
+// that use a logged in user as hint for where to get data from.
+
+// router.use(middlewares.RequireAPIKey);
+
+
+
 
 module.exports = router;
