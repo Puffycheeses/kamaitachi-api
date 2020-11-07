@@ -51,7 +51,7 @@ app.use(express.json({limit:"1mb"}));
 // crucial middleware; these are in this order for a very important reason.
 app.use(cookieParser());
 
-app.use(middlewares.RequireAPIKey);
+app.use(middlewares.AllowGuestAccess);
 
 app.use(middlewares.LogRequest);
 
@@ -60,7 +60,6 @@ app.use(middlewares.SanitiseInput);
 // i think it's okay to mount this everywhere since it only mutates req.query, which should be uriencoded anyway.
 // for all i know, express might do this by default, lol.
 app.use(middlewares.DecodeURIComponents);
-
 
 // mounts
 const apiRouterV1 = require("./api/v1/main.js");
