@@ -400,7 +400,7 @@ router.get("/score-feed", CheckRivalGroupExists, async function(req,res){
     let rg = req.rg;
 
     if (!req.query.includeSelf){
-        rg.members = rg.members.filter(e => e !== req.apikey.assignedTo);
+        rg.members = rg.members.filter(e => e !== rg.founderID);
     }
     let members = await userHelpers.GetUsers(rg.members);
     let impressiveness = parseFloat(req.query.impressiveness) || 0.95;

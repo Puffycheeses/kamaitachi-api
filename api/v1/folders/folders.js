@@ -42,7 +42,7 @@ router.get("/default-folders", async function(req,res){
         });
     }
 
-    userID = req.apikey.assignedTo;
+    let userID;
 
     if (parseInt(req.query.userID)){
         let u = await db.get("users").findOne({
@@ -60,6 +60,15 @@ router.get("/default-folders", async function(req,res){
                 description: "This user does not exist."
             });
         }
+    }
+    else if (req.user) {
+        userID = req.user.id;
+    }
+    else {
+        return res.status(401).json({
+            success: false,
+            description: "Cannot request default folders for no user! (If you're logged in, this defaults to whoever you're logged in as)."
+        });
     }
 
     let game = req.query.game;

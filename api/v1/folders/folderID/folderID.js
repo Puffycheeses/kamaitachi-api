@@ -42,7 +42,7 @@ router.get("/", async function(req,res){
 });
 
 async function ValidateUserID(req, res, next){
-    if (parseInt(req.query.userID)){
+    if (Number.isInteger(parseInt(req.query.userID))){
         let u = await db.get("users").findOne({id: parseInt(req.query.userID)}, {fields: {password: 0, email: 0, integrations: 0}});
 
         if (u){
@@ -79,6 +79,48 @@ async function ValidateRivalGroupID(req, res, next){
     
     next();
 }
+
+router.get("/charts", async function(req,res) {
+    let folder = req.folderData;
+
+    let playtype = null;
+    let difficulty = null;
+
+    if (req.query.playtype){
+        if (config.validPlaytypes[folder.game].includes(req.query.playtype)){
+            playtype = req.query.playtype;
+        }
+        else {
+            return res.status(400).json({
+                success: false,
+                description: `Playtype ${req.query.playtype} provided, but this was not valid for ${folder.game}.`
+            });
+        }
+    }
+
+    if (req.query.difficulty){
+        if (config.validDifficulties[folder.game].includes(req.query.difficulty)){
+            difficulty = req.query.difficulty;
+        }
+        else {
+            return res.status(400).json({
+                success: false,
+                description: `Difficulty ${req.query.difficulty} provided, but this was not valid for ${folder.game}.`
+            });
+        }
+    }
+    
+    let {songs, charts} = await folderCore.GetDataFromFolderQuery(folder, playtype, difficulty);
+
+    return res.status(200).json({
+        success: true,
+        description: "Successfully retrieved songs and charts.",
+        body: {
+            songs,
+            charts
+        }
+    })
+})
 
 router.get("/scores", ValidateUserID, ValidateRivalGroupID, async function(req,res){
     let folder = req.folderData;

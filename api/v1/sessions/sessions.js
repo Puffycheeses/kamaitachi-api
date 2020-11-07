@@ -10,7 +10,7 @@ const MAX_RETURNS = 100;
 router.get("/", async function(req,res){
     try {
         let queryObj = {};
-        if (req.query.myRivals){
+        if (req.query.myRivals && req.user){
             let rivalGroups = await db.get("rivals").find({
                 isDefault: true,
                 founderID: req.user.id
@@ -36,7 +36,7 @@ router.get("/", async function(req,res){
                 })
             }
         }
-        else if (req.query.myFriends) {
+        else if (req.query.myFriends && req.user) {
             queryObj.userID = {$in: req.user.friends}
         }
 

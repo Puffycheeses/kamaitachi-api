@@ -210,8 +210,8 @@ router.get("/query", async function(req,res){
         }
     }
 
-    if (req.query.userID === "self"){
-        req.query.userID = "" + req.apikey.assignedTo;
+    if (req.query.userID === "self" && req.user){
+        req.query.userID = "" + req.user.id;
     }
 
     try {

@@ -70,7 +70,6 @@ router.get("/", async function(req,res){
 });
 
 router.get("/online", async function(req,res){
-
     let userLimit = MAX_USER_RETURN_LIMIT;
     if (req.query.limit){
         if (!rgxIsNum.match(req.query.limit)){
