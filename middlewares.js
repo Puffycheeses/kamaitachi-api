@@ -4,7 +4,38 @@ const userHelpers = require("./core/user-core.js");
 const apiConfig = require("./apiconfig.js");
 const config = require("./config/config.js");
 
-async function RequireAPIKey(req,res,next) {
+async function AllowGuestAccess(req, res, next) {
+    let key = await GetAPIKey(req);
+
+    if (!key || key.expireTime < Date.now()) {
+        if (req.method !== "GET") {
+            return res.status(401).json({
+                success: false,
+                description: "Unauthorised to make non-GET requests without API key!"
+            });
+        }
+    }
+
+    if (key) {
+        let requestingUser = await db.get("users").findOne({
+            id: key.assignedTo
+        }, {
+            fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS
+        });
+    
+        if (!requestingUser){
+            return next();
+        }
+    
+        req.user = requestingUser;
+    }
+
+    req.apikey = key;
+
+    next();
+}
+
+async function GetAPIKey(req) {
     let givenKey = req.cookies.apikey;
 
     if (!givenKey) {
@@ -15,6 +46,13 @@ async function RequireAPIKey(req,res,next) {
     }
     
     let key = await db.get("public-api-keys").findOne({apiKey: givenKey});
+
+    return key;
+}
+
+
+async function RequireAPIKey(req,res,next) {
+    let key = req.apikey;
     
     if (!key || key.expireTime < Date.now()){
         return res.status(401).json({
@@ -100,7 +138,7 @@ async function LogRequest(req,res,next){
 }
 
 async function MaintenanceMode(req,res,next){
-    try{
+    try {
         let key = await db.get("public-api-keys").findOne({apiKey: req.query.key});
         if (!key.permissions.admin){
             return res.status(500).json({
@@ -134,7 +172,7 @@ async function SanitiseInput(req,res,next){
 
     Sanitise(req.body);
 
-    if (!(req.apikey.assignedTo === 1 && req.body.punchthrough)) {
+    if (!(req.apikey && req.apikey.assignedTo === 1 && req.body.punchthrough)) {
         for (const key in req.body) {
             if (typeof req.body[key] === "object" && req.body[key]) {
                 return res.status(400).json({
@@ -334,5 +372,6 @@ module.exports = {
     RequireClanFounder,
     InvitedToClan,
     RequireValidGame,
-    RequireAdmin
+    RequireAdmin,
+    AllowGuestAccess
 };
