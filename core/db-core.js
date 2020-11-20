@@ -176,18 +176,59 @@ function FancyQueryValidate(query, queryObj, validKeys){
                 }
             }
             else if (validKeys[key] === "float"){
-                let numVal = parseFloat(query[key]);
-                if (Number.isNaN(numVal)){
-                    throw {
-                        statusCode: 400,
-                        body: {
-                            success: false,
-                            description: key + " was not a float."
+                // workaround for betweens
+                if (query[key + "-opt"] === "between") {
+                    if (!query[key].includes("~")) {
+                        throw {
+                            statusCode: 400,
+                            body: {
+                                success: false,
+                                description: `"between" requests require a ~ separating two numerical values.`
+                            }
                         }
                     }
-                }
 
-                queryObj[key] = ParseNumericalModifiers(numVal, query[key + "-opt"]);
+                    let split = query[key].split("~");
+
+                    let v1 = parseFloat(split[0]);
+                    let v2 = parseFloat(split.slice(1).join("~"));
+
+                    if (Number.isNaN(v1)) {
+                        throw {
+                            statusCode: 400,
+                            body: {
+                                success: false,
+                                description: key + " was not a float (left hand value): " + v1
+                            }
+                        }
+                    }
+
+                    if (Number.isNaN(v2)) {
+                        throw {
+                            statusCode: 400,
+                            body: {
+                                success: false,
+                                description: key + " was not a float (right hand value): " + v2
+                            }
+                        }
+                    }
+
+                    queryObj[key] = ParseNumericalModifiers([v1,v2], query[key + "-opt"]);
+                }
+                else {
+                    let numVal = parseFloat(query[key]);
+                    if (Number.isNaN(numVal)){
+                        throw {
+                            statusCode: 400,
+                            body: {
+                                success: false,
+                                description: key + " was not a float."
+                            }
+                        }
+                    }
+    
+                    queryObj[key] = ParseNumericalModifiers(numVal, query[key + "-opt"]);
+                }
             }
             else if (validKeys[key] === "boolean"){
                 if (!["false","true"].includes(query[key])){
