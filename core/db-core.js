@@ -122,16 +122,58 @@ function FancyQueryValidate(query, queryObj, validKeys){
                 queryObj[key] = ParseStringModifiers(query[key], query[key + "-opt"]);
             }
             else if (validKeys[key] === "integer"){
-                if (!query[key].match(rgxIsInt)){
-                    throw {
-                        statusCode: 400,
-                        body: {
-                            success: false,
-                            description: key + " was not an integer."
+                // workaround for betweens
+                if (query[key + "-opt"] === "between") {
+                    if (!query[key].includes("~")) {
+                        throw {
+                            statusCode: 400,
+                            body: {
+                                success: false,
+                                description: `"between" requests require a ~ separating two numerical values.`
+                            }
                         }
                     }
+
+                    let split = query[key].split("~");
+
+                    let v1 = split[0];
+                    let v2 = split.slice(1).join("~");
+
+                    if (!v1.match(rgxIsInt)) {
+                        throw {
+                            statusCode: 400,
+                            body: {
+                                success: false,
+                                description: key + " was not an integer (left hand value)."
+                            }
+                        }
+                    }
+
+                    if (!v2.match(rgxIsInt)) {
+                        throw {
+                            statusCode: 400,
+                            body: {
+                                success: false,
+                                description: key + " was not an integer (right hand value)."
+                            }
+                        }
+                    }
+
+                    queryObj[key] = ParseNumericalModifiers([v1,v2], query[key + "-opt"]);
                 }
-                queryObj[key] = ParseNumericalModifiers(parseInt(query[key]), query[key + "-opt"]);
+                else {
+                    if (!query[key].match(rgxIsInt)){
+                        throw {
+                            statusCode: 400,
+                            body: {
+                                success: false,
+                                description: key + " was not an integer."
+                            }
+                        }
+                    }
+
+                    queryObj[key] = ParseNumericalModifiers(parseInt(query[key]), query[key + "-opt"]);
+                }
             }
             else if (validKeys[key] === "float"){
                 let numVal = parseFloat(query[key]);
@@ -201,6 +243,9 @@ function ParseNumericalModifiers(value, option){
     }
     else if (option === "lte"){
         return {$lte: value}
+    }
+    else if (option === "between") {
+        return {$gte: parseInt(value[0]), $lte: parseInt(value[1])}
     }
     else {
         throw {
