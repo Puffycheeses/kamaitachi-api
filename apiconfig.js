@@ -13,7 +13,9 @@ const validKeys = {
         game: "string",
         playtype: "string",
         userID: "integer",
-        highlight: "boolean"
+        highlight: "boolean",
+        timeStarted: "integer",
+        timeEnded: "integer"
     },
     "folders": {
         name: "string",
