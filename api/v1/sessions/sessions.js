@@ -127,22 +127,19 @@ router.get("/:sessionID/scores", GetSessionWithID, async function(req,res){
         let charts = [];
         if (scores.length !== 0){
             charts = await db.get("charts-" + sessionObj.game).find({
-                $or: scores.map(e => ({
-                    id: e.songID,
-                    difficulty: e.scoreData.difficulty,
-                    playtype: e.scoreData.playtype
-                }))
+                $in: scores.map(e => e.chartID)
             });
         }
 
         let retBody = {
             songs,
             charts,
-            scores
+            scores,
+            session: sessionObj
         }
 
-        if (start + limit < sessionObj.successfulScores.length){
-            retBody.nextStartPoint = start+limit;
+        if ((start + limit) < sessionObj.successfulScores.length){
+            retBody.nextStartPoint = start + limit;
         }
 
         return res.status(200).json({
@@ -153,7 +150,8 @@ router.get("/:sessionID/scores", GetSessionWithID, async function(req,res){
     }
     else {
         let retBody = {
-            scores
+            scores,
+            session: sessionObj
         }
 
         if (start + limit < sessionObj.successfulScores.length){
