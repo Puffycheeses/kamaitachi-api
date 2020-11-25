@@ -127,7 +127,7 @@ router.get("/:sessionID/scores", GetSessionWithID, async function(req,res){
         let charts = [];
         if (scores.length !== 0){
             charts = await db.get("charts-" + sessionObj.game).find({
-                $in: scores.map(e => e.chartID)
+                chartID: {$in: scores.map(e => e.chartID)}
             });
         }
 
@@ -138,7 +138,7 @@ router.get("/:sessionID/scores", GetSessionWithID, async function(req,res){
             session: sessionObj
         }
 
-        if ((start + limit) < sessionObj.successfulScores.length){
+        if ((start + limit) < sessionObj.scores.length){
             retBody.nextStartPoint = start + limit;
         }
 
@@ -154,7 +154,7 @@ router.get("/:sessionID/scores", GetSessionWithID, async function(req,res){
             session: sessionObj
         }
 
-        if (start + limit < sessionObj.successfulScores.length){
+        if (start + limit < sessionObj.scores.length){
             retBody.nextStartPoint = start+limit;
         }
 
