@@ -202,4 +202,88 @@ router.get("/:sessionID/folders", GetSessionWithID, async function (req, res) {
         }
     })
 });
+
+// options stuff
+
+async function ValidateUser(req, res, next) {
+
+    if (!req.user || (req.user.id !== req.sessionObj.userID)) {
+        return res.status(401).json({
+            success: false,
+            description: "Unauthorised."
+        });
+    }
+
+    next();
+}
+
+router.patch("/:sessionID/set-name", GetSessionWithID, ValidateUser, async function(req,res){
+    if (!req.body.name){
+        return res.status(400).json({
+            success: false,
+            description: "No name provided."
+        });
+    }
+    if (req.body.name.length > 140){
+        return res.status(400).json({
+            success: false,
+            description: "Session names cannot be longer than 140 characters."
+        });
+    }
+
+    let session = req.sessionObj;
+
+    await db.get("sessions").update({_id: session._id}, {$set: {name: req.body.name}});
+
+    return res.status(200).json({
+        success: true,
+        description: "Successfully changed session name from " + session.name + " to " + req.body.name + ".",
+        body: {
+            oldName: session.name,
+            newName: req.body.name
+        }
+    });
+});
+
+router.patch("/:sessionID/set-desc", GetSessionWithID, ValidateUser, async function(req,res){
+    if (!req.body.desc){
+        return res.status(400).json({
+            success: false,
+            description: "No desc provided."
+        });
+    }
+    if (req.body.desc.length > 280){
+        return res.status(400).json({
+            success: false,
+            description: "Session descs cannot be longer than 280 characters."
+        });
+    }
+
+    let session = req.sessionObj;
+
+    await db.get("sessions").update({_id: session._id}, {$set: {desc: req.body.desc}});
+
+    return res.status(200).json({
+        success: true,
+        description: "Successfully changed session desc from " + session.desc + " to " + req.body.desc + ".",
+        body: {
+            oldDesc: session.desc,
+            newDesc: req.body.desc
+        }
+    });
+});
+
+router.patch("/:sessionID/toggle-highlight", GetSessionWithID, ValidateUser, async function (req,res) {
+    await db.get("sessions").update({_id: req.sessionObj._id}, {$set: {highlight: !req.sessionObj.highlight}});
+
+    return res.status(200).json({
+        success: true,
+        description: `Successfully ${req.sessionObj.highlight ? "unhighlighted session." : "highlighted session!"}`,
+        body: {
+            highlightStatus: !req.sessionObj.highlight
+        }
+    });
+});
+
+
 module.exports = router;
