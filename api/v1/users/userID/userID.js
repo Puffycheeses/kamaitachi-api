@@ -23,14 +23,12 @@ router.get("/", async function(req,res){
 const friendsRouter = require("./friends/friends.js");
 const importsRouter = require("./imports/imports.js");
 const notificationsRouter = require("./notifications/notifications.js");
-const sessionsRouter = require("./sessions/sessions.js");
 const scoresRouter = require("./scores/scores.js");
 const rankingRouter = require("./ranking/ranking.js");
 
 router.use("/friends", friendsRouter);
 router.use("/imports", importsRouter);
 router.use("/notifications", notificationsRouter);
-router.use("/sessions", sessionsRouter);
 router.use("/scores", scoresRouter);
 router.use("/ranking", rankingRouter);
 
