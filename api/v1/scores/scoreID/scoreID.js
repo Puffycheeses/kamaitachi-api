@@ -41,6 +41,26 @@ router.get("/", async function(req,res){
     });
 });
 
+router.patch("/toggle-highlight", ScoreUserKeyMatch, async function (req,res) {
+    let score = req.score;
+
+    await db.get("scores").update({
+        _id: score._id
+    }, {
+        $set: {
+            highlight: !score.highlight
+        }
+    })
+
+    return res.status(200).json({
+        success: true,
+        description: score.highlight ? "Unhighlighted score." : "Highlighted score!",
+        body: {
+            highlightStatus: !score.highlight
+        }
+    });
+});
+
 router.patch("/edit-comment", ScoreUserKeyMatch, async function(req,res){
     if (!req.body.comment){
         return res.status(400).json({
@@ -66,7 +86,7 @@ router.patch("/edit-comment", ScoreUserKeyMatch, async function(req,res){
 
     return res.status(200).json({
         success: true,
-        description: `Updated comment from ${req.score.comment} to ${req.body.comment}`,
+        description: `Updated comment from ${req.score.comment || "<No Comment>"} to ${req.body.comment}`,
         body: {
             oldComment: req.score.comment,
             newComment: req.body.comment

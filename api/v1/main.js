@@ -5,7 +5,7 @@ const middlewares = require("../../middlewares.js");
 // mounted on /v1
 
 const MAJOR_VER = 4;
-const MINOR_VER = 0;
+const MINOR_VER = 1;
 const PATCH_VER = 0;
 
 router.use((req, res, next) => {

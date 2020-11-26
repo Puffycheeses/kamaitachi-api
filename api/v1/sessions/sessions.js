@@ -166,4 +166,40 @@ router.get("/:sessionID/scores", GetSessionWithID, async function(req,res){
     }
 });
 
+// gets the parenting folders of a sessions' played charts.
+router.get("/:sessionID/folders", GetSessionWithID, async function (req, res) {
+    let ses = req.sessionObj;
+    let scoreIDs = ses.scores.map(e => e.scoreID);
+    let scores = await db.get("scores").find({
+        scoreID: {$in: scoreIDs}
+    });
+
+    let parentFolders = await db.get("chart-folder-lookup").aggregate([
+        {
+            $match: {
+                chartID: {$in: scores.map(e => e.chartID)}
+            }
+        },
+        {
+            $group: {
+                _id: "$folderID",
+                chartIDs: {$push: "$chartID"}
+            }
+        }
+    ]);
+
+    let folderData = await db.get("folders").find({
+        folderID: {$in: parentFolders.map(e => e._id)}
+    });
+
+    return res.status(200).json({
+        success: true,
+        description: "Successfully found parent folders for session.",
+        body: {
+            folderData: folderData,
+            parentFolders: parentFolders,
+            sessionObj: ses
+        }
+    })
+});
 module.exports = router;
