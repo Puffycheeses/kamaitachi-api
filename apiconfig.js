@@ -89,7 +89,9 @@ const validKeys = {
         id: "integer",
         difficulty: "string",
         playtype: "string",
-        level: "string"
+        level: "string",
+        chartID: "string",
+        "notedata.notecount": "integer"
     },
     "clans": {
         clanID: "string",
