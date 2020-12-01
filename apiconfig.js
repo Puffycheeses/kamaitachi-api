@@ -91,7 +91,9 @@ const validKeys = {
         playtype: "string",
         level: "string",
         chartID: "string",
-        "notedata.notecount": "integer"
+        "notedata.notecount": "integer",
+        "internals.hash": "string",
+        "internals.hashSHA256": "string"
     },
     "clans": {
         clanID: "string",
