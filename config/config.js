@@ -64,7 +64,7 @@ const validDifficulties = {
     popn: ["Easy", "Normal", "Hyper", "EX"],
     sdvx: ["NOV", "ADV", "EXH", "MXM", "INF", "GRV", "HVN", "VVD"],
     ddr: ["BEGINNER", "BASIC", "DIFFICULT", "EXPERT", "CHALLENGE"],
-    bms: ["BEGINNER", "NORMAL", "HYPER", "ANOTHER", "CUSTOM"],
+    bms: ["BEGINNER", "NORMAL", "HYPER", "ANOTHER", "INSANE", "CUSTOM"],
     chunithm: ["BASIC", "ADVANCED", "EXPERT", "MASTER", "WORLD'S END"],
     gitadora: ["BASIC", "ADVANCED", "EXTREME", "MASTER", "BASS BASIC", "BASS ADVANCED", "BASS EXTREME", "BASS MASTER"]
 }
@@ -123,6 +123,7 @@ const difficultyShorthand = {
         "NORMAL": "N",
         "HYPER": "H",
         "ANOTHER": "A",
+        "INSANE": "I",
         "CUSTOM": "X"
     },
     chunithm: {
