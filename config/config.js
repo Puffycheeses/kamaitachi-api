@@ -1,9 +1,14 @@
+// Hi, Just so you know, this code is not representative of the internal site code.
+// This has been added to over the course of around 10 months at the time of writing, and is the source
+// of some of my first javascript code.
+// It's,, alright, but I like the versatility it brings.
+
 // HUGE IMPORTANT NOTE
 // THIS IS A PUBLICLY ACCESSIBLE FILE
 // IF YOU PUT SECRETS IN HERE THEY WILL BE PUBLIC
 // I SWEAR TO GOD. DO NOT DO THAT. - ZKLDI
 
-const supportedGames = ["iidx","museca","maimai","jubeat","popn","sdvx","ddr","bms","chunithm","gitadora"];
+const supportedGames = ["iidx","museca","maimai","jubeat","popn","sdvx","ddr","bms","chunithm","gitadora","usc"];
 
 const serviceSupportedGames = {
     PLI: ["iidx"],
@@ -15,14 +20,24 @@ const serviceSupportedGames = {
     beatoraja: ["bms"],
     MER: ["iidx"],
     SSS: ["iidx"],
+    "MaimaiNet": ["maimai"],
     "BATCH-MANUAL": supportedGames,
     "DIRECT-MANUAL": supportedGames,
     "MANUAL": supportedGames
 }
 
+// internal services are services that aren't exposed to the public
+// but still leverage ImportMain.
+const internalServiceGames = {
+    "ktchi-beatoraja-IR": ["bms"],
+    "FER": ["iidx"],
+    "ktchi-usc-IR": ["usc"]
+}
+
 const gameSpecificCalc = {
     iidx: {
-        SP: ["BPI", "K%"]
+        SP: ["BPI", "K%"],
+        DP: ["BPI"]
     },
     sdvx: {
         Single: ["VF4", "VF5"]
@@ -31,6 +46,9 @@ const gameSpecificCalc = {
         SP: ["MFCP"],
         DP: ["MFCP"]
     },
+    usc: {
+        Single: ["VF4", "VF5"]
+    }
 }
 
 const gameSpecificCalcDescriptions = {
@@ -38,6 +56,9 @@ const gameSpecificCalcDescriptions = {
         SP: {
             BPI: "Beat Power Index: How good a score is relative to Kaiden Average (BPI 0) and the World Record (BPI 100).",
             "K%": "Kaiden Percentile: How many Kaidens you're ahead of on a given chart."
+        },
+        DP: {
+            BPI: "Beat Power Index: How good a score is relative to Kaiden Average (BPI 0) and the World Record (BPI 100).",
         }
     },
     sdvx: {
@@ -53,7 +74,13 @@ const gameSpecificCalcDescriptions = {
         DP: {
             MFCP: "MFC Points as described in LIFE4."
         }
-    }
+    },
+    usc: {
+        Single: {
+            VF4: "VOLFORCE as calculated in SOUND VOLTEX IV: HEAVENLY HAVEN.",
+            VF5: "VOLFORCE as calculated in SOUND VOLTEX V: VIVID WAVE."
+        }
+    },
 }
 
 const validDifficulties = {
@@ -64,9 +91,10 @@ const validDifficulties = {
     popn: ["Easy", "Normal", "Hyper", "EX"],
     sdvx: ["NOV", "ADV", "EXH", "MXM", "INF", "GRV", "HVN", "VVD"],
     ddr: ["BEGINNER", "BASIC", "DIFFICULT", "EXPERT", "CHALLENGE"],
-    bms: ["BEGINNER", "NORMAL", "HYPER", "ANOTHER", "CUSTOM"],
+    bms: ["BEGINNER", "NORMAL", "HYPER", "ANOTHER", "INSANE", "CUSTOM"],
     chunithm: ["BASIC", "ADVANCED", "EXPERT", "MASTER", "WORLD'S END"],
-    gitadora: ["BASIC", "ADVANCED", "EXTREME", "MASTER", "BASS BASIC", "BASS ADVANCED", "BASS EXTREME", "BASS MASTER"]
+    gitadora: ["BASIC", "ADVANCED", "EXTREME", "MASTER", "BASS BASIC", "BASS ADVANCED", "BASS EXTREME", "BASS MASTER"],
+    sdvx: ["NOV", "ADV", "EXH", "INF"],
 }
 
 const difficultyShorthand = {
@@ -123,6 +151,7 @@ const difficultyShorthand = {
         "NORMAL": "N",
         "HYPER": "H",
         "ANOTHER": "A",
+        "INSANE": "I",
         "CUSTOM": "X"
     },
     chunithm: {
@@ -141,6 +170,12 @@ const difficultyShorthand = {
         "BASS ADVANCED": "BASS ADV",
         "BASS EXTREME": "BASS EXT",
         "BASS MASTER": "BASS MAS",
+    },
+    usc: {
+        "NOV": "NOV",
+        "ADV": "ADV",
+        "EXH": "EXH",
+        "INF": "INF"
     }
 }
 
@@ -154,21 +189,56 @@ const validHitData = {
     maimai: ["perfect","great","good","miss"],
     jubeat: ["perfect","great","good","bad","miss"],
     chunithm: ["jcrit", "justice", "attack", "miss"],
-    gitadora: ["perfect", "great", "good", "ok", "miss"]
+    gitadora: ["perfect", "great", "good", "ok", "miss"],
+    usc: ["critical","near","miss"]
 }
 
 const BASE_VALID_HIT_META = ["fast","slow","maxCombo"]
 const validHitMeta = {
-    iidx: ["bp", "gauge", ...BASE_VALID_HIT_META],
+    iidx: ["bp", "gauge", "gaugeHistory", "comboBreak", ...BASE_VALID_HIT_META],
     museca: BASE_VALID_HIT_META,
     ddr: BASE_VALID_HIT_META,
     maimai: BASE_VALID_HIT_META,
     jubeat: BASE_VALID_HIT_META,
     popn: ["gauge", ...BASE_VALID_HIT_META],
     sdvx: ["gauge", ...BASE_VALID_HIT_META],
-    bms: ["bp", "gauge", "lbd","ebd","lpr","epr","lgd","egd","lgr","egr","lpg","epg", ...BASE_VALID_HIT_META],
+    bms: ["bp", "gauge","lbd","ebd","lpr","epr","lgd","egd","lgr","egr","lpg","epg","diedAt", "random", "inputDevice", ...BASE_VALID_HIT_META],
     chunithm: [...BASE_VALID_HIT_META],
     gitadora: [...BASE_VALID_HIT_META],
+    usc: ["gauge", ...BASE_VALID_HIT_META],
+}
+
+const validScoreMeta = {
+    iidx: {
+        "optionsRandom": ["NONRAN","RANDOM","R-RANDOM","S-RANDOM","MIRROR"],
+        "optionsAssist": ["AUTO SCRATCH", "5KEYS", "LEGACY NOTE", "ASCR + 5KEY", "ASCR + LEGACY", "5KEYS + LEGACY","FULL ASSIST"],
+        "optionsRange": ["SUDDEN+", "HIDDEN+", "SUD+ HID+", "LIFT", "LIFT SUD+"],
+        "optionsGauge": ["ASSISTED EASY", "EASY", "HARD", "EX-HARD"],
+        "pacemaker": [
+            "NO GRAPH", "MY BEST", "RIVAL 1", "RIVAL 2", "RIVAL 3", "RIVAL 4", "RIVAL 5",
+            "RIVAL NEXT", "RIVAL BEST", "RIVAL AVERAGE", "NATIONAL BEST", "NATIONAL AVERAGE",
+            "PREFECTURE BEST", "PREFECTURE AVERAGE", "CLASS BEST", "CLASS AVERAGE", "VENUE BEST",
+            "VENUE NEXT", "PREVIOUS GHOST", "PACEMAKER AAA", "PACEMAKER AA", "PACEMAKER A",
+            "PACEMAKER" /* ??? */, "PACEMAKER NEXT", "PACEMAKER NEXT+", "PLAYER 1", "PLAYER 2"
+        ],
+        "pacemakerName": "string", // presumably used for dj names?
+        "pacemakerTarget": "integer",
+        "deadMeasure": "integer",
+        "deadNote": "integer"
+    },
+    museca: {},
+    ddr: {},
+    maimai: {},
+    jubeat: {},
+    popn: {},
+    sdvx: {},
+    bms: {},
+    chunithm: {},
+    gitadora: {},
+    usc: {
+        "noteMod": ["NORMAL", "MIRROR", "RANDOM"],
+        "gaugeMod": ["NORMAL", "HARD"]
+    }
 }
 
 const gameColours = {
@@ -182,21 +252,23 @@ const gameColours = {
     jubeat: "#129A7D",
     popn: "#F39CA4",
     bms: "#B5DCCD",
-    chunithm: "#AE8094" // TODO
+    chunithm: "#AE8094", // TODO
+    usc: "#D6B7B1" // TODO
 }
 
 const gameRelevantScoreBucket = {
     iidx: "lamp",
     museca: "grade",
     maimai: "grade",
-    sdvx: "lamp",
+    sdvx: "grade",
     ddr: "lamp",
     gitadora: "grade",
     gfdm: "grade",
     jubeat: "grade",
     popn: "grade",
     bms: "lamp",
-    chunithm: "grade"
+    chunithm: "grade",
+    usc: "grade",
 }
 
 // human readable stuff for games
@@ -211,7 +283,8 @@ const gameHuman = {
     jubeat: "jubeat",
     popn: "pop'n music",
     bms: "BMS",
-    chunithm: "CHUNITHM"
+    chunithm: "CHUNITHM",
+    usc: "untitled sdvx clone"
 }
 
 // human readable stuff for versions
@@ -367,7 +440,8 @@ const gameOrders = {
     ddr: ["1","2","3","4","5","max","max2","extreme","snova","snova2","x","x2","x3","2013","2014","a","a20"],
     bms: ["0"],
     chunithm: ["chuni", "chuniplus", "air", "airplus", "star", "starplus", "amazon", "amazonplus", "crystal", "crystalplus"],
-    gitadora: ["gf1","gf2dm1","gf3dm2","gf4dm3","gf5dm4","gf6dm5","gf7dm6","gf8dm7","gf8dm7plus","gf9dm8","gf10dm9","gf11dm10", "v","v2","v3","v4","v5","v6","v7","v8","xg", "xg2","xg3","gitadora","overdrive","triboost","triboostplus","matixx","exchain","nextage"]
+    gitadora: ["gf1","gf2dm1","gf3dm2","gf4dm3","gf5dm4","gf6dm5","gf7dm6","gf8dm7","gf8dm7plus","gf9dm8","gf10dm9","gf11dm10", "v","v2","v3","v4","v5","v6","v7","v8","xg", "xg2","xg3","gitadora","overdrive","triboost","triboostplus","matixx","exchain","nextage"],
+    usc: ["0"]
 }
 
 const defaultPlaytype = {
@@ -380,7 +454,22 @@ const defaultPlaytype = {
     ddr: "SP",
     bms: "7K",
     chunithm: "Single",
-    gitadora: "Dora"
+    gitadora: "Dora",
+    usc: "Single"
+}
+
+const defaultDifficulty = {
+    iidx: "ANOTHER",
+    museca: "Red",
+    maimai: "Master",
+    jubeat: "EXT",
+    popn: "EX",
+    sdvx: "EXH",
+    ddr: "EXPERT",
+    bms: "CUSTOM",
+    chunithm: "MASTER",
+    gitadora: "MASTER",
+    usc: "EXH"
 }
 
 // todo, maybe
@@ -422,7 +511,8 @@ const levels = {
     maimai: ["1","2","3","4","5","6","7","7+","8","8+","9","9+","10","10+","11","11+","12","12+","13","13+","14"],
     bms: [], // doesnt have actual levels lmao
     chunithm: ["1","2","3","4","5","6","7","7+","8","8+","9","9+","10","10+","11","11+","12","12+","13","13+","14", "14+"],
-    gitadora: [] // continuous between 1-10
+    gitadora: [], // continuous between 1-10
+    usc: __StringRange(1, 20),
 }
 
 // legacy
@@ -457,7 +547,7 @@ const folders = {
         levels: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19"],
         versions: gameOrders["ddr"]
     },
-    sdvx:{
+    sdvx: {
         type: "static",
         levels: ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],
         versions: gameOrders["sdvx"]
@@ -478,6 +568,11 @@ const folders = {
         levels: [],
         versions: gameOrders.gitadora,
         reasonableLevelMax: 10
+    },
+    usc: {
+        type: "static",
+        levels: [],
+        versions: gameOrders["usc"]
     }
 }
 
@@ -489,9 +584,10 @@ const validPlaytypes = {
     maimai: ["Single"],
     jubeat: ["Single"],
     museca: ["Single"],
-    bms: ["7K","14K","5K","10K"],
+    bms: ["7K","14K","5K"],
     chunithm: ["Single"],
-    gitadora: ["Gita", "Dora"]
+    gitadora: ["Gita", "Dora"],
+    usc: ["Single"]
 }
 
 const validTierlistTiers = {
@@ -504,20 +600,8 @@ const validTierlistTiers = {
     ddr: ["clear","perfectfullcombo"],
     bms: ["easyclear","clear","hardclear","fullcombo"],
     chunithm: [],
-    gitadora: []
-}
-
-const judgements = {
-    iidx: ["MISS","BAD","GOOD","GREAT","PGREAT"],
-    bms: ["POOR","BAD","GOOD","GREAT","PGREAT"],
-    museca: ["MISS","NEAR","CRITICAL"],
-    maimai: ["MISS","GOOD","GREAT","PERFECT"],
-    jubeat: ["MISS","POOR","GOOD","GREAT","PERFECT"],
-    popn: ["BAD","GOOD","GREAT","COOL"],
-    sdvx: ["MISS","NEAR","CRITICAL"],
-    ddr: ["MISS","BOO","GOOD","GREAT","PERFECT","MARVELOUS"],
-    chunithm: ["MISS", "ATTACK", "JUSTICE", "JCRIT"],
-    gitadora: ["MISS", "OK", "GOOD", "GREAT", "PERFECT"]
+    gitadora: [],
+    usc: ["clear","excessiveclear"]
 }
 
 // correct order for grades
@@ -531,7 +615,8 @@ const grades = {
     sdvx: ["D","C","B","A","A+","AA","AA+","AAA","AAA+","S"],
     ddr: ["D","D+","C-","C","C+","B-","B","B+","A-","A","A+","AA-","AA","AA+","AAA","MAX"],
     chunithm: ["D", "C", "B", "BB", "BBB", "A", "AA", "AAA", "S", "SS", "SSS"],
-    gitadora: ["C", "B", "A", "S", "SS", "MAX"]
+    gitadora: ["C", "B", "A", "S", "SS", "MAX"],
+    usc: ["D","C","B","A","A+","AA","AA+","AAA","AAA+","S"]
 }
 
 
@@ -547,7 +632,8 @@ const gradeBoundaries = {
     sdvx: [0,70,80,87,90,93,95,97,98,99],
     ddr: [0,55,59,60,65,69,70,75,79,80,85,89,90,95,99,100],
     chunithm: [0,50,60,70,80,90,92.5,95.0,97.5,100,107.5,101],
-    gitadora: [0, 63, 73, 80, 95, 100]
+    gitadora: [0, 63, 73, 80, 95, 100],
+    usc: [0,70,80,87,90,93,95,97,98,99],
 }
 
 // these are to resolve some GARBAGE in chart.js
@@ -561,8 +647,10 @@ const boundaryHCF = {
     sdvx: 1,
     ddr: 1,
     chunithm: 0.5,
-    gitadora: 1
+    gitadora: 1,
+    usc: 1
 }
+
 const expChartScale = {
     iidx: 1,
     bms: 1,
@@ -571,6 +659,7 @@ const expChartScale = {
     jubeat: 5,
     popn: 1,
     sdvx: 7,
+    usc: 7,
     ddr: 6,
     chunithm: 4,
     gitadora: 3
@@ -587,7 +676,8 @@ const lamps = {
     sdvx: ["FAILED","CLEAR","EXCESSIVE CLEAR","ULTIMATE CHAIN","PERFECT ULTIMATE CHAIN"],
     ddr: ["FAILED","CLEAR","LIFE4","FULL COMBO","GREAT FULL COMBO","PERFECT FULL COMBO","MARVELOUS FULL COMBO"],
     chunithm: ["FAILED", "CLEAR", "FULL COMBO", "ALL JUSTICE", "ALL JUSTICE CRITICAL"],
-    gitadora: ["FAILED", "CLEAR", "FULL COMBO", "EXCELLENT"]
+    gitadora: ["FAILED", "CLEAR", "FULL COMBO", "EXCELLENT"],
+    usc: ["FAILED","CLEAR","EXCESSIVE CLEAR","ULTIMATE CHAIN","PERFECT ULTIMATE CHAIN"]
 }
 
 // Alternative scores that make sense for the game, note that iidx's money score isn't actually used by anyone
@@ -602,7 +692,8 @@ const validAltScores = {
     maimai: [],
     jubeat: [],
     chunithm: [],
-    gitadora: []
+    gitadora: [],
+    usc: []
 }
 
 // first lamp that is considered a "true clear" by the game.
@@ -610,7 +701,7 @@ const validAltScores = {
 // minimal clear grade called "SOFTER EASIER ASSIST CLEAR EPIC X3"
 const clearLamp = {
     iidx: "CLEAR",
-    bms: "CLEAR",
+    bms: "EASY CLEAR",
     museca: "CLEAR",
     maimai: "CLEAR",
     jubeat: "CLEAR",
@@ -699,6 +790,7 @@ const adviceChartTags = {
     maimai: [..._rootChartTags],
     chunithm: [..._rootChartTags],
     gitadora: [..._rootChartTags],
+    usc: [..._rootChartTags]
 }
 
 const adviceNoteTags = {
@@ -1037,7 +1129,7 @@ const judgeColours = {
             "MISS": "rgba(211, 38, 38, 0.2)",
             "BOO": "rgba(165, 38, 211, 0.2)",
             "GOOD": "rgba(38, 211, 78, 0.2)",
-            "GREAT": "rgba(241, 245, 24, 0.2)",
+            "GREAT": COLOUR_SET.green,
             "PERFECT": "rgba(158, 248, 255, 0.2)",
             "MARVELOUS": "rgba(241, 245, 24, 0.2)"
         },
@@ -1045,7 +1137,7 @@ const judgeColours = {
             "MISS": "rgba(211, 38, 38, 1)",
             "BOO": "rgba(165, 38, 211, 1)",
             "GOOD": "rgba(38, 211, 78, 1)",
-            "GREAT": "rgba(241, 245, 24, 1)",
+            "GREAT": ChangeAlpha(COLOUR_SET.green, 1),
             "PERFECT": "rgba(158, 248, 255, 1)",
             "MARVELOUS": "rgba(241, 245, 24, 1)"
         }
@@ -1285,6 +1377,42 @@ function ScoreGradeDelta(game, score, chart, delta){
                 formattedString: formattedString
             }
         }
+        else {
+            return null;
+        }
+    }
+    else {
+        return null;
+    }
+}
+
+function AbsoluteScoreGradeDelta(game, score, percent, absDelta) {
+    let grade = grades[game][absDelta];
+    if (grade) {
+        let chart = null;
+        if (game === "iidx" || game === "bms") {
+            let reversedNC = Math.floor((score / percent) * 100) / 2;
+            chart = {
+                notedata: {
+                    notecount: reversedNC
+                }
+            }
+        }
+
+        let sc = CalculateScore(game, gradeBoundaries[game][absDelta], chart);
+        if (sc){
+            let delta = score - sc;
+            let formattedString = `(${grade})`;
+            formattedString += delta >= 0 ? "+" + delta : "" + delta
+            return {
+                grade: grade,
+                delta: delta,
+                formattedString: formattedString
+            }
+        }
+        else {
+            return null;
+        }
     }
     else {
         return null;
@@ -1364,11 +1492,492 @@ function FormatDifficulty(chart, game){
     }
 }
 
+const gamePercentMax = {
+    iidx: 100,
+    ddr: 100,
+    gitadora: 100,
+    popn: 100,
+    sdvx: 100,
+    museca: 100,
+    jubeat: 100,
+    bms: 100,
+    chunithm: 101,
+    maimai: 150, // just an edge case maxim, since i'm too lazy to actually calc it.
+    maimaidx: 150
+}
+
+const __internalIIDXDans = {
+    "kaiden": {
+        display: "皆伝",
+        mouseover: "Kaiden",
+        index: 12
+    },
+    "chuuden": {
+        display: "中伝",
+        mouseover: "Chuuden",
+        index: 11
+    },
+    "10": {
+        display: "十段",
+        mouseover: "10th Dan",
+        index: 10
+    },
+    "9": {
+        display: "九段",
+        mouseover: "9th Dan",
+        index: 9
+    },
+    "8": {
+        display: "八段",
+        mouseover: "8th Dan",
+        index: 8
+    },
+    "7": {
+        display: "七段",
+        mouseover: "7th Dan",
+        index: 7
+    },
+    "6": {
+        display: "六段",
+        mouseover: "6th Dan",
+        index: 6
+    },
+    "5": {
+        display: "五段",
+        mouseover: "5th Dan",
+        index: 5
+    },
+    "4": {
+        display: "四段",
+        mouseover: "4th Dan",
+        index: 4
+    },
+    "3": {
+        display: "三段",
+        mouseover: "3rd Dan",
+        index: 3
+    },
+    "2": {
+        display: "二段",
+        mouseover: "2nd Dan",
+        index: 2
+    },
+    "1": {
+        display: "初段",
+        mouseover: "1st Dan",
+        index: 1
+    },
+    "1kyu": {
+        display: "一級",
+        mouseover: "1st Kyu",
+        index: -1
+    },
+    "2kyu": {
+        display: "二級",
+        mouseover: "2nd Kyu",
+        index: -2
+    },
+    "3kyu": {
+        display: "三級",
+        mouseover: "3rd Kyu",
+        index: -3
+    },
+    "4kyu": {
+        display: "四級",
+        mouseover: "4th Kyu",
+        index: -4
+    },
+    "5kyu": {
+        display: "五級",
+        mouseover: "5th Kyu",
+        index: -5
+    },
+    "6kyu": {
+        display: "六級",
+        mouseover: "6th Kyu",
+        index: -6
+    },
+    "7kyu": {
+        display: "七級",
+        mouseover: "7th Kyu",
+        index: -7
+    }
+}
+
+const __internalSDVXDans = {
+    "inf": {
+        display: "LV.∞",
+        mouseover: "Inf. Dan",
+        index: 12
+    },
+    "11": {
+        display: "LV.11",
+        mouseover: "11th Dan",
+        index: 11
+    },
+    "10": {
+        display: "LV.10",
+        mouseover: "10th Dan",
+        index: 10
+    },
+    "9": {
+        display: "LV.09",
+        mouseover: "9th Dan",
+        index: 9
+    },
+    "8": {
+        display: "LV.08",
+        mouseover: "8th Dan",
+        index: 8
+    },
+    "7": {
+        display: "LV.07",
+        mouseover: "7th Dan",
+        index: 7
+    },
+    "6": {
+        display: "LV.06",
+        mouseover: "6th Dan",
+        index: 6
+    },
+    "5": {
+        display: "LV.05",
+        mouseover: "5th Dan",
+        index: 5
+    },
+    "4": {
+        display: "LV.04",
+        mouseover: "4th Dan",
+        index: 4
+    },
+    "3": {
+        display: "LV.03",
+        mouseover: "3rd Dan",
+        index: 3
+    },
+    "2": {
+        display: "LV.02",
+        mouseover: "2nd Dan",
+        index: 2
+    },
+    "1": {
+        display: "LV.01",
+        mouseover: "1st Dan",
+        index: 1
+    },
+}
+
+// unimplemented
+const __internalDDRDans = {
+
+}
+
+const __internalGitadoraColours = {
+    "rainbow": {
+        display: "虹",
+        mouseover: "Rainbow"
+    },
+    "gold": {
+        display: "金",
+        mouseover: "Gold"
+    },
+    "silver": {
+        display: "銀",
+        mouseover: "Silver"
+    },
+    "bronze": {
+        display: "銅",
+        mouseover: "Bronze"
+    },
+    "redgradient": {
+        display: "赤グラ",
+        mouseover: "Red Gradient"
+    },
+    "red": {
+        display: "赤",
+        mouseover: "Red"
+    },
+    "purplegradient": {
+        display: "紫グラ",
+        mouseover: "Purple Gradient"
+    },
+    "purple": {
+        display: "紫",
+        mouseover: "Purple"
+    },
+    "bluegradient": {
+        display: "青グラ",
+        mouseover: "Blue Gradient"
+    },
+    "blue": {
+        display: "青",
+        mouseover: "Blue"
+    },
+    "greengradient": {
+        display: "緑グラ",
+        mouseover: "Green Gradient"
+    },
+    "green": {
+        display: "緑",
+        mouseover: "Green"
+    },
+    "yellowgradient": {
+        display: "黄グラ",
+        mouseover: "Yellow Gradient"
+    },
+    "yellow": {
+        display: "黄",
+        mouseover: "Yellow"
+    },
+    "orangegradient": {
+        display: "橙グラ",
+        mouseover: "Orange Gradient"
+    },
+    "orange": {
+        display: "橙",
+        mouseover: "Orange"
+    },
+    "white": {
+        display: "白",
+        mouseover: "White"
+    }
+}
+
+const __internalGenocideDans = {
+    "overjoy": {
+        display: "(^^)",
+        mouseover: "Overjoy"
+    },
+    "kaiden": {
+        display: "★★",
+        mouseover: "Insane Kaiden"
+    },
+    "10": {
+        display: "★10",
+        mouseover: "Insane 10th Dan"
+    },
+    "9": {
+        display: "★9",
+        mouseover: "Insane 9th Dan"
+    },
+    "8": {
+        display: "★8",
+        mouseover: "Insane 8th Dan"
+    },
+    "7": {
+        display: "★7",
+        mouseover: "Insane 7th Dan"
+    },
+    "6": {
+        display: "★6",
+        mouseover: "Insane 6th Dan"
+    },
+    "5": {
+        display: "★5",
+        mouseover: "Insane 5th Dan"
+    },
+    "4": {
+        display: "★4",
+        mouseover: "Insane 4th Dan"
+    },
+    "3": {
+        display: "★3",
+        mouseover: "Insane 3rd Dan"
+    },
+    "2": {
+        display: "★2",
+        mouseover: "Insane 2nd Dan"
+    },
+    "1": {
+        display: "★1",
+        mouseover: "Insane 1st Dan"
+    }
+}
+
+const __internalStellaDans = {
+    "st11": {
+        display: "st11",
+        mouseover: "Stella Skill Simulator st11",
+    },
+    "st10": {
+        display: "st10",
+        mouseover: "Stella Skill Simulator st10",
+    },
+    "st9": {
+        display: "st9",
+        mouseover: "Stella Skill Simulator st9",
+    },
+    "st8": {
+        display: "st8",
+        mouseover: "Stella Skill Simulator st8",
+    },
+    "st7": {
+        display: "st7",
+        mouseover: "Stella Skill Simulator st7",
+    },
+    "st6": {
+        display: "st6",
+        mouseover: "Stella Skill Simulator st6",
+    },
+    "st5": {
+        display: "st5",
+        mouseover: "Stella Skill Simulator st5",
+    },
+    "st4": {
+        display: "st4",
+        mouseover: "Stella Skill Simulator st4",
+    },
+    "st3": {
+        display: "st3",
+        mouseover: "Stella Skill Simulator st3",
+    },
+    "st2": {
+        display: "st2",
+        mouseover: "Stella Skill Simulator st2",
+    },
+    "st1": {
+        display: "st1",
+        mouseover: "Stella Skill Simulator st1",
+    },
+    "st0": {
+        display: "st0",
+        mouseover: "Stella Skill Simulator st0",
+    },
+    "sl12": {
+        display: "sl12",
+        mouseover: "Satellite Skill Simulator sl12",
+    },
+    "sl11": {
+        display: "sl11",
+        mouseover: "Satellite Skill Simulator sl11",
+    },
+    "sl10": {
+        display: "sl10",
+        mouseover: "Satellite Skill Simulator sl10",
+    },
+    "sl9": {
+        display: "sl9",
+        mouseover: "Satellite Skill Simulator sl9",
+    },
+    "sl8": {
+        display: "sl8",
+        mouseover: "Satellite Skill Simulator sl8",
+    },
+    "sl7": {
+        display: "sl7",
+        mouseover: "Satellite Skill Simulator sl7",
+    },
+    "sl6": {
+        display: "sl6",
+        mouseover: "Satellite Skill Simulator sl6",
+    },
+    "sl5": {
+        display: "sl5",
+        mouseover: "Satellite Skill Simulator sl5",
+    },
+    "sl4": {
+        display: "sl4",
+        mouseover: "Satellite Skill Simulator sl4",
+    },
+    "sl3": {
+        display: "sl3",
+        mouseover: "Satellite Skill Simulator sl3",
+    },
+    "sl2": {
+        display: "sl2",
+        mouseover: "Satellite Skill Simulator sl2",
+    },
+    "sl1": {
+        display: "sl1",
+        mouseover: "Satellite Skill Simulator sl1",
+    },
+    "sl0": {
+        display: "sl0",
+        mouseover: "Satellite Skill Simulator sl0",
+    }
+
+}
+
+const gameClassValues = {
+    iidx: {
+        SP: {
+            dan: __internalIIDXDans
+        },
+        DP: {
+            dan: __internalIIDXDans
+        }
+    },
+    ddr: {
+        SP: {
+            dan: __internalDDRDans
+        },
+        DP: {
+            dan: __internalDDRDans
+        }
+    },
+    sdvx: {
+        Single: {
+            dan: __internalSDVXDans
+        }
+    },
+    popn: {},
+    museca: {},
+    jubeat: {},
+    bms: {
+        "7K": {
+            genocideDan: __internalGenocideDans,
+            "stDan": __internalStellaDans
+        }
+    },
+    chunithm: {},
+    gitadora: {
+        Gita: {
+            skillColour: __internalGitadoraColours
+        },
+        Dora: {
+            skillColour: __internalGitadoraColours
+        }
+    },
+    maimai: {},
+    usc: {}
+}
+
+const defaultGameClasses = {
+    iidx: {
+        "SP": "dan",
+        "DP": "dan"
+    },
+    ddr: {
+        "SP": "dan",
+        "DP": "dan"
+    },
+    gitadora: {
+        "Gita": "skillColour",
+        "Dora": "skillColour"
+    },
+    popn: {},
+    sdvx: {
+        "Single": "dan"
+    },
+    museca: {},
+    jubeat: {
+        "Single": "jubilityColour"
+    },
+    bms: {
+        "7K": "genocideDan"
+    },
+    chunithm: {},
+    maimai: {},
+    usc: {}
+}
+
+// if we're in node and not the browser
 if (typeof window === 'undefined'){
     module.exports = {
         supportedGames,
         gameOrders,
         folders,
+        internalServiceGames,
         versionHuman,
         grades,
         lamps,
@@ -1385,7 +1994,6 @@ if (typeof window === 'undefined'){
         ratingParameters,
         validPlaytypes,
         ScoreGradeDelta,
-        judgements,
         judgeColours,
         gameColours,
         validTierlistTiers,
@@ -1408,6 +2016,12 @@ if (typeof window === 'undefined'){
         FormatDifficulty,
         DirectScoreGradeDelta,
         gameSpecificCalcDescriptions,
-        difficultyShorthand
+        difficultyShorthand,
+        defaultDifficulty,
+        gamePercentMax,
+        AbsoluteScoreGradeDelta,
+        defaultGameClasses,
+        gameClassValues,
+        validScoreMeta
     };
 }
