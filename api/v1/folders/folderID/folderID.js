@@ -43,7 +43,7 @@ router.get("/", async function(req,res){
 
 async function ValidateUserID(req, res, next){
     if (Number.isInteger(parseInt(req.query.userID))){
-        let u = await db.get("users").findOne({id: parseInt(req.query.userID)}, {fields: {password: 0, email: 0, integrations: 0}});
+        let u = await db.get("users").findOne({id: parseInt(req.query.userID)}, {projection: {password: 0, email: 0, integrations: 0}});
 
         if (u){
             req.requestedUserID = u.id;

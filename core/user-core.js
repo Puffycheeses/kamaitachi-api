@@ -27,7 +27,7 @@ async function GetUsers(userIDs){
 }
 
 async function GetUserWithAPIKey(aKey){
-    let apiKey = await db.get("public-api-keys").findOne({apiKey: aKey}, {fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
+    let apiKey = await db.get("public-api-keys").findOne({apiKey: aKey}, {projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
 
     if (!apiKey){
         console.error("apiKey removed during query.", aKey);
@@ -45,7 +45,7 @@ async function GetUserWithAPIKey(aKey){
 }
 
 async function GetAllUsers(){
-    let users = await db.get("users").find({}, {fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
+    let users = await db.get("users").find({}, {projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
     return users;
 }
 
@@ -57,14 +57,14 @@ async function GetPlayersOnGame(game, playtype){
                 ["ratings." + game + "." + e] : {$gt: 0}
             }))
         }, {
-            fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS
+            projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS
         });
     }
     else {
         users = await db.get("users").find({
             ["ratings." + game + "." + playtype] : {$gt: 0}
         }, {
-            fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS
+            projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS
         });
     }
 

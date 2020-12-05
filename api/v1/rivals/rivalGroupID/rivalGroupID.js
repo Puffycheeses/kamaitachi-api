@@ -349,14 +349,14 @@ router.get("/folder-scores", CheckRivalGroupExists, async function(req,res){
     let charts;
 
     if (req.query.folderType === "levels"){
-        charts = await db.get("charts-" + rg.game).find({level: req.query.folderName, playtype: rg.playtype}, {fields: {_id: 0}});
+        charts = await db.get("charts-" + rg.game).find({level: req.query.folderName, playtype: rg.playtype}, {projection: {_id: 0}});
 
-        songs = await db.get("songs-" + rg.game).find({id: {$in: charts.map(e => e.id)}}, {fields: {_id: 0}});
+        songs = await db.get("songs-" + rg.game).find({id: {$in: charts.map(e => e.id)}}, {projection: {_id: 0}});
     }
     else {
-        songs = await db.get("songs-" + rg.game).find({firstAppearance: req.query.folderName}, {fields: {_id: 0}});
+        songs = await db.get("songs-" + rg.game).find({firstAppearance: req.query.folderName}, {projection: {_id: 0}});
 
-        charts = await db.get("charts-" + rg.game).find({id: {$in: songs.map(e => e.id)}, playtype: rg.playtype}, {fields: {_id: 0}});
+        charts = await db.get("charts-" + rg.game).find({id: {$in: songs.map(e => e.id)}, playtype: rg.playtype}, {projection: {_id: 0}});
     }
 
     if (charts.length === 0){
@@ -418,7 +418,7 @@ router.get("/score-feed", CheckRivalGroupExists, async function(req,res){
         }))
     }, {
         sort: {"timeAchieved": -1},
-        fields: {_id: 0},
+        projection: {_id: 0},
         start: start,
         limit: lim
     });

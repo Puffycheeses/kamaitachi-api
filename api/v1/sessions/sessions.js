@@ -1,5 +1,6 @@
 const express = require("express");
 const dbCore = require("../../../core/db-core.js");
+const sessionCore = require("../../../core/session-core.js");
 const router = express.Router({mergeParams: true});
 const db = require("../../../db.js");
 const apiConfig = require("../../../apiconfig.js");
@@ -10,35 +11,8 @@ const MAX_RETURNS = 100;
 router.get("/", async function(req,res){
     try {
         let queryObj = {};
-        if (req.query.myRivals && req.user){
-            let rivalGroups = await db.get("rivals").find({
-                isDefault: true,
-                founderID: req.user.id
-            });
 
-            if (rivalGroups.length){
-                queryObj = {
-                    $or: rivalGroups.map(e => ({
-                        userID: {$in: e.members.filter(m => m !== req.user.id)},
-                        game: e.game,
-                        playtype: e.playtype
-                    })
-                )}
-            }
-            else {
-                return res.status(200).json({
-                    success: true,
-                    description: "No rival groups set up.",
-                    body: {
-                        items: [],
-                        users: []
-                    }
-                })
-            }
-        }
-        else if (req.query.myFriends && req.user) {
-            queryObj.userID = {$in: req.user.friends}
-        }
+        queryObj = await sessionCore.HandleCustomUserSelections(req, queryObj);
 
         let dbRes = await dbCore.FancyDBQuery(
             "sessions",
@@ -55,7 +29,7 @@ router.get("/", async function(req,res){
                 dbRes.body.body.users = await db.get("users").find({
                     id: {$in: dbRes.body.body.items.map(e => e.userID)}
                 }, {
-                    fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS
+                    projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS
                 });
             }
         }
@@ -76,214 +50,7 @@ router.get("/", async function(req,res){
     }
 });
 
-async function GetSessionWithID(req,res,next){
-    let sessionObj = await db.get("sessions").findOne({
-        sessionID: req.params.sessionID
-    });
 
-    if (!sessionObj){
-        return res.status(400).json({
-            success: false,
-            description: "session with ID " + req.params.sessionID + " could not be found."
-        });
-    }
-
-    req.sessionObj = sessionObj;
-    next();
-}
-
-router.get("/:sessionID", GetSessionWithID, async function(req,res){
-    let sessionObj = req.sessionObj
-
-    return res.status(200).json({
-        success: true,
-        description: "Found session successfully.",
-        body: sessionObj
-    });
-});
-
-router.get("/:sessionID/scores", GetSessionWithID, async function(req,res){
-    let sessionObj = req.sessionObj;
-
-    let start = parseInt(req.query.start) || 0;
-
-    let limit = parseInt(req.query.limit) || 500;
-
-    if (limit > 500){
-        limit = 500;
-    }
-
-    let scoreIDs = sessionObj.scores.map(e => e.scoreID).slice(start, start + limit);
-
-    let scores = await db.get("scores").find({
-        scoreID: {$in: scoreIDs}
-    });
-
-    if (req.query.getAssocData){
-        let songs = await db.get("songs-" + sessionObj.game).find({
-            id: {$in: scores.map(e => e.songID)}
-        });
-
-        let charts = [];
-        if (scores.length !== 0){
-            charts = await db.get("charts-" + sessionObj.game).find({
-                chartID: {$in: scores.map(e => e.chartID)}
-            });
-        }
-
-        let retBody = {
-            songs,
-            charts,
-            scores,
-            session: sessionObj
-        }
-
-        if ((start + limit) < sessionObj.scores.length){
-            retBody.nextStartPoint = start + limit;
-        }
-
-        return res.status(200).json({
-            success: true,
-            description: "Found " + scores.length + " scores.",
-            body: retBody
-        });
-    }
-    else {
-        let retBody = {
-            scores,
-            session: sessionObj
-        }
-
-        if (start + limit < sessionObj.scores.length){
-            retBody.nextStartPoint = start+limit;
-        }
-
-        return res.status(200).json({
-            success: true,
-            description: "Found " + scores.length + " scores.",
-            body: retBody
-        });
-    }
-});
-
-// gets the parenting folders of a sessions' played charts.
-router.get("/:sessionID/folders", GetSessionWithID, async function (req, res) {
-    let ses = req.sessionObj;
-    let scoreIDs = ses.scores.map(e => e.scoreID);
-    let scores = await db.get("scores").find({
-        scoreID: {$in: scoreIDs}
-    });
-
-    let parentFolders = await db.get("chart-folder-lookup").aggregate([
-        {
-            $match: {
-                chartID: {$in: scores.map(e => e.chartID)}
-            }
-        },
-        {
-            $group: {
-                _id: "$folderID",
-                chartIDs: {$push: "$chartID"}
-            }
-        }
-    ]);
-
-    let folderData = await db.get("folders").find({
-        folderID: {$in: parentFolders.map(e => e._id)}
-    });
-
-    return res.status(200).json({
-        success: true,
-        description: "Successfully found parent folders for session.",
-        body: {
-            folderData: folderData,
-            parentFolders: parentFolders,
-            sessionObj: ses
-        }
-    })
-});
-
-// options stuff
-
-async function ValidateUser(req, res, next) {
-
-    if (!req.user || (req.user.id !== req.sessionObj.userID)) {
-        return res.status(401).json({
-            success: false,
-            description: "Unauthorised."
-        });
-    }
-
-    next();
-}
-
-router.patch("/:sessionID/set-name", GetSessionWithID, ValidateUser, async function(req,res){
-    if (!req.body.name){
-        return res.status(400).json({
-            success: false,
-            description: "No name provided."
-        });
-    }
-    if (req.body.name.length > 140){
-        return res.status(400).json({
-            success: false,
-            description: "Session names cannot be longer than 140 characters."
-        });
-    }
-
-    let session = req.sessionObj;
-
-    await db.get("sessions").update({_id: session._id}, {$set: {name: req.body.name}});
-
-    return res.status(200).json({
-        success: true,
-        description: "Successfully changed session name from " + session.name + " to " + req.body.name + ".",
-        body: {
-            oldName: session.name,
-            newName: req.body.name
-        }
-    });
-});
-
-router.patch("/:sessionID/set-desc", GetSessionWithID, ValidateUser, async function(req,res){
-    if (!req.body.desc){
-        return res.status(400).json({
-            success: false,
-            description: "No desc provided."
-        });
-    }
-    if (req.body.desc.length > 280){
-        return res.status(400).json({
-            success: false,
-            description: "Session descs cannot be longer than 280 characters."
-        });
-    }
-
-    let session = req.sessionObj;
-
-    await db.get("sessions").update({_id: session._id}, {$set: {desc: req.body.desc}});
-
-    return res.status(200).json({
-        success: true,
-        description: "Successfully changed session desc from " + session.desc + " to " + req.body.desc + ".",
-        body: {
-            oldDesc: session.desc,
-            newDesc: req.body.desc
-        }
-    });
-});
-
-router.patch("/:sessionID/toggle-highlight", GetSessionWithID, ValidateUser, async function (req,res) {
-    await db.get("sessions").update({_id: req.sessionObj._id}, {$set: {highlight: !req.sessionObj.highlight}});
-
-    return res.status(200).json({
-        success: true,
-        description: `Successfully ${req.sessionObj.highlight ? "unhighlighted session." : "highlighted session!"}`,
-        body: {
-            highlightStatus: !req.sessionObj.highlight
-        }
-    });
-});
-
+router.use("/:sessionID", require("./sessionID/sessionID.js"));
 
 module.exports = router;

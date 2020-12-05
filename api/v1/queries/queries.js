@@ -18,7 +18,7 @@ router.get("/query", async function(req,res){
             if (req.query.getAssocData === "true"){
                 let users = await db.get("users").find({
                     id: {$in: dbr.body.body.items.map(e => e.byUser)}
-                }, {fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
+                }, {projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
 
                 dbr.body.body.users = users;
             }

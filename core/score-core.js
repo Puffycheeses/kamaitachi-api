@@ -78,12 +78,12 @@ async function GetAssocData(scoreBody){
         let charts = await db.get("charts-" + key).find({
             $or: chartQuery[key]
         }, {
-            fields: {_id: 0}
+            projection: {_id: 0}
         });
         let songs = await db.get("songs-" + key).find({
             id: {$in: songQuery[key]}
         }, {
-            fields: {_id: 0}
+            projection: {_id: 0}
         });
 
         songsRet[key] = songs;
@@ -93,7 +93,7 @@ async function GetAssocData(scoreBody){
     let users = await db.get("users").find({
         id: {$in: scoreBody.items.map(e => e.userID)}
     }, {
-        fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS
+        projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS
     });
 
     scoreBody.charts = chartRet;

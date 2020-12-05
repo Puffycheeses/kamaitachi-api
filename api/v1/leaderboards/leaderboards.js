@@ -18,7 +18,7 @@ router.get("/", async function(req,res){
         for (const pt of config.validPlaytypes[game]) {
             let leaderboardInfo = await db.get("users").find({}, 
                 {
-                    fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
+                    projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
                     sort: {["ratings." + game + "." + pt]: -1},
                     limit: RETURN_LIMIT
                 }
@@ -51,7 +51,7 @@ router.get("/games/:game", async function(req,res){
     }
 
     let settings = {
-        fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
+        projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
         sort: {[sortCriteria]: -1}
     }
     

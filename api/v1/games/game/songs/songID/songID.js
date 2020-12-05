@@ -9,7 +9,7 @@ const dbCore = require("../../../../../../core/db-core.js");
 router.use(middlewares.RequireExistingSongID);
 
 router.get("/", async function(req,res){
-    let song = await db.get("songs-" + req.params.game).findOne({id: parseInt(req.params.songID)}, {fields: {_id: 0}});
+    let song = await db.get("songs-" + req.params.game).findOne({id: parseInt(req.params.songID)}, {projection: {_id: 0}});
     if (!song){
         return res.status(500).json({
             success: false,
