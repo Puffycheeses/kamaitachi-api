@@ -799,6 +799,7 @@ const adviceNoteTags = {
     ddr: ["CROSSOVERS","GALLOPS","JUMPS","SOFLAN","STOPS","TURNS","FREEZE NOTES","SHOCK ARROWS","DRILLS","JACKS","STEP-JUMPS","CANDLES","STAMINA","TECHNICAL"],
     museca: ["STREAMS","TRILLS","SPINS","PEDAL","STAMINA","TECHNICAL"],
     sdvx: ["STREAMS","JACKS","LASERS","SPEED","TRILLS","ONE-HANDING","STAMINA","TECHNICAL"],
+    usc: ["STREAMS","JACKS","LASERS","SPEED","TRILLS","ONE-HANDING","STAMINA","TECHNICAL"],
     popn: [],
     jubeat: [],
     maimai: [],
@@ -956,6 +957,20 @@ const gradeColours = {
             "S": COLOUR_SET.teal
         }
     },
+    usc: {
+        outline: {
+            "D": COLOUR_SET.gray,
+            "C": COLOUR_SET.red,
+            "B": COLOUR_SET.maroon,
+            "A": COLOUR_SET.paleBlue,
+            "A+": COLOUR_SET.blue,
+            "AA": COLOUR_SET.paleGreen,
+            "AA+": COLOUR_SET.green,
+            "AAA": COLOUR_SET.gold,
+            "AAA+": COLOUR_SET.vibrantYellow,
+            "S": COLOUR_SET.teal
+        }
+    },
     chunithm: {
         outline: {
             "D": COLOUR_SET.red,
@@ -1026,6 +1041,15 @@ const lampColours = {
         }
     },
     sdvx: {
+        outline:{
+            "FAILED": COLOUR_SET.red,
+            "CLEAR": COLOUR_SET.green,
+            "EXCESSIVE CLEAR": COLOUR_SET.orange,
+            "ULTIMATE CHAIN": COLOUR_SET.teal,
+            "PERFECT ULTIMATE CHAIN": COLOUR_SET.gold
+        }
+    },
+    usc: {
         outline:{
             "FAILED": COLOUR_SET.red,
             "CLEAR": COLOUR_SET.green,
@@ -1166,6 +1190,18 @@ const judgeColours = {
             "CRITICAL": "rgba(241, 245, 24, 1)" 
         }
     },
+    usc: {
+        fill: {
+            "MISS": "rgba(211, 38, 38, 0.2)",
+            "NEAR": "rgba(20, 210, 223, 0.2)",
+            "CRITICAL": "rgba(241, 245, 24, 0.2)" 
+        },
+        outline:{
+            "MISS": "rgba(211, 38, 38, 1)",
+            "NEAR": "rgba(20, 210, 223, 1)",
+            "CRITICAL": "rgba(241, 245, 24, 1)" 
+        }
+    },
     popn: {
         fill: {
             "BAD": "rgba(165, 38, 211, 0.2)",
@@ -1250,6 +1286,7 @@ const gameChartIndicators = {
     maimai: [],
     jubeat: ["holds"],
     sdvx: [],
+    usc: [],
     bms: [],
     chunithm: [],
     gitadora: []
@@ -1321,6 +1358,11 @@ const ratingParameters = {
         clearExpMultiplier: 1
     },
     sdvx: {
+        failHarshnessMultiplier: 1,
+        pivotPercent: 0.92,
+        clearExpMultiplier: 1.45 // testing
+    },
+    usc: {
         failHarshnessMultiplier: 1,
         pivotPercent: 0.92,
         clearExpMultiplier: 1.45 // testing
@@ -1467,7 +1509,7 @@ function PercentToScore(percent, game, chartData){
     else if (game === "popn"){
         eScore = percent * 100000;
     }
-    else if (game === "sdvx"){
+    else if (game === "sdvx" && score === "usc"){
         eScore = percent * 10000000;
     }
     else if (game === "ddr"){
