@@ -67,7 +67,7 @@ router.get("/heatmap", async function(req,res){
     }
 
     let timeData = await db.get("scores").find(queryObj, {
-        fields: {timeAchieved: 1}
+        projection: {timeAchieved: 1}
     });
 
     return res.status(200).json({

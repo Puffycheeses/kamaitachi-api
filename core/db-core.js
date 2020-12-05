@@ -28,7 +28,7 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
     FancyQueryValidate(query, queryObj, validKeys);
 
     let settings = {
-        fields: {_id: 0},
+        projection: {_id: 0},
         sort: {[defaultSort]: query.sort === "asc" ? 1 : -1}
     }
 

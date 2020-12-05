@@ -20,7 +20,7 @@ async function AllowGuestAccess(req, res, next) {
         let requestingUser = await db.get("users").findOne({
             id: key.assignedTo
         }, {
-            fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS
+            projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS
         });
     
         if (!requestingUser){
@@ -64,7 +64,7 @@ async function RequireAPIKey(req,res,next) {
     let requestingUser = await db.get("users").findOne({
         id: key.assignedTo
     }, {
-        fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS
+        projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS
     });
 
     if (!requestingUser){

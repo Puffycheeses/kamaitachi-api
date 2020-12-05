@@ -48,7 +48,7 @@ router.get("/default-folders", async function(req,res){
         let u = await db.get("users").findOne({
             id: parseInt(req.query.userID)
         }, {
-            fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS
+            projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS
         });
 
         if (u){

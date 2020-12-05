@@ -10,7 +10,7 @@ const apiConfig = require("../../../../../apiconfig.js");
 router.get("/", async function(req,res){
     let user = req.requestedUser;
     
-    let friends = await db.get("users").find({id: {$in: user.friends}}, {fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
+    let friends = await db.get("users").find({id: {$in: user.friends}}, {projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
 
     return res.status(200).json({
         success: true,
@@ -27,7 +27,7 @@ router.get("/online", async function(req,res){
     let curTime = Date.now();
     let friends = await db.get("users").find({id: {$in: user.friends}, lastSeen: {
         $gt: curTime - apiConfig.TIME_DELTA_ONLINE
-    }}, {fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
+    }}, {projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
 
     return res.status(200).json({
         success: true,

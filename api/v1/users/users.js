@@ -55,7 +55,7 @@ router.get("/", async function(req,res){
         sortCriteria = req.query.sortCriteria
     }
 
-    let users = await db.get("users").find({}, {fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS, limit : userLimit, skip: start, sort : sortCriteria });
+    let users = await db.get("users").find({}, {projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS, limit : userLimit, skip: start, sort : sortCriteria });
 
     let usersBody = {items: users};
     if (users.length !== 0){
@@ -109,7 +109,7 @@ router.get("/online", async function(req,res){
         }
     },
         {
-            fields: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
+            projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
             skip: start,
             limit: userLimit
         }

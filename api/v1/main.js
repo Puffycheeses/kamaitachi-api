@@ -46,6 +46,7 @@ const milestonesRouter = require("./milestones/milestones.js");
 const userGoalsRouter = require("./user-goals/user-goals.js");
 const userMilestoneRouter = require("./user-milestones/user-milestones.js");
 const searchRouter = require("./search/search.js");
+const sessionFeedRouter = require("./session-feed/session-feed.js");
 
 
 router.use("/users", usersRouter);
@@ -66,6 +67,7 @@ router.use("/imports", importsRouter);
 router.use("/folders", folderRouter);
 router.use("/fun-facts", ffactRouter);
 router.use("/clans", clansRouter);
+router.use("/session-feed", sessionFeedRouter);
 
 // require APIKey more or less means "require logged in".
 // since we're moving the API to be usable by people without accounts
