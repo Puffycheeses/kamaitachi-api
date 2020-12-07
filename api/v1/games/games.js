@@ -6,13 +6,37 @@ const userHelpers = require("../../../core/user-core.js");
 
 // mounted on /api/v1/games
 
+let gamesResponseCache = null;
+const ONE_HOUR = 1000 * 60 * 60;
+
 router.get("/", async function(req,res){
+    console.log(gamesResponseCache)
+    if (gamesResponseCache && gamesResponseCache.timestamp < (Date.now() + ONE_HOUR)) {
+        return res.status(200).json(gamesResponseCache.data);
+    }
+
     let gamesObj = {};
     let totalScoreCount = 0;
     let totalSongCount = 0;
     let totalChartCount = 0;
+
+    let scoresByGame = await db.get("scores").aggregate([
+        {
+            $group: {
+                _id: "$game",
+                count: {$sum: 1}
+            }
+        }
+    ]);
+
+    let scoresGame = {};
+
+    for (const item of scoresByGame) {
+        scoresGame[item._id] = item.count;
+    }
+
     for (const game of config.supportedGames) {
-        let scoreCount = await db.get("scores").count({game: game});
+        let scoreCount = scoresGame[game] || 0;
         let songCount = await db.get("songs-" + game).count({});
         let chartCount = await db.get("charts-" + game).count({});
 
@@ -31,7 +55,17 @@ router.get("/", async function(req,res){
         gamesObj[game] = gameObj;
     }
 
-    return res.status(200).json({
+    gamesResponseCache = {
+        timestamp: Date.now(),
+        data: {
+            gameStats: gamesObj,
+            totalScoreCount,
+            totalSongCount,
+            totalChartCount
+        }
+    }
+
+    return res.status(201).json({
         success: true,
         description: "Kamaitachi is currently powering " + config.supportedGames.length + " games.",
         body: {

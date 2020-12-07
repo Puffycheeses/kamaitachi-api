@@ -170,8 +170,22 @@ router.get("/search", async function(req,res){
         });
     }
 
-    // return only the closest 100 matches. This doesn't matter now, but it might.
-    users = users.slice(0, MAX_USER_RETURN_LIMIT);
+    if (req.query.limit) {
+        let intLimit = parseInt(req.query.limit);
+
+        if (intLimit < 0 || isNaN(intLimit) || !isFinite(intLimit) || intLimit > MAX_USER_RETURN_LIMIT) {
+            return res.status(400).json({
+                success: false,
+                description: `Invalid limit, must be a +ve integer less than ${MAX_USER_RETURN_LIMIT}`
+            })
+        }
+
+        users = users.slice(0, intLimit);
+    }
+    else {
+        // return only the closest 100 matches. This doesn't matter now, but it might.
+        users = users.slice(0, MAX_USER_RETURN_LIMIT);
+    }
 
     users.sort((a,b) => b.closeness - a.closeness);
 
