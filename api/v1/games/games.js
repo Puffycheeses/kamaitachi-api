@@ -10,7 +10,7 @@ let gamesResponseCache = null;
 const ONE_HOUR = 1000 * 60 * 60;
 
 router.get("/", async function(req,res){
-    if (gamesResponseCache && gamesResponseCache.timestamp < (Date.now() + ONE_HOUR)) {
+    if (gamesResponseCache && (gamesResponseCache.timestamp + ONE_HOUR) < Date.now()) {
         return res.status(200).json({
             success: true,
             description: "Retrieved v1/games cache.",
