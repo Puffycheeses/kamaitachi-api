@@ -20,7 +20,7 @@ const serviceSupportedGames = {
     beatoraja: ["bms"],
     MER: ["iidx"],
     SSS: ["iidx"],
-    "MaimaiNet": ["maimai"],
+    MaimaiNet: ["maimai"],
     "BATCH-MANUAL": supportedGames,
     "DIRECT-MANUAL": supportedGames,
     "MANUAL": supportedGames
@@ -94,7 +94,33 @@ const validDifficulties = {
     bms: ["BEGINNER", "NORMAL", "HYPER", "ANOTHER", "INSANE", "CUSTOM"],
     chunithm: ["BASIC", "ADVANCED", "EXPERT", "MASTER", "WORLD'S END"],
     gitadora: ["BASIC", "ADVANCED", "EXTREME", "MASTER", "BASS BASIC", "BASS ADVANCED", "BASS EXTREME", "BASS MASTER"],
-    sdvx: ["NOV", "ADV", "EXH", "INF"],
+    usc: ["NOV", "ADV", "EXH", "INF"]
+}
+
+const defaultTable = {
+    iidx: "Levels",
+    bms: "Insane",
+    museca: "Levels",
+    jubeat: "Levels",
+    popn: "Levels",
+    sdvx: "Levels",
+    ddr: "Levels",
+    chunithm: "Levels",
+    gitadora: "Levels",
+    usc: "Levels"
+}
+
+const folderTables = {
+    iidx: ["Levels", "Levels (Omnimix)", "Versions"],
+    bms: ["Normal", "Insane", "Overjoy", "Satellite", "Stella"],
+    museca: ["Levels", "Versions"],
+    jubeat: ["Levels", "Versions"],
+    popn: ["Levels", "Versions"],
+    sdvx: ["Levels", "Versions"],
+    ddr: ["Levels", "Versions"],
+    chunithm: ["Levels", "Versions"],
+    gitadora: ["Levels", "Versions"],
+    usc: ["Levels", "Versions"]
 }
 
 const difficultyShorthand = {
@@ -236,7 +262,7 @@ const validScoreMeta = {
     chunithm: {},
     gitadora: {},
     usc: {
-        "noteMod": ["NORMAL", "MIRROR", "RANDOM"],
+        "noteMod": ["NORMAL", "MIRROR", "RANDOM", "MIR-RAN"],
         "gaugeMod": ["NORMAL", "HARD"]
     }
 }
@@ -710,6 +736,21 @@ const clearLamp = {
     ddr: "CLEAR",
     chunithm: "CLEAR",
     gitadora: "CLEAR"
+}
+
+// minimum grade considered by the game (or kamaitachi) to be a clearing grade.
+const clearGrade = {
+    iidx: "A",
+    bms: "A",
+    museca: "良",
+    maimai: "A",
+    jubeat: "A",
+    popn: "A",
+    sdvx: "AA",
+    ddr: "A",
+    chunithm: "A",
+    gitadora: "A",
+    usc: "A"
 }
 
 const validModifiers = {
@@ -1412,7 +1453,14 @@ function ScoreGradeDelta(game, score, chart, delta){
         if (nGScore){
             let delta = score.scoreData.score - nGScore
             let formattedString = `(${nextGrade})`;
-            formattedString += delta >= 0 ? "+" + delta : "" + delta
+
+            if (Number.isInteger(delta)) {
+                formattedString += delta >= 0 ? "+" + delta : "" + delta;
+            }
+            else {
+                formattedString += delta >= 0 ? "+" + delta.toFixed(2) : "" + delta.toFixed(2)
+            }
+
             return {
                 grade: nextGrade,
                 delta: delta,
@@ -2064,6 +2112,9 @@ if (typeof window === 'undefined'){
         AbsoluteScoreGradeDelta,
         defaultGameClasses,
         gameClassValues,
-        validScoreMeta
+        validScoreMeta,
+        clearGrade,
+        defaultTable,
+        folderTables,
     };
 }
