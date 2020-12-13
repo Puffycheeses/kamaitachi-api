@@ -47,6 +47,7 @@ router.get("/", async function (req,res) {
                 }, {
                     projection: {
                         songID: 1,
+                        scoreID: 1,
                         chartID: 1,
                         "scoreData.grade": 1,
                         "scoreData.gradeIndex": 1,
