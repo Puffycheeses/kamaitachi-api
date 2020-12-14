@@ -310,9 +310,9 @@ const gameHuman = {
     popn: "pop'n music",
     bms: "BMS",
     chunithm: "CHUNITHM",
-    usc: "untitled sdvx clone"
+    usc: "unnamed sdvx clone"
 }
-
+    
 // human readable stuff for versions
 const versionHuman = {
     iidx: {
