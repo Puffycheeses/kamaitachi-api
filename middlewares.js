@@ -158,14 +158,21 @@ async function MaintenanceMode(req,res,next){
     next();
 }
 
+const DISCARD_NONSENSE_INPUT = {};
 // try and not get injected
 async function SanitiseInput(req,res,next){
     Sanitise(req.query);
     for (const key in req.query) {
-        if (typeof req.query[key] === "object" && req.query[key]) {
+        if (typeof req.query[key] === "object" && req.query.hasOwnProperty(key)) {
             return res.status(400).json({
                 success: false,
                 description: "Passed data was determined to be malicious. Nesting objects is not allowed."
+            });
+        }
+        else if (DISCARD_NONSENSE_INPUT[req.query[key]]) {
+            return res.status(400).json({
+                success: false,
+                description: "Passed data was determined to be malicious."
             });
         }
     }
@@ -174,13 +181,18 @@ async function SanitiseInput(req,res,next){
 
     if (!(req.apikey && req.apikey.assignedTo === 1 && req.body.punchthrough)) {
         for (const key in req.body) {
-            if (typeof req.body[key] === "object" && req.body[key]) {
+            if (typeof req.body[key] === "object" && req.body.hasOwnProperty(key)) {
                 return res.status(400).json({
                     success: false,
                     description: "Passed data was determined to be malicious. Nesting objects is not allowed."
                 });
             }
-    
+            else if (DISCARD_NONSENSE_INPUT[req.body[key]]) {
+                return res.status(400).json({
+                    success: false,
+                    description: "Passed data was determined to be malicious."
+                });
+            }
             req.body[key] = "" + req.body[key] // potentially safety critical, apologies.
         }
     }

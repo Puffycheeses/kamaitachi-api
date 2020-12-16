@@ -56,6 +56,12 @@ async function ValidateUserID(req, res, next){
         }
     }
     else {
+        if (!req.apikey) {
+            return res.status(400).json({
+                success: false,
+                description: "No user given, and no credentials to default to."
+            });
+        }
         req.requestedUserID = req.apikey.assignedTo;
     }
 
@@ -320,6 +326,123 @@ router.get("/tierlist-data", async function (req,res) {
             tierlistData
         }
     });
+});
+
+const TARGET_NAMES = {
+    "score": "Score",
+    "percent": "Percent",
+    "lamp": "Lamp",
+    "grade": "Grade"
+};
+
+function ValidateTimelineValues(req, res, next) {
+    let game = req.folderData.game;
+    let targetName = "lamp";
+    let clearLamp = config.clearLamp[game];
+    let targetVal = config.lamps[game].indexOf(clearLamp);
+
+    if (req.query.targetName) {
+        let passedTNameData = TARGET_NAMES[req.query.targetName];
+        if (passedTNameData) {
+            targetName = req.query.targetName;
+        }
+    }
+
+    if (req.query.targetVal) {
+        let tVal = parseFloat(req.query.targetVal);
+        console.log(tVal);
+
+        if (tVal < 0 || isNaN(tVal) || !isFinite(tVal)) {
+            return res.status(400).json({
+                success: false,
+                description: "Invalid value for targetValue"
+            });
+        }
+
+        if (targetName === "lamp" || targetName === "grade") {
+            let elementActuallyExists = targetName === "lamp" ? config.lamps[game][tVal] : config.grades[game][tVal];
+
+            if (elementActuallyExists) {
+                targetVal = tVal;
+            }
+        }
+        else {
+            targetVal = tVal;
+        }
+    }
+
+    req.query.targetVal = targetVal;
+    req.query.targetName = targetName;
+
+    return next();
+}
+
+const INTERNAL_TARGET_NAME = {
+    "lamp": "scoreData.lampIndex",
+    "grade": "scoreData.gradeIndex",
+    "percent": "scoreData.percent",
+    "score": "scoreData.score"
+};
+
+router.get("/timeline", ValidateTimelineValues, ValidateUserID, ValidateRivalGroupID, async function (req,res) {
+    let targetVal = req.query.targetVal;
+    let targetName = req.query.targetName;
+    let requestedUserID = req.requestedUserID;
+
+    let folder = req.folderData;
+    let playtype = req.query.playtype || config.defaultPlaytype[folder.game];
+
+    if (!config.validPlaytypes[folder.game].includes(playtype)){
+        return res.status(400).json({
+            success: false,
+            description: "Playtype provided, but the one given was invalid."
+        });
+    }
+
+    let difficulty = req.query.difficulty || null;
+
+    if (req.query.difficulty && !config.validDifficulties[folder.game].includes(difficulty)) {
+        return res.status(400).json({
+            success: false,
+            description: "Difficulty provided, but the one given was invalid."
+        });
+    }
+
+    let {songs, charts} = await folderCore.GetDataFromFolderQuery(folder, playtype, difficulty);
+
+    let scoreData = await db.get("scores").aggregate([
+        {
+            $match: {
+                userID: requestedUserID,
+                chartID: {$in: charts.map(e => e.chartID)},
+                [INTERNAL_TARGET_NAME[targetName]]: {$gte: targetVal},
+                timeAchieved: {$ne: null} // vomit
+            }
+        },
+        {
+            $sort: {
+                "timeAchieved": 1
+            }
+        },
+        {
+            $group: {
+                _id: "$chartID",
+                sc: { $first: "$$ROOT" }
+            }
+        }
+    ]);
+
+    let scores = scoreData.map(e => e.sc);
+    
+    return res.status(200).json({
+        success: true,
+        description: "hey",
+        body: {
+            songs,
+            charts,
+            scores
+        }
+    })
 });
 
 module.exports = router;
