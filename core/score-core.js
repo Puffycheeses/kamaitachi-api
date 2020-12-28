@@ -45,6 +45,9 @@ async function AutoCoerce(scores){
                 score.scoreData.lamp = lampPB.scoreData.lamp;
                 score.scoreData.lampIndex = lampPB.scoreData.lampIndex;
                 score.calculatedData.lampRating = lampPB.calculatedData.lampRating;
+                if (score.game === "bms") {
+                    score.calculatedData.rating = lampPB.calculatedData.rating;
+                }
                 score.isLampPB = true;
             }
         }
