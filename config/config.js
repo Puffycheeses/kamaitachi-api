@@ -118,7 +118,7 @@ const folderTables = {
     popn: ["Levels", "Versions"],
     sdvx: ["Levels", "Versions"],
     ddr: ["Levels", "Versions"],
-    chunithm: ["Levels", "Versions"],
+    chunithm: ["Levels", "Levels (Omnimix)", "Versions"],
     gitadora: ["Levels", "Versions"],
     usc: ["Levels", "Versions"]
 }
@@ -312,7 +312,7 @@ const gameHuman = {
     chunithm: "CHUNITHM",
     usc: "unnamed sdvx clone"
 }
-    
+
 // human readable stuff for versions
 const versionHuman = {
     iidx: {
