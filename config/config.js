@@ -107,7 +107,8 @@ const defaultTable = {
     ddr: "Levels",
     chunithm: "Levels",
     gitadora: "Levels",
-    usc: "Levels"
+    usc: "Levels",
+    maimai: "Levels"
 }
 
 
