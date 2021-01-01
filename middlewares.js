@@ -110,6 +110,13 @@ async function RequireUserKeyMatch(req,res,next){
     let user = req.user || await userHelpers.GetUser(req.params.userID);
     let key = req.apikey;
 
+    if (!key) {
+        return res.status(401).json({
+            success: false,
+            description: "Unauthorised."
+        });
+    }
+
     if (user.id !== key.assignedTo){
         return res.status(401).json({
             success: false,
