@@ -402,6 +402,19 @@ router.get("/score-feed", CheckRivalGroupExists, async function(req,res){
     if (!req.query.includeSelf){
         rg.members = rg.members.filter(e => e !== rg.founderID);
     }
+
+    if (members.length === 0) {
+        return res.status(200).json({
+            success: true,
+            description: "No other members in rival group!",
+            body: {
+                scores: [],
+                charts: [],
+                songs: [],
+                members: []
+            }
+        })
+    }
     let members = await userHelpers.GetUsers(rg.members);
     let impressiveness = parseFloat(req.query.impressiveness) || 0.95;
     let lim = parseInt(req.query.limit) < 100 ? parseInt(req.query.limit) : 100;
