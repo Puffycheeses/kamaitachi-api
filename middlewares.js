@@ -132,7 +132,7 @@ async function RequireUserKeyMatch(req,res,next){
 }
 
 async function LogRequest(req,res,next){
-    let requestObj = {}
+    let requestObj = {};
     let key = await db.get("public-api-keys").findOne({apiKey: req.query.key});
 
     requestObj.key = key;

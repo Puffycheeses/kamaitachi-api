@@ -110,6 +110,7 @@ const defaultTable = {
     usc: "Levels"
 }
 
+
 const folderTables = {
     iidx: ["Levels", "Levels (Omnimix)", "Versions"],
     bms: ["Normal", "Insane", "Overjoy", "Satellite", "Stella"],
@@ -120,7 +121,8 @@ const folderTables = {
     ddr: ["Levels", "Versions"],
     chunithm: ["Levels", "Levels (Omnimix)", "Versions"],
     gitadora: ["Levels", "Versions"],
-    usc: ["Levels", "Versions"]
+    usc: ["Levels", "Versions"],
+    maimai: ["Levels", "Versions"]
 }
 
 const difficultyShorthand = {
