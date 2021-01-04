@@ -10,6 +10,13 @@ const apiConfig = require("../../../apiconfig.js");
 // mounted on /api/v1/fun-facts
 
 router.get("/", async function(req,res){
+    if (!req.apikey) {
+        return res.status(401).json({
+            success: false,
+            description: "You are not authorised for this!"
+        })
+    }
+
     let requestingUser = await db.get("users").findOne({id: req.apikey.assignedTo}, {projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS});
 
     let aggPipe = [{
