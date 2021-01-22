@@ -5,6 +5,7 @@ const db = require("../../../db.js");
 const userHelpers = require("../../../core/user-core.js");
 const apiConfig = require("../../../apiconfig.js");
 const similarity = require("string-similarity");
+const regexSanitise = require("escape-string-regexp");
 
 // mounted on /api/v1/users
 
@@ -153,15 +154,19 @@ router.get("/search", async function(req,res){
         })
     }
 
-    // todo, this sucks and is slow.
-    let users = await userHelpers.GetAllUsers();
+    let users = await db.get("users").find({
+        username: new RegExp(`${regexSanitise(req.query.username)}`, "i")
+    }, {
+        projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
+        limit: MAX_USER_RETURN_LIMIT
+    })
     
     for (const user of users) {
-        user.closeness = similarity.compareTwoStrings(user.username.toLowerCase(), req.query.username.toLowerCase());
+        user.closeness = similarity.compareTwoStrings(user.username, req.query.username);
     }
 
     // remove users where their closeness is 0, i.e. they do not match
-    users = users.filter(e => !!e.closeness);
+    // users = users.filter(e => !!e.closeness);
 
     if (users.length === 0){
         return res.status(404).json({
