@@ -231,7 +231,7 @@ router.put("/create-simple-chart-goal", RequireValidGame, async function(req,res
         [req.body.scoreGoalKey.replace(/\./g, "¬")]: queryVal
     };
 
-    if (req.body.scoreGoalKey === "score.lampIndex"){
+    if (req.body.scoreGoalKey === "scoreData.lampIndex"){
         scoreQuery.isLampPB = true;
     }
     else {
