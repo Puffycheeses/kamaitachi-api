@@ -2,7 +2,7 @@
 {
         "username" : "zkldi",
         "displayname" : "zkldi+",
-        "password" : "zkldi_is_super_cool",
+        "password" : "these_are_hashed_btw",
         "email" : "someone@example.com",
         "id" : 1,
         "settings" : {
@@ -10,28 +10,6 @@
                 "invisible" : false,
                 "noTracking" : true
         },
-        "rivals" : [
-                {
-                        "name" : "IIDXBOYZ",
-                        "game" : "iidx",
-                        "desc" : "da boyz. da boyz forever",
-                        "rivals" : [
-                                15,
-                                22
-                        ],
-                        "default" : true
-                },
-                {
-                        "name" : "MAIMAISQUAD",
-                        "game" : "maimai",
-                        "desc" : "ohyeah",
-                        "rivals" : [
-                                7,
-                                10
-                        ],
-                        "default" : false
-                }
-        ],
         "friends" : [
                 1,
 				2
@@ -114,7 +92,7 @@
 {
         "username" : "altuser",
         "displayname" : "altuser",
-        "password" : "future_employers_should_consider_hiring_zkldi",
+        "password" : "i_personally_use_bcrypt",
         "email" : "someoneelse@example.com",
         "id" : 2,
         "settings" : {
@@ -122,7 +100,6 @@
                 "invisible" : false,
                 "noTracking" : true
         },
-        "rivals" : [],
         "friends" : [],
         "socialmedia" : {
                 "discord" : "",
