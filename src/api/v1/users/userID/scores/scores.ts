@@ -1,9 +1,7 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-const userHelpers = require("../../../../../core/user-core.js");
-const middlewares = require("../../../../../middlewares.js");
-const dbCore = require("../../../../../core/db-core.js");
-const db = require("../../../../../db.js");
+import dbCore from "../../../../../core/db-core";
+import db from "../../../../../db";
 
 // mounted on /api/v1/users/:userID/scores
 
@@ -34,6 +32,10 @@ router.get("/count", async function (req, res) {
     }
 });
 
+interface PartialTimestampScore {
+    timeAchieved: number;
+}
+
 router.get("/heatmap", async function (req, res) {
     let user = req.requestedUser;
 
@@ -44,7 +46,7 @@ router.get("/heatmap", async function (req, res) {
     let endPoint = Date.now();
     let startPoint = endPoint - ONE_YEAR;
 
-    let queryObj = {
+    let queryObj: Record<string, unknown> = {
         userID: user.id,
         timeAchieved: { $gt: startPoint },
     };
@@ -57,7 +59,7 @@ router.get("/heatmap", async function (req, res) {
         queryObj["scoreData.playtype"] = req.query.playtype;
     }
 
-    let timeData = await db.get("scores").find(queryObj, {
+    let timeData: Array<PartialTimestampScore> = await db.get("scores").find(queryObj, {
         projection: { timeAchieved: 1 },
     });
 
@@ -70,4 +72,4 @@ router.get("/heatmap", async function (req, res) {
     });
 });
 
-module.exports = router;
+export default router;
