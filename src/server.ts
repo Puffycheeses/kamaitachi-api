@@ -1,7 +1,6 @@
-const db = require("./db.js");
-import * as express from "express";
-const middlewares = require("./middlewares.js");
-const cookieParser = require("cookie-parser");
+import { Request, Response, NextFunction, default as express } from "express";
+import middlewares from "./middlewares";
+import { default as cookieParser } from "cookie-parser";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -9,13 +8,18 @@ app.set("trust proxy", 1);
 process.env.NODE_ENV = process.env.NODE_ENV || "production";
 
 // allow cors requests from kamaitachi.xyz
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", process.env.NODE_ENV === "production" ? "https://kamaitachi.xyz" : "http://127.0.0.1:8080");
+app.use((req: Request, res: Response, next: NextFunction) => {
+    res.header(
+        "Access-Control-Allow-Origin",
+        process.env.NODE_ENV === "production" ? "https://kamaitachi.xyz" : "http://127.0.0.1:8080"
+    );
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Methods", "GET,POST,PATCH,PUT,DELETE,OPTIONS");
     next();
 });
+
+app.set("query parser", "simple");
 
 // taken from https://nodejs.org/api/process.html#process_event_unhandledrejection
 // to avoid future deprecation.
@@ -30,9 +34,9 @@ process.on("unhandledRejection", (reason, promise) => {
 
 // since we don't use OPTIONS for anything, we can just hack around this
 // and always return an empty 200 - even if that request is completely invalid.
-app.use((req, res, next) => {
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (req.method === "OPTIONS") {
-        res.header("Access-Control-Max-Age", 60 * 60 * 24 * 365);
+        res.header("Access-Control-Max-Age", (60 * 60 * 24 * 365).toString());
         return res.status(200).send();
     }
     next();
@@ -61,15 +65,15 @@ app.use(middlewares.SanitiseInput);
 app.use(middlewares.DecodeURIComponents);
 
 // mounts
-const apiRouterV1 = require("./api/v1/main.js");
+import apiRouterV1 from "./api/v1/main";
 app.use("/v1", apiRouterV1);
 
 // if anything has not been found by this point, they're 404ing.
-app.get("*", async function (req, res) {
+app.get("*", async function (req: express.Request, res: express.Response) {
     return res.status(404).json({
         success: false,
         description: "404: Endpoint does not exist.",
     });
 });
 
-module.exports = app;
+export default app;
