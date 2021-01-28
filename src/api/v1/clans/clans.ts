@@ -1,6 +1,6 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-import * as dbCore from "../../../core/db-core";
+import dbCore from "../../../core/db-core";
 
 // mounted on /api/v1/clans
 
