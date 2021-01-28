@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, default as express } from "express";
+import express from "express";
 import middlewares from "./middlewares";
 import { default as cookieParser } from "cookie-parser";
 
@@ -8,7 +8,7 @@ app.set("trust proxy", 1);
 process.env.NODE_ENV = process.env.NODE_ENV || "production";
 
 // allow cors requests from kamaitachi.xyz
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req, res, next) => {
     res.header(
         "Access-Control-Allow-Origin",
         process.env.NODE_ENV === "production" ? "https://kamaitachi.xyz" : "http://127.0.0.1:8080"
@@ -34,7 +34,7 @@ process.on("unhandledRejection", (reason, promise) => {
 
 // since we don't use OPTIONS for anything, we can just hack around this
 // and always return an empty 200 - even if that request is completely invalid.
-app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((req, res, next) => {
     if (req.method === "OPTIONS") {
         res.header("Access-Control-Max-Age", (60 * 60 * 24 * 365).toString());
         return res.status(200).send();
@@ -69,7 +69,7 @@ import apiRouterV1 from "./api/v1/main";
 app.use("/v1", apiRouterV1);
 
 // if anything has not been found by this point, they're 404ing.
-app.get("*", async function (req: express.Request, res: express.Response) {
+app.get("*", async function (req, res) {
     return res.status(404).json({
         success: false,
         description: "404: Endpoint does not exist.",
