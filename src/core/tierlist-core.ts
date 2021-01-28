@@ -1,11 +1,14 @@
-import db from "../../../../db";
-async function GetTierlistWithID(tierlistID) {
+import db from "../db";
+async function GetTierlistWithID(tierlistID: string): Promise<TierlistDocument> {
     let tierlist = await db.get("tierlist").findOne({ tierlistID }, { projection: { _id: 0 } });
 
     return tierlist;
 }
 
-async function GetDefaultTierlist(game, playtype) {
+async function GetDefaultTierlist(
+    game: Game,
+    playtype: Playtypes[Game]
+): Promise<TierlistDocument> {
     let tierlist = await db
         .get("tierlist")
         .findOne({ game, playtype, isDefault: true }, { projection: { _id: 0 } });
@@ -13,4 +16,4 @@ async function GetDefaultTierlist(game, playtype) {
     return tierlist;
 }
 
-export { GetTierlistWithID, GetDefaultTierlist };
+export default { GetTierlistWithID, GetDefaultTierlist };
