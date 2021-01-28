@@ -1,4 +1,7 @@
-const cluster = require("cluster");
+import * as cluster from "cluster";
+import * as os from "os";
+import app from "./server";
+
 if (cluster.isMaster) {
     console.log(`
         ██╗  ██╗ █████╗ ███╗   ███╗ █████╗ ██╗████████╗ █████╗  ██████╗██╗  ██╗██╗     ██╗ █████╗ ██████╗ ██╗██╗ 
@@ -11,7 +14,7 @@ if (cluster.isMaster) {
 
     console.log(`Running in env: ${process.env.NODE_ENV}`);
 
-    let cpuCount = require("os").cpus().length;
+    let cpuCount = os.cpus().length;
 
     console.log(`Running with ${cpuCount} CPUs, spawning ${cpuCount} servers.`);
 
@@ -19,6 +22,5 @@ if (cluster.isMaster) {
         cluster.fork();
     }
 } else {
-    const app = require("./server.js");
     app.listen(8081);
 }
