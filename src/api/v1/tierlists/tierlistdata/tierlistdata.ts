@@ -1,8 +1,7 @@
-import db from "../../../../db";
 import dbCore from "../../../../core/db-core";
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-import tierlistHelpers from "./tierlisthelpers";
+import tierlistCore from "../../../../core/tierlist-core";
 
 // mounted on /api/v1/tierlists/tierlistdata
 
@@ -11,9 +10,9 @@ const RETURN_LIMIT = 100;
 router.get("/", async function (req, res) {
     let tierlist = null;
     if (req.query.tierlistID) {
-        tierlist = await tierlistHelpers.GetTierlistWithID(req.query.tierlistID);
+        tierlist = await tierlistCore.GetTierlistWithID(req.query.tierlistID);
     } else {
-        tierlist = await tierlistHelpers.GetDefaultTierlist(req.query.game, req.query.playtype);
+        tierlist = await tierlistCore.GetDefaultTierlist(req.query.game, req.query.playtype);
     }
 
     if (!tierlist) {
