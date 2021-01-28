@@ -1,9 +1,23 @@
-const db = require("../db.js");
+import db from "../db";
 
-// originally, folder queries were way more powerful.
-// but it was a lot of work, for something nobody would ever care about.
-// apologies.
-async function GetDataFromFolderQuery(folder, playtype, difficulty, onlyGetCharts) {
+interface FolderQueryReturns {
+    songs: SongDocument[];
+    charts: ChartDocument[];
+}
+
+/**
+ * GetDataFromFolderQuery: Retrieves charts and songs given a folderObject.
+ * @param folder The folderObject to retrieve the charts of.
+ * @param playtype A playtype to filter charts upon, can be null.
+ * @param difficulty A difficulty to filter charts upon, can be null.
+ * @param onlyGetCharts Only retrieves charts, this only works as intended for certain folderObjects
+ */
+async function GetDataFromFolderQuery(
+    folder: FolderDocument,
+    playtype: string,
+    difficulty: string,
+    onlyGetCharts?: boolean
+): Promise<FolderQueryReturns> {
     let coll = folder.query.collection;
 
     if (coll === "charts") {
@@ -18,30 +32,32 @@ async function GetDataFromFolderQuery(folder, playtype, difficulty, onlyGetChart
         coll = `songs-${folder.game}`;
     }
 
-    let queryObj = {};
+    let queryObj: Record<string, unknown> = {};
 
     for (const key in folder.query.query) {
         queryObj[key.replace(/¬/g, ".")] = folder.query.query[key];
     }
 
-    let r = await db.get(coll).find(queryObj);
-
     if (folder.query.collection === "charts") {
-        let songs = [];
+        let charts: ChartDocument[] = (await db.get(coll).find(queryObj)) as ChartDocument[];
+
+        let songs: SongDocument[] = [];
 
         if (!onlyGetCharts) {
-            songs = await db.get(`songs-${folder.game}`).find({
-                id: { $in: r.map((e) => e.id) },
-            });
+            songs = (await db.get(`songs-${folder.game}`).find({
+                id: { $in: charts.map((e) => e.id) },
+            })) as SongDocument[];
         }
 
         return {
             songs: songs,
-            charts: r,
+            charts: charts,
         };
     } else if (folder.query.collection === "songs") {
-        let chartQuery = {
-            id: { $in: r.map((e) => e.id) },
+        let songs: SongDocument[] = (await db.get(coll).find(queryObj)) as SongDocument[];
+
+        let chartQuery: Record<string, unknown> = {
+            id: { $in: songs.map((e) => e.id) },
         };
 
         if (playtype) {
@@ -52,15 +68,15 @@ async function GetDataFromFolderQuery(folder, playtype, difficulty, onlyGetChart
             chartQuery.difficulty = difficulty;
         }
 
-        let charts = await db.get(`charts-${folder.game}`).find(chartQuery);
+        let charts = (await db.get(`charts-${folder.game}`).find(chartQuery)) as ChartDocument[];
 
         return {
-            songs: r,
+            songs: songs,
             charts: charts,
         };
+    } else {
+        throw new Error(`Unaccounted for collection of ${folder.query.collection}`);
     }
 }
 
-module.exports = {
-    GetDataFromFolderQuery,
-};
+export { GetDataFromFolderQuery };
