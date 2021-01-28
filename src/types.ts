@@ -1,5 +1,8 @@
 import { Response } from "express";
 import { IObjectID } from "monk";
+
+// eslint seems to think we cant resolve the below module. No idea why, as it exists.
+// eslint-disable-next-line
 import { Request, ParamsDictionary } from "express-serve-static-core";
 
 declare global {
@@ -331,6 +334,19 @@ declare global {
         notedata: {
             notecount: integer;
             objects: Record<string, integer>;
+        };
+    }
+
+    export interface TierlistDocument extends MongoDBDocument {
+        game: Game;
+        title: string;
+        isDefault: boolean;
+        tierlistID: string;
+        playtype: Playtypes[Game];
+        config: {
+            // I have no idea what usePrefix does.
+            usePrefix?: boolean;
+            grades?: Array<[string, number]>;
         };
     }
 
