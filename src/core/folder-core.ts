@@ -79,4 +79,4 @@ async function GetDataFromFolderQuery(
     }
 }
 
-export { GetDataFromFolderQuery };
+export default { GetDataFromFolderQuery };

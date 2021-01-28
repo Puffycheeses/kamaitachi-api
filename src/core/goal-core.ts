@@ -244,4 +244,4 @@ async function CreateUserGoal(goal: GoalDocument, userID: integer): Promise<User
     return ugObj;
 }
 
-export { EvaluateGoalForUser, GetGoalIDsFromMilestone, CreateUserGoal };
+export default { EvaluateGoalForUser, GetGoalIDsFromMilestone, CreateUserGoal };
