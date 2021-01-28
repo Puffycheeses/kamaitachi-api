@@ -1,7 +1,7 @@
 import db from "../db";
 
 async function HandleCustomUserSelections(
-    req: Express.Request,
+    req: KTRequest,
     queryObj: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
     if (req.query.myRivals && req.user) {
@@ -34,4 +34,4 @@ async function HandleCustomUserSelections(
     return queryObj;
 }
 
-export { HandleCustomUserSelections };
+export default { HandleCustomUserSelections };
