@@ -5,7 +5,7 @@ const REMOVE_PRIVATE_USER_RETURNS = { password: 0, email: 0, integrations: 0 };
 // this is 5 minutes in miliseconds.
 const TIME_DELTA_ONLINE = 300000;
 
-const validKeys = {
+const validKeys: Record<ValidDatabases, Record<string, FQType>> = {
     sessions: {
         name: "string",
         desc: "string",
@@ -138,7 +138,7 @@ const validKeys = {
     },
 };
 
-const validSorts = {
+const validSorts: Record<ValidDatabases, string[]> = {
     sessions: ["timeEnded", "timeStarted", "performance", "timestamp"],
     notifications: ["timeSent"],
     imports: ["timeEnded", "timeStarted"],
@@ -166,9 +166,11 @@ const validSorts = {
     goals: ["timeAdded"],
     "user-goals": ["timeSet", "timeAchieved"],
     "user-milestones": ["timeSet", "timeAchieved"],
+    rivals: ["founderID"],
+    milestones: ["createdBy"],
 };
 
-const defaultSorts = {
+const defaultSorts: Record<ValidDatabases, string> = {
     sessions: "timeEnded",
     goals: "timeAdded",
     notifications: "timeSent",
@@ -183,12 +185,14 @@ const defaultSorts = {
     folders: "views", // temp
     "user-goals": "timeSet",
     "user-milestones": "timeSet",
+    milestones: "createdBy",
+    rivals: "founderID",
 };
 
 // deprecated
 const VALID_FOLDER_TYPES = ["levels", "versions"];
 
-module.exports = {
+export default {
     REMOVE_PRIVATE_USER_RETURNS,
     TIME_DELTA_ONLINE,
     VALID_FOLDER_TYPES,
