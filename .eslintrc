@@ -2,17 +2,24 @@
     "root": true,
     "parser": "@typescript-eslint/parser",
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "import"
     ],
+    "env": {
+        "node": true
+    },
     "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
         "prettier/@typescript-eslint",
-        "plugin:prettier/recommended"
+        "plugin:prettier/recommended",
+        "plugin:import/typescript",
+        "plugin:import/warnings",
+        "plugin:import/errors"
     ],
     "rules": {
         "prettier/prettier": ["error", {
-            "printWidth": 140,
+            "printWidth": 100,
             "tabWidth": 4,
             "semi": true,
             "singleQuote": false,
@@ -20,9 +27,10 @@
             "bracketSpacing": true,
             "endOfLine": "auto"
         }],
-        "quotes": ["error", "double"],
+        "@typescript-eslint/no-unused-vars": "error",
+        "@typescript-eslint/no-unused-expressions": "error",
         "@typescript-eslint/no-extra-semi": "off",
-        "semi-spacing": "error",
+        "no-unused-labels": "error",
         "prefer-const": "off",
         "eqeqeq": "error",
         "no-eval": "error",
@@ -43,7 +51,7 @@
         "no-useless-constructor": "error",
         "no-duplicate-imports": "error",
         "dot-notation": "error",
-        "space-before-blocks": "error"
-        // "space-before-function-paren": ["error", "never"]
+        "space-before-blocks": "error",
+        "no-prototype-builtins": "off"
     }
 }
