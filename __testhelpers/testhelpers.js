@@ -9,7 +9,7 @@ function IsSortedOnKey(objArr, key){
     return items.slice(1).every((item, i) => items[i] <= item);
 }
 
-module.exports = {
+export {
     IsSortedLexicographicallyOnKey,
     IsSortedOnKey
 }

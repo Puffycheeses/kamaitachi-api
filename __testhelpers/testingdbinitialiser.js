@@ -23,6 +23,6 @@ async function ResetTestingDB(){
     }
 }
 
-module.exports = {
+export {
     ResetTestingDB
 }
