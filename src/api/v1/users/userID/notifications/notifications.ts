@@ -1,6 +1,5 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-import userHelpers from "../../../../../core/user-core";
 import middlewares from "../../../../../middlewares";
 import dbCore from "../../../../../core/db-core";
 import db from "../../../../../db";
@@ -11,7 +10,7 @@ router.use(middlewares.RequireUserKeyMatch);
 const MAX_RETURNS = 100;
 
 router.get("/", async function (req, res) {
-    let user = req.requestedUser;
+    let user = req.requestedUser as PublicUserDocument;
 
     req.query.toUserID = `${user.id}`;
 

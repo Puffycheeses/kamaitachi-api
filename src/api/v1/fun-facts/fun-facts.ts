@@ -1,10 +1,7 @@
 import * as express from "express";
-import dbCore from "../../../core/db-core";
-import userCore from "../../../core/user-core";
 const router = express.Router({ mergeParams: true });
 import db from "../../../db";
 import crypto from "crypto";
-import middlewares from "../../../middlewares";
 import apiConfig from "../../../apiconfig";
 
 // mounted on /api/v1/fun-facts

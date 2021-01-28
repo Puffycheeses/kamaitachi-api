@@ -1,11 +1,8 @@
 import db from "../../../../db";
-import dbCore from "../../../../core/db-core";
 import userHelpers from "../../../../core/user-core";
 import * as express from "express";
-import crypto from "crypto";
 import config from "../../../../config/config";
 const router = express.Router({ mergeParams: true });
-import esd from "esd";
 import scoreHelpers from "../../../../core/score-core";
 
 // mounted on /api/v1/rivals/:rivalGroupID

@@ -2,7 +2,6 @@ import db from "../../../../db";
 import middlewares from "../../../../middlewares";
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-import dbCore from "../../../../core/db-core";
 
 // mounted on /api/v1/clans/:clanID
 router.use(middlewares.RequireExistingClan);

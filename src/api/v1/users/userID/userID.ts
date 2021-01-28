@@ -1,7 +1,6 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
 import middlewares from "../../../../middlewares";
-import userHelpers from "../../../../core/user-core";
 
 // mounted on /api/v1/users/:userID
 

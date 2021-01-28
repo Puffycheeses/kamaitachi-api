@@ -1053,7 +1053,7 @@ const folders = {
     },
 };
 
-const validPlaytypes = {
+const validPlaytypes: Record<Game, Playtypes[Game][]> = {
     iidx: ["SP", "DP"],
     popn: ["9B"],
     sdvx: ["Single"],

@@ -1,8 +1,6 @@
 import * as express from "express";
-import dbCore from "../../../../core/db-core";
 const router = express.Router({ mergeParams: true });
 import db from "../../../../db";
-import apiConfig from "../../../../apiconfig";
 
 // mounted on /api/v1/sessions/:sessionID
 

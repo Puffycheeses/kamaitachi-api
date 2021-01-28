@@ -1,6 +1,5 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-import dbCore from "../../../core/db-core";
 import db from "../../../db";
 import regexSanitise from "escape-string-regexp";
 import similar from "string-similarity";

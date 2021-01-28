@@ -3,7 +3,6 @@ import * as express from "express";
 const router = express.Router({ mergeParams: true });
 import config from "../../../../config/config";
 import middlewares from "../../../../middlewares";
-import userHelpers from "../../../../core/user-core";
 
 // mounted on /api/v1/games/:game
 
@@ -13,7 +12,7 @@ router.get("/", async function (req, res) {
     let scoreCount = await db.get("scores").count({ game: req.params.game });
     let songCount = await db.get(`songs-${req.params.game}`).count({});
     let chartCount = await db.get(`charts-${req.params.game}`).count({});
-    let game = req.params.game;
+    let game = req.params.game as Game;
 
     let gameObj = {
         game: game,

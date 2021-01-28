@@ -2,11 +2,30 @@ import db from "../../../db";
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
 import config from "../../../config/config";
-import userHelpers from "../../../core/user-core";
 
-// mounted on /api/v1/games
+/**
+ * @namespace /v1/games
+ */
 
-let gamesResponseCache = null;
+interface GameStats {
+    game: Game;
+    playtypes: Playtypes[Game][];
+    gameHuman: string;
+    scoreCount: integer;
+    songCount: integer;
+    chartCount: integer;
+}
+interface GamesResponseCache {
+    timestamp: integer;
+    data: {
+        gameStats: Partial<Record<Game, GameStats>>;
+        totalScoreCount: integer;
+        totalSongCount: integer;
+        totalChartCount: integer;
+    };
+}
+
+let gamesResponseCache: null | GamesResponseCache = null;
 const ONE_HOUR = 1000 * 60 * 60;
 
 router.get("/", async function (req, res) {
@@ -18,7 +37,7 @@ router.get("/", async function (req, res) {
         });
     }
 
-    let gamesObj = {};
+    let gamesObj: Partial<Record<Game, GameStats>> = {};
     let totalScoreCount = 0;
     let totalSongCount = 0;
     let totalChartCount = 0;
@@ -32,7 +51,7 @@ router.get("/", async function (req, res) {
         },
     ]);
 
-    let scoresGame = {};
+    let scoresGame: Record<string, integer> = {};
 
     for (const item of scoresByGame) {
         scoresGame[item._id] = item.count;
