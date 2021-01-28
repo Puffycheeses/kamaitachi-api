@@ -1,10 +1,15 @@
-import db from "./db.js";
-import Sanitise = require("mongo-sanitize"); // sanitise
-import userHelpers = require("./core/user-core.js");
-import apiConfig = require("./apiconfig.js");
-import config = require("./config/config.js");
+import db from "./db";
+import Sanitise from "mongo-sanitize"; // sanitise
+import userCore from "./core/user-core";
+import apiConfig from "./apiconfig";
+import config from "./config/config";
+import { NextFunction, Request, Response } from "express";
 
-async function AllowGuestAccess(req, res, next) {
+async function AllowGuestAccess(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): MiddlewareResponse {
     let key = await GetAPIKey(req);
 
     if (!key || key.expireTime < Date.now()) {
@@ -38,7 +43,7 @@ async function AllowGuestAccess(req, res, next) {
     next();
 }
 
-async function GetAPIKey(req) {
+async function GetAPIKey(req: Request): Promise<PublicAPIKeyDocument | null> {
     let givenKey = req.cookies.apikey;
 
     if (!givenKey) {
@@ -53,7 +58,7 @@ async function GetAPIKey(req) {
     return key;
 }
 
-async function RequireAPIKey(req, res, next) {
+async function RequireAPIKey(req: Request, res: Response, next: NextFunction): MiddlewareResponse {
     let key = req.apikey;
 
     if (!key || key.expireTime < Date.now()) {
@@ -85,8 +90,13 @@ async function RequireAPIKey(req, res, next) {
     next();
 }
 
-async function RequireExistingUser(req, res, next) {
-    let user = await userHelpers.GetUser(req.params.userID);
+async function RequireExistingUser(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): MiddlewareResponse {
+    let user = await userCore.GetUser(req.params.userID);
+
     if (!user) {
         return res.status(404).json({
             success: false,
@@ -99,8 +109,14 @@ async function RequireExistingUser(req, res, next) {
     next();
 }
 
-async function RequireExistingSongID(req, res, next) {
-    let song = await db.get(`songs-${req.params.game}`).findOne({ id: parseInt(req.params.songID) });
+async function RequireExistingSongID(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): MiddlewareResponse {
+    let song = await db
+        .get(`songs-${req.params.game}`)
+        .findOne({ id: parseInt(req.params.songID) });
     if (!song) {
         return res.status(404).json({
             success: false,
@@ -111,45 +127,47 @@ async function RequireExistingSongID(req, res, next) {
     next();
 }
 
-async function RequireUserKeyMatch(req, res, next) {
-    let user = req.user || (await userHelpers.GetUser(req.params.userID));
-    let key = req.apikey;
-
-    if (!key) {
+async function RequireUserKeyMatch(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): MiddlewareResponse {
+    if (!req.user || !req.requestedUser) {
         return res.status(401).json({
             success: false,
-            description: "Unauthorised.",
+            description: "Cannot edit information for users that are not you.",
         });
     }
 
-    if (user.id !== key.assignedTo) {
+    if (req.user.id !== req.requestedUser.id) {
         return res.status(401).json({
             success: false,
-            description: `This key is not authorised to modify user '${user.id}'`,
+            description: "Cannot edit information for users that are not you.",
         });
     }
-
-    if (!req.user) {
-        req.user = user;
-    }
-
     next();
 }
 
-async function LogRequest(req, res, next) {
-    let requestObj = {};
+async function LogRequest(req: Request, res: Response, next: NextFunction): MiddlewareResponse {
     let key = await db.get("public-api-keys").findOne({ apiKey: req.query.key });
 
-    requestObj.key = key;
-    requestObj.location = req.originalURI;
-    requestObj.timestamp = Date.now();
-    requestObj.ip = req.ip;
+    let requestObj: PublicAPIRequestDocument = {
+        key,
+        location: req.originalUrl,
+        timestamp: Date.now(),
+        ip: req.ip,
+    };
 
     await db.get("public-api-requests").insert(requestObj);
-    next();
+
+    return next();
 }
 
-async function MaintenanceMode(req, res, next) {
+async function MaintenanceMode(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): MiddlewareResponse {
     try {
         let key = await db.get("public-api-keys").findOne({ apiKey: req.query.key });
         if (!key.permissions.admin) {
@@ -171,17 +189,17 @@ async function MaintenanceMode(req, res, next) {
     next();
 }
 
-const DISCARD_NONSENSE_INPUT = {};
 // try and not get injected
-async function SanitiseInput(req, res, next) {
+async function SanitiseInput(req: Request, res: Response, next: NextFunction): MiddlewareResponse {
     Sanitise(req.query);
     for (const key in req.query) {
         if (typeof req.query[key] === "object" && req.query.hasOwnProperty(key)) {
             return res.status(400).json({
                 success: false,
-                description: "Passed data was determined to be malicious. Nesting objects is not allowed.",
+                description:
+                    "Passed data was determined to be malicious. Nesting objects is not allowed.",
             });
-        } else if (DISCARD_NONSENSE_INPUT[req.query[key]]) {
+        } else if (key in Object.prototype) {
             return res.status(400).json({
                 success: false,
                 description: "Passed data was determined to be malicious.",
@@ -191,32 +209,38 @@ async function SanitiseInput(req, res, next) {
 
     Sanitise(req.body);
 
+    // temp "is-admin" check
     if (!(req.apikey && req.apikey.assignedTo === 1 && req.body.punchthrough)) {
         for (const key in req.body) {
             if (typeof req.body[key] === "object" && req.body.hasOwnProperty(key)) {
                 return res.status(400).json({
                     success: false,
-                    description: "Passed data was determined to be malicious. Nesting objects is not allowed.",
+                    description:
+                        "Passed data was determined to be malicious. Nesting objects is not allowed.",
                 });
-            } else if (DISCARD_NONSENSE_INPUT[req.body[key]]) {
+            } else if (key in Object.prototype) {
                 return res.status(400).json({
                     success: false,
                     description: "Passed data was determined to be malicious.",
                 });
             }
-            req.body[key] = `${req.body[key]}`; // potentially safety critical, apologies.
+            req.body[key] = req.body[key].toString(); // potentially safety critical, apologies.
         }
     }
 
     next();
 }
 
-async function DecodeURIComponents(req, res, next) {
+async function DecodeURIComponents(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): MiddlewareResponse {
     // for every key in the query decode it.
     if (req.query && typeof req.query === "object") {
         for (const key in req.query) {
             if (req.query.hasOwnProperty(key)) {
-                req.query[key] = decodeURIComponent(req.query[key]);
+                req.query[key] = decodeURIComponent(req.query[key] as string);
             }
         }
     }
@@ -224,7 +248,11 @@ async function DecodeURIComponents(req, res, next) {
     next();
 }
 
-async function RequireValidFolderType(req, res, next) {
+async function RequireValidFolderType(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): MiddlewareResponse {
     if (!apiConfig.VALID_FOLDER_TYPES.includes(req.params.folderType)) {
         return res.status(400).json({
             success: false,
@@ -235,125 +263,12 @@ async function RequireValidFolderType(req, res, next) {
     next();
 }
 
-async function RequireExistingFolderName(req, res, next) {
-    if (!config.folders[req.params.game][req.params.folderType].includes(req.params.folderName)) {
-        return res.status(400).json({
-            success: false,
-            description: "This folderName does not exist in this folderType.",
-        });
-    }
-
-    next();
-}
-
-async function RequireExistingClan(req, res, next) {
-    let clan = await db.get("clans").findOne({ clanID: req.params.clanID });
-    if (!clan) {
-        return res.status(404).json({
-            success: false,
-            description: "This clan does not exist.",
-        });
-    }
-    next();
-}
-
-async function RequireInClan(req, res, next) {
-    let clan = await db.get("clans").findOne({ clanID: req.params.clanID });
-    if (!clan) {
-        return res.status(500).json({
-            success: false,
-            description: "This clan has been deleted while processing your request.",
-        });
-    }
-
-    let key = await db.get("public-api-keys").findOne({ apiKey: req.query.key });
-
-    let memberList = clan.members.map((e) => e.userID);
-
-    if (!memberList.includes(key.assignedTo)) {
-        return res.status(401).json({
-            success: false,
-            description: "You are not a member of this clan",
-        });
-    }
-
-    next();
-}
-
-async function RequireClanAdmin(req, res, next) {
-    let clan = await db.get("clans").findOne({ clanID: req.params.clanID });
-    if (!clan) {
-        return res.status(500).json({
-            success: false,
-            description: "This clan has been deleted while processing your request.",
-        });
-    }
-
-    let key = await db.get("public-api-keys").findOne({ apiKey: req.query.key });
-
-    let isClanAdmin = key.assignedTo === clan.founderID;
-
-    if (!isClanAdmin) {
-        for (const member of clan.members) {
-            if (key.assignedTo === member.userID && "admin" === member.status) {
-                isClanAdmin = true;
-                break;
-            }
-        }
-    }
-
-    if (!isClanAdmin) {
-        return res.status(401).json({
-            success: false,
-            description: "You are not an administrator or founder of this clan.",
-        });
-    }
-
-    next();
-}
-
-async function RequireClanFounder(req, res, next) {
-    let clan = await db.get("clans").findOne({ clanID: req.params.clanID });
-    if (!clan) {
-        return res.status(500).json({
-            success: false,
-            description: "This clan has been deleted while processing your request.",
-        });
-    }
-
-    let key = await db.get("public-api-keys").findOne({ apiKey: req.query.key });
-    if (key.assignedTo !== clan.founderID) {
-        return res.status(401).json({
-            success: false,
-            description: "You are not the clan founder.",
-        });
-    }
-
-    next();
-}
-
-async function InvitedToClan(req, res, next) {
-    let clan = await db.get("clans").findOne({ clanID: req.params.clanID });
-    if (!clan) {
-        return res.status(500).json({
-            success: false,
-            description: "This clan has been deleted while processing your request.",
-        });
-    }
-
-    let key = await db.get("public-api-keys").findOne({ apiKey: req.query.key });
-    if (!clan.outgoingInvites.includes(key.assignedTo)) {
-        return res.status(401).json({
-            success: false,
-            description: "You are not invited to this clan.",
-        });
-    }
-
-    next();
-}
-
-async function RequireValidGame(req, res, next) {
-    if (!config.supportedGames.includes(req.params.game)) {
+async function RequireValidGame(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): MiddlewareResponse {
+    if (!config.supportedGames.includes(req.params.game as Game)) {
         return res.status(400).json({
             success: false,
             description: "This game is not supported.",
@@ -364,8 +279,8 @@ async function RequireValidGame(req, res, next) {
 
 // TEMP, DO NOT TOUCH
 // im the only person who ever tests this stuff anyway
-async function RequireAdmin(req, res, next) {
-    if (req.apikey.assignedTo !== 1) {
+async function RequireAdmin(req: Request, res: Response, next: NextFunction): MiddlewareResponse {
+    if (req.apikey?.assignedTo !== 1) {
         return res.status(403).json({
             success: false,
             description: "Forbidden.",
@@ -375,7 +290,7 @@ async function RequireAdmin(req, res, next) {
     next();
 }
 
-export {
+export default {
     SanitiseInput,
     MaintenanceMode,
     DecodeURIComponents,
@@ -384,13 +299,7 @@ export {
     RequireExistingUser,
     RequireUserKeyMatch,
     RequireValidFolderType,
-    RequireExistingFolderName,
     RequireExistingSongID,
-    RequireExistingClan,
-    RequireClanAdmin,
-    RequireInClan,
-    RequireClanFounder,
-    InvitedToClan,
     RequireValidGame,
     RequireAdmin,
     AllowGuestAccess,
