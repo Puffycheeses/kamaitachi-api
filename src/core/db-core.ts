@@ -1,14 +1,34 @@
-import db from "../db.js";
-import apiConfig from "../apiconfig.js";
-import * as regexSanitise from "escape-string-regexp";
+import db from "../db";
+import apiConfig from "../apiconfig";
+import regexSanitise from "escape-string-regexp";
+import { FindOptions } from "monk";
+import { FilterQuery } from "mongodb";
 
 const rgxIsInt = /^[0-9]+$/;
 const DEFAULT_LIMIT = 100;
 
-// does fancy pagination and all that jazz
-// it is assumed that everything entering through query is a string.
-async function FancyDBQuery(databaseName, query, paginate, limit, configOverride, useCount, queryObj) {
-    queryObj = queryObj || {};
+/**
+ * Performs a "FancyQuery", which provides a couple of utilities for allowing querystrings to make decently
+ * complex queries upon ktchi's database.
+ * @param databaseName The Database/collection we are querying.
+ * @param query The req.query parsed from the querystring of the user. Note that we explicitly reduce the complexity
+ * here, by forcing all req.queries to be of string->string mapping.
+ * @param paginate Whether to paginate the query or not.
+ * @param limit Whether to limit the amount of results for the query or not.
+ * @param configOverride Override the configuration for cases where the databaseName may not match up with apiConfig (charts-game -> charts)
+ * @param useCount Use .count() instead of .find().
+ * @param passedBaseQueryObj A baseQueryObject with predefined properties. For providing defaults where needed.
+ */
+async function FancyDBQuery<T>(
+    databaseName: ValidDatabases,
+    query: Record<string, string>,
+    paginate?: boolean,
+    limit?: integer,
+    configOverride?: ValidDatabases,
+    useCount?: boolean,
+    passedBaseQueryObj?: FilterQuery<unknown>
+): Promise<FancyQueryPseudoResponse<T> | FancyQueryCountPseudoResponse> {
+    let baseQueryObj = passedBaseQueryObj || {};
 
     let validKeys;
     let validSorts;
@@ -23,10 +43,11 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
         defaultSort = apiConfig.defaultSorts[databaseName];
     }
 
-    // modifies queryObj byref to have all the stuff we care about
-    FancyQueryValidate(query, queryObj, validKeys);
+    // modifies baseQueryObj byref to have all the stuff we care about
+    // this is disgustingly unclear, btw
+    FancyQueryValidate(query, baseQueryObj, validKeys);
 
-    let settings = {
+    let settings: FindOptions<unknown> = {
         projection: { _id: 0 },
         sort: { [defaultSort]: query.sort === "asc" ? 1 : -1 },
     };
@@ -43,8 +64,8 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
         }
 
         // a hack indeed, as NaN/null sinks to the top of every asc/desc sort request.
-        if (!queryObj[query.sortCriteria]) {
-            queryObj[query.sortCriteria] = { $nin: [NaN, null] };
+        if (!baseQueryObj[query.sortCriteria]) {
+            baseQueryObj[query.sortCriteria] = { $nin: [NaN, null] };
         }
 
         settings.sort = { [query.sortCriteria]: query.sort === "asc" ? 1 : -1 };
@@ -89,28 +110,56 @@ async function FancyDBQuery(databaseName, query, paginate, limit, configOverride
         }
     }
 
-    let method = useCount ? "count" : "find";
+    if (useCount) {
+        let items = await db.get(databaseName).count(baseQueryObj);
 
-    let items = await db.get(databaseName)[method](queryObj, settings);
-    let itemsBody = { items };
+        let itemsBody: FancyQueryCountBody = { items };
 
-    if (paginate && items.length === settings.limit && items.length !== 0) {
-        itemsBody.nextStartPoint = settings.skip + settings.limit;
+        return {
+            statusCode: 200,
+            body: {
+                success: true,
+                description: `Successfully found ${items} items.`,
+                body: itemsBody,
+            },
+        };
+    } else {
+        let items = await db.get(databaseName).find(baseQueryObj, settings);
+
+        let itemsBody: FancyQueryBody<T> = { items };
+
+        if (
+            paginate &&
+            Array.isArray(items) &&
+            items.length === settings.limit &&
+            items.length !== 0
+        ) {
+            // the below || 0 check is only to keep typescript happy, its pretty certain that this is set to 0 if paginate is true.
+            itemsBody.nextStartPoint = (settings.skip || 0) + settings.limit;
+        }
+
+        return {
+            statusCode: 200,
+            body: {
+                success: true,
+                description: `Successfully found ${items.length} items.`,
+                body: itemsBody,
+            },
+        };
     }
-
-    return {
-        statusCode: 200,
-        body: {
-            success: true,
-            description: `Successfully found ${useCount ? items : items.length} items.`,
-            body: itemsBody,
-        },
-    };
 }
 
-// true on success
-// throws hard if err.
-function FancyQueryValidate(query, queryObj, validKeys) {
+/**
+ * Mutates the passed queryObj and handles fancyquery parsing.
+ * @param query The user's req.query.
+ * @param queryObj The queryObject to mutate and eventually be sent to monk.
+ * @param validKeys Key information from APIConfig about the collection we are working with.
+ */
+function FancyQueryValidate(
+    query: Record<string, string>,
+    queryObj: FilterQuery<unknown>,
+    validKeys: Record<string, FQType>
+): boolean {
     for (const key in validKeys) {
         if (key in queryObj) {
             continue; // ignore pre-mutated/monkeypatched data
@@ -127,7 +176,8 @@ function FancyQueryValidate(query, queryObj, validKeys) {
                             statusCode: 400,
                             body: {
                                 success: false,
-                                description: "\"between\" requests require a ~ separating two numerical values.",
+                                description:
+                                    '"between" requests require a ~ separating two numerical values.',
                             },
                         };
                     }
@@ -157,7 +207,10 @@ function FancyQueryValidate(query, queryObj, validKeys) {
                         };
                     }
 
-                    queryObj[key] = ParseNumericalModifiers([v1, v2], query[`${key}-opt`]);
+                    queryObj[key] = ParseNumericalModifiers(
+                        [parseInt(v1), parseInt(v2)],
+                        query[`${key}-opt`]
+                    );
                 } else {
                     if (!query[key].match(rgxIsInt)) {
                         throw {
@@ -169,7 +222,10 @@ function FancyQueryValidate(query, queryObj, validKeys) {
                         };
                     }
 
-                    queryObj[key] = ParseNumericalModifiers(parseInt(query[key]), query[`${key}-opt`]);
+                    queryObj[key] = ParseNumericalModifiers(
+                        parseInt(query[key]),
+                        query[`${key}-opt`]
+                    );
                 }
             } else if (validKeys[key] === "float") {
                 // workaround for betweens
@@ -179,7 +235,8 @@ function FancyQueryValidate(query, queryObj, validKeys) {
                             statusCode: 400,
                             body: {
                                 success: false,
-                                description: "\"between\" requests require a ~ separating two numerical values.",
+                                description:
+                                    '"between" requests require a ~ separating two numerical values.',
                             },
                         };
                     }
@@ -209,7 +266,7 @@ function FancyQueryValidate(query, queryObj, validKeys) {
                         };
                     }
 
-                    queryObj[key] = ParseNumericalModifiers([v1, v2], query[`${key}-opt`]);
+                    queryObj[key] = ParseNumericalModifiers([v1, v2], "between");
                 } else {
                     let numVal = parseFloat(query[key]);
                     if (Number.isNaN(numVal)) {
@@ -242,7 +299,15 @@ function FancyQueryValidate(query, queryObj, validKeys) {
     return true;
 }
 
-function ParseStringModifiers(value, option) {
+/**
+ * Parses string-related modifiers for certain query options
+ * @param value The string to modify.
+ * @param option The option to mutate the string with.
+ * Valid options are "like" and caseInsensitive.
+ * like will create an unbounded, insensitive regex (a-la SQL).
+ * caseInsensitive will create an insensitive regex.
+ */
+function ParseStringModifiers(value: string, option: string) {
     if (!option) {
         return value;
     } else if (option === "like") {
@@ -260,9 +325,27 @@ function ParseStringModifiers(value, option) {
     }
 }
 
-function ParseNumericalModifiers(value, option) {
+/**
+ * Parses numerical modifiers for fancy query.
+ * @param value The number to modify.
+ * @param option The option to mutate by. Valid options are gt, gte, lt, lte and between.
+ * between expects that value is an array of two values exclusively.
+ */
+function ParseNumericalModifiers(value: number | number[], option: string) {
     if (!option) {
         return value;
+    } else if (option === "between" && Array.isArray(value)) {
+        return { $gte: value[0], $lte: value[1] };
+    } else if (Array.isArray(value)) {
+        // lazy catch to avoid assigning arrays to anything that shouldn't have them
+        // this shouldn't happen, but just incase
+        throw {
+            statusCode: 400,
+            body: {
+                success: false,
+                description: `Invalid value ${value} for ${option}`,
+            },
+        };
     } else if (option === "gt") {
         return { $gt: value };
     } else if (option === "gte") {
@@ -271,8 +354,6 @@ function ParseNumericalModifiers(value, option) {
         return { $lt: value };
     } else if (option === "lte") {
         return { $lte: value };
-    } else if (option === "between") {
-        return { $gte: parseInt(value[0]), $lte: parseInt(value[1]) };
     } else {
         throw {
             statusCode: 400,
@@ -284,7 +365,4 @@ function ParseNumericalModifiers(value, option) {
     }
 }
 
-module.exports = {
-    FancyDBQuery,
-    FancyQueryValidate,
-};
+export default { FancyDBQuery, FancyQueryValidate };
