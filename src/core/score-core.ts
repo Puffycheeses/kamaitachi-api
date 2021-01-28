@@ -1,7 +1,7 @@
-const db = require("../db.js");
-const apiConfig = require("../apiconfig.js");
+import db from "../db";
+import userCore from "./user-core";
 
-async function AutoCoerce(scores) {
+async function AutoCoerce(scores: Array<ScoreDocument>): Promise<Array<ScoreDocument>> {
     let notPBsArr = [];
 
     for (const s of scores) {
@@ -21,24 +21,14 @@ async function AutoCoerce(scores) {
         $or: notPBsArr,
     });
 
-    let lampPBs = {};
+    let lampPBs = new Map();
     for (const score of lampPBsArr) {
-        lampPBs[`${score.userID}-${score.chartID}`] = score;
+        lampPBs.set(`${score.userID}-${score.chartID}`, score);
     }
 
     for (const score of scores) {
         if (!score.isLampPB) {
-            /* unused slow code, dw about it - zkldi
-            let lampPB = await db.get("scores").findOne({
-                userID: score.userID,
-                game: score.game,
-                "scoreData.playtype": score.scoreData.playtype,
-                "scoreData.difficulty": score.scoreData.difficulty,
-                isLampPB: true,
-            });
-            */
-
-            let lampPB = lampPBs[`${score.userID}-${score.chartID}`];
+            let lampPB = lampPBs.get(`${score.userID}-${score.chartID}`);
 
             if (lampPB) {
                 score.scoreData.lamp = lampPB.scoreData.lamp;
@@ -55,31 +45,55 @@ async function AutoCoerce(scores) {
     return scores;
 }
 
-async function GetAssocData(scoreBody) {
-    let chartQuery = {};
-    let songQuery = {};
+/**
+ * Score Associated Data: including the relevant chart and song.
+ */
+interface ScoreAssocData {
+    items: ScoreDocument[];
+    charts: Partial<Record<Game, ChartDocument[]>>;
+    songs: Partial<Record<Game, SongDocument[]>>;
+    users?: PublicUserDocument[];
+}
+
+/**
+ * Takes the body of a score-fancyquery and returns
+ * appended charts, song and user data.
+ * @param scoreBody
+ */
+async function GetAssocData(fqr: FancyQueryBody<ScoreDocument>): Promise<ScoreAssocData> {
+    let chartQuery: Partial<Record<Game, string[]>> = {};
+    let songQuery: Partial<Record<Game, number[]>> = {};
+
+    let scoreBody: ScoreAssocData = {
+        items: fqr.items,
+        charts: {},
+        songs: {},
+        users: [],
+    };
 
     for (const e of scoreBody.items) {
         if (!chartQuery[e.game]) {
             songQuery[e.game] = [];
             chartQuery[e.game] = [];
         }
-        chartQuery[e.game].push({
-            id: e.songID,
-            difficulty: e.scoreData.difficulty,
-            playtype: e.scoreData.playtype,
-        });
 
-        songQuery[e.game].push(e.songID);
+        // The following two things *are* always defined, typescript just doesn't seem
+        // to appreciate it.
+        // the ?. is to shut it up.
+        chartQuery[e.game]?.push(e.chartID);
+        songQuery[e.game]?.push(e.songID);
     }
 
-    let chartRet = {};
-    let songsRet = {};
+    let chartRet: Partial<Record<Game, ChartDocument[]>> = {};
+    let songsRet: Partial<Record<Game, SongDocument[]>> = {};
 
-    for (const key in songQuery) {
+    for (const k in songQuery) {
+        // ts is drunk and needs this assertion made for it.
+        let key: Game = k as Game;
+
         let charts = await db.get(`charts-${key}`).find(
             {
-                $or: chartQuery[key],
+                $in: chartQuery[key],
             },
             {
                 projection: { _id: 0 },
@@ -98,14 +112,7 @@ async function GetAssocData(scoreBody) {
         chartRet[key] = charts;
     }
 
-    let users = await db.get("users").find(
-        {
-            id: { $in: scoreBody.items.map((e) => e.userID) },
-        },
-        {
-            projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
-        }
-    );
+    let users = await userCore.GetUsers(scoreBody.items.map((e) => e.userID));
 
     scoreBody.charts = chartRet;
     scoreBody.songs = songsRet;
@@ -114,7 +121,4 @@ async function GetAssocData(scoreBody) {
     return scoreBody;
 }
 
-module.exports = {
-    GetAssocData,
-    AutoCoerce,
-};
+export default { GetAssocData, AutoCoerce };
