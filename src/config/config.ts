@@ -8,9 +8,21 @@
 // IF YOU PUT SECRETS IN HERE THEY WILL BE PUBLIC
 // I SWEAR TO GOD. DO NOT DO THAT. - ZKLDI
 
-const supportedGames = ["iidx", "museca", "maimai", "jubeat", "popn", "sdvx", "ddr", "bms", "chunithm", "gitadora", "usc"];
+const supportedGames: Game[] = [
+    "iidx",
+    "museca",
+    "maimai",
+    "jubeat",
+    "popn",
+    "sdvx",
+    "ddr",
+    "bms",
+    "chunithm",
+    "gitadora",
+    "usc",
+];
 
-const serviceSupportedGames = {
+const serviceSupportedGames: Record<string, Game[]> = {
     PLI: ["iidx"],
     ARC: ["iidx", "jubeat", "sdvx", "ddr"], // PERFECT!
     FLO: ["iidx"],
@@ -28,13 +40,13 @@ const serviceSupportedGames = {
 
 // internal services are services that aren't exposed to the public
 // but still leverage ImportMain.
-const internalServiceGames = {
+const internalServiceGames: Record<string, Game[]> = {
     "ktchi-beatoraja-IR": ["bms"],
     FER: ["iidx"],
     "ktchi-usc-IR": ["usc"],
 };
 
-const gameSpecificCalc = {
+const gameSpecificCalc: Partial<Record<Game, Partial<Record<Playtypes[Game], string[]>>>> = {
     iidx: {
         SP: ["BPI", "K%"],
         DP: ["BPI"],
@@ -54,11 +66,13 @@ const gameSpecificCalc = {
 const gameSpecificCalcDescriptions = {
     iidx: {
         SP: {
-            BPI: "Beat Power Index: How good a score is relative to Kaiden Average (BPI 0) and the World Record (BPI 100).",
+            BPI:
+                "Beat Power Index: How good a score is relative to Kaiden Average (BPI 0) and the World Record (BPI 100).",
             "K%": "Kaiden Percentile: How many Kaidens you're ahead of on a given chart.",
         },
         DP: {
-            BPI: "Beat Power Index: How good a score is relative to Kaiden Average (BPI 0) and the World Record (BPI 100).",
+            BPI:
+                "Beat Power Index: How good a score is relative to Kaiden Average (BPI 0) and the World Record (BPI 100).",
         },
     },
     sdvx: {
@@ -93,7 +107,16 @@ const validDifficulties = {
     ddr: ["BEGINNER", "BASIC", "DIFFICULT", "EXPERT", "CHALLENGE"],
     bms: ["BEGINNER", "NORMAL", "HYPER", "ANOTHER", "INSANE", "CUSTOM"],
     chunithm: ["BASIC", "ADVANCED", "EXPERT", "MASTER", "WORLD'S END"],
-    gitadora: ["BASIC", "ADVANCED", "EXTREME", "MASTER", "BASS BASIC", "BASS ADVANCED", "BASS EXTREME", "BASS MASTER"],
+    gitadora: [
+        "BASIC",
+        "ADVANCED",
+        "EXTREME",
+        "MASTER",
+        "BASS BASIC",
+        "BASS ADVANCED",
+        "BASS EXTREME",
+        "BASS MASTER",
+    ],
     usc: ["NOV", "ADV", "EXH", "INF"],
 };
 
@@ -256,7 +279,15 @@ const validHitMeta = {
 const validScoreMeta = {
     iidx: {
         optionsRandom: ["NONRAN", "RANDOM", "R-RANDOM", "S-RANDOM", "MIRROR"],
-        optionsAssist: ["AUTO SCRATCH", "5KEYS", "LEGACY NOTE", "ASCR + 5KEY", "ASCR + LEGACY", "5KEYS + LEGACY", "FULL ASSIST"],
+        optionsAssist: [
+            "AUTO SCRATCH",
+            "5KEYS",
+            "LEGACY NOTE",
+            "ASCR + 5KEY",
+            "ASCR + LEGACY",
+            "5KEYS + LEGACY",
+            "FULL ASSIST",
+        ],
         optionsRange: ["SUDDEN+", "HIDDEN+", "SUD+ HID+", "LIFT", "LIFT SUD+"],
         optionsGauge: ["ASSISTED EASY", "EASY", "HARD", "EX-HARD"],
         pacemaker: [
@@ -544,7 +575,18 @@ const gameOrders = {
         "milkplus",
         "finale",
     ],
-    jubeat: ["jubeat", "ripples", "knit", "copious", "saucer", "saucerfulfill", "prop", "qubell", "clan", "festo"],
+    jubeat: [
+        "jubeat",
+        "ripples",
+        "knit",
+        "copious",
+        "saucer",
+        "saucerfulfill",
+        "prop",
+        "qubell",
+        "clan",
+        "festo",
+    ],
     popn: [
         "1",
         "2",
@@ -573,9 +615,38 @@ const gameOrders = {
         "peace",
     ],
     sdvx: ["booth", "inf", "gw", "heaven", "vivid"],
-    ddr: ["1", "2", "3", "4", "5", "max", "max2", "extreme", "snova", "snova2", "x", "x2", "x3", "2013", "2014", "a", "a20"],
+    ddr: [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "max",
+        "max2",
+        "extreme",
+        "snova",
+        "snova2",
+        "x",
+        "x2",
+        "x3",
+        "2013",
+        "2014",
+        "a",
+        "a20",
+    ],
     bms: ["0"],
-    chunithm: ["chuni", "chuniplus", "air", "airplus", "star", "starplus", "amazon", "amazonplus", "crystal", "crystalplus"],
+    chunithm: [
+        "chuni",
+        "chuniplus",
+        "air",
+        "airplus",
+        "star",
+        "starplus",
+        "amazon",
+        "amazonplus",
+        "crystal",
+        "crystalplus",
+    ],
     gitadora: [
         "gf1",
         "gf2dm1",
@@ -651,7 +722,7 @@ const defaultDifficulty = {
 // }
 
 // inclusive on both ends.
-function __StringRange(min, max) {
+function __StringRange(min: number, max: number) {
     let arr = [];
     for (let i = min; i <= max; i++) {
         arr.push(`${i}`);
@@ -703,7 +774,29 @@ const levels = {
         "10.8",
         "10.9",
     ],
-    maimai: ["1", "2", "3", "4", "5", "6", "7", "7+", "8", "8+", "9", "9+", "10", "10+", "11", "11+", "12", "12+", "13", "13+", "14"],
+    maimai: [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "7+",
+        "8",
+        "8+",
+        "9",
+        "9+",
+        "10",
+        "10+",
+        "11",
+        "11+",
+        "12",
+        "12+",
+        "13",
+        "13+",
+        "14",
+    ],
     bms: [], // doesnt have actual levels lmao
     chunithm: [
         "1",
@@ -747,7 +840,29 @@ const folders = {
     },
     maimai: {
         type: "static",
-        levels: ["1", "2", "3", "4", "5", "6", "7", "7+", "8", "8+", "9", "9+", "10", "10+", "11", "11+", "12", "12+", "13", "13+", "14"],
+        levels: [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "7+",
+            "8",
+            "8+",
+            "9",
+            "9+",
+            "10",
+            "10+",
+            "11",
+            "11+",
+            "12",
+            "12+",
+            "13",
+            "13+",
+            "14",
+        ],
         versions: gameOrders.maimai,
     },
     jubeat: {
@@ -842,12 +957,53 @@ const folders = {
     },
     ddr: {
         type: "static",
-        levels: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"],
+        levels: [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+        ],
         versions: gameOrders.ddr,
     },
     sdvx: {
         type: "static",
-        levels: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"],
+        levels: [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+        ],
         versions: gameOrders.sdvx,
     },
     bms: {
@@ -934,7 +1090,24 @@ const grades = {
     jubeat: ["E", "D", "C", "B", "A", "S", "SS", "SSS", "EXC"],
     popn: ["E", "D", "C", "B", "A", "AA", "AAA", "S"],
     sdvx: ["D", "C", "B", "A", "A+", "AA", "AA+", "AAA", "AAA+", "S"],
-    ddr: ["D", "D+", "C-", "C", "C+", "B-", "B", "B+", "A-", "A", "A+", "AA-", "AA", "AA+", "AAA", "MAX"],
+    ddr: [
+        "D",
+        "D+",
+        "C-",
+        "C",
+        "C+",
+        "B-",
+        "B",
+        "B+",
+        "A-",
+        "A",
+        "A+",
+        "AA-",
+        "AA",
+        "AA+",
+        "AAA",
+        "MAX",
+    ],
     chunithm: ["D", "C", "B", "BB", "BBB", "A", "AA", "AAA", "S", "SS", "SSS"],
     gitadora: ["C", "B", "A", "S", "SS", "MAX"],
     usc: ["D", "C", "B", "A", "A+", "AA", "AA+", "AAA", "AAA+", "S"],
@@ -987,14 +1160,40 @@ const expChartScale = {
 
 // valid lamps for a game, and also in order.
 const lamps = {
-    iidx: ["NO PLAY", "FAILED", "ASSIST CLEAR", "EASY CLEAR", "CLEAR", "HARD CLEAR", "EX HARD CLEAR", "FULL COMBO"],
-    bms: ["NO PLAY", "FAILED", "ASSIST CLEAR", "EASY CLEAR", "CLEAR", "HARD CLEAR", "EX HARD CLEAR", "FULL COMBO"],
+    iidx: [
+        "NO PLAY",
+        "FAILED",
+        "ASSIST CLEAR",
+        "EASY CLEAR",
+        "CLEAR",
+        "HARD CLEAR",
+        "EX HARD CLEAR",
+        "FULL COMBO",
+    ],
+    bms: [
+        "NO PLAY",
+        "FAILED",
+        "ASSIST CLEAR",
+        "EASY CLEAR",
+        "CLEAR",
+        "HARD CLEAR",
+        "EX HARD CLEAR",
+        "FULL COMBO",
+    ],
     museca: ["FAILED", "CLEAR", "CONNECT ALL", "PERFECT CONNECT ALL"],
     maimai: ["FAILED", "CLEAR", "FULL COMBO", "ALL PERFECT", "ALL PERFECT+"],
     jubeat: ["FAILED", "CLEAR", "FULL COMBO", "EXCELLENT"],
     popn: ["FAILED", "CLEAR", "FULL COMBO", "PERFECT"],
     sdvx: ["FAILED", "CLEAR", "EXCESSIVE CLEAR", "ULTIMATE CHAIN", "PERFECT ULTIMATE CHAIN"],
-    ddr: ["FAILED", "CLEAR", "LIFE4", "FULL COMBO", "GREAT FULL COMBO", "PERFECT FULL COMBO", "MARVELOUS FULL COMBO"],
+    ddr: [
+        "FAILED",
+        "CLEAR",
+        "LIFE4",
+        "FULL COMBO",
+        "GREAT FULL COMBO",
+        "PERFECT FULL COMBO",
+        "MARVELOUS FULL COMBO",
+    ],
     chunithm: ["FAILED", "CLEAR", "FULL COMBO", "ALL JUSTICE", "ALL JUSTICE CRITICAL"],
     gitadora: ["FAILED", "CLEAR", "FULL COMBO", "EXCELLENT"],
     usc: ["FAILED", "CLEAR", "EXCESSIVE CLEAR", "ULTIMATE CHAIN", "PERFECT ULTIMATE CHAIN"],
@@ -1137,7 +1336,12 @@ const judgementWindows = {
     },
 };
 
-const _rootChartTags = ["INDIVIDUAL DIFFERENCE", "DIFFICULT INTRO", "DIFFICULT MIDDLE", "DIFFICULT END"];
+const _rootChartTags = [
+    "INDIVIDUAL DIFFERENCE",
+    "DIFFICULT INTRO",
+    "DIFFICULT MIDDLE",
+    "DIFFICULT END",
+];
 
 const adviceChartTags = {
     iidx: [..._rootChartTags, "GENOCLEAR", "RANDOM DEPENDENT"],
@@ -1233,7 +1437,14 @@ const COLOUR_SET = {
     vibrantGreen: "rgba(26, 232, 26, 1)",
 };
 
-const gradeColours = {
+interface ColourStuff {
+    [index: string]: {
+        outline: Record<string, string>;
+        fill?: Record<string, string>;
+    };
+}
+
+const gradeColours: ColourStuff = {
     museca: {
         outline: {
             没: COLOUR_SET.gray,
@@ -1393,7 +1604,7 @@ const gradeColours = {
     },
 };
 
-const lampColours = {
+const lampColours: ColourStuff = {
     gitadora: {
         outline: {
             FAILED: COLOUR_SET.red,
@@ -1501,8 +1712,14 @@ const lampColours = {
 
 // ok
 
+// shoutouts to stack overflow
+// https://stackoverflow.com/questions/41993515/access-object-key-using-variable-in-typescript
+function typedKeys<T>(o: T): (keyof T)[] {
+    return Object.keys(o) as (keyof T)[];
+}
+
 for (const colourConfig of [lampColours, gradeColours]) {
-    for (const game in colourConfig) {
+    for (const game of typedKeys(colourConfig)) {
         if (colourConfig.hasOwnProperty(game)) {
             colourConfig[game].fill = {};
             for (const key in colourConfig[game].outline) {
@@ -1514,6 +1731,9 @@ for (const colourConfig of [lampColours, gradeColours]) {
                     let fadedEl = element.split(",");
                     fadedEl[fadedEl.length - 1] = "0.2)";
 
+                    // @ts-expect-error ts thinks .fill is undefined no matter
+                    // what you do.
+                    // go ahead bro, try and fix it.
                     colourConfig[game].fill[key] = fadedEl.join(",");
                 }
             }
@@ -1567,7 +1787,7 @@ const judgeColours = {
             MISS: "rgba(211, 38, 38, 1)",
             BOO: "rgba(165, 38, 211, 1)",
             GOOD: "rgba(38, 211, 78, 1)",
-            GREAT: ChangeAlpha(COLOUR_SET.green, 1),
+            GREAT: ChangeAlpha(COLOUR_SET.green, "1"),
             PERFECT: "rgba(158, 248, 255, 1)",
             MARVELOUS: "rgba(241, 245, 24, 1)",
         },
@@ -1703,19 +1923,19 @@ const LEVEL_INCREASE = 0.1; // exponentiation such that XP(level+1) = XP(level) 
 const MULTIPLIER = 1000; // multiplies all xp values by this so we get nice things like 125 instead of 1.25
 const LNELEVENTENTHS = Math.log(1 + LEVEL_INCREASE); // ln(1.1); that's ln(1+b).
 
-function GetLevel(xp) {
+function GetLevel(xp: number): number {
     // invXP curve: log1b((x/t)+1) where log1b is log to the base 1+b.
     // i did the maths, u can check it urself with algebra
     return Math.floor(Math.log(xp / MULTIPLIER + 1) / LNELEVENTENTHS);
 }
 
-function GetXPForLevel(level) {
+function GetXPForLevel(level: number): number {
     // xp curve: https://www.desmos.com/calculator/cpvz7g5sy7
     // (t(1+b)^x) - t
     return Math.ceil(MULTIPLIER * (1 + LEVEL_INCREASE) ** level - MULTIPLIER);
 }
 
-function GetGrade(game, percent) {
+function GetGrade(game: Game, percent: number): string | null {
     // THIS FOR LOOP IS ITERATING DOWNWARDS
     // JUST INCASE YOU DON'T ACTUALLY READ IT PROPERLY
     for (let i = grades[game].length; i >= 0; i--) {
@@ -1791,24 +2011,54 @@ const ratingParameters = {
     },
 };
 
-function ChangeAlpha(string, alpha) {
+function ChangeAlpha(string: string, alpha: string): string {
     let spl = string.split(",");
     spl[spl.length - 1] = `${alpha})`;
     return spl.join(",");
 }
 
-function DirectScoreGradeDelta(game, score, percent, chart, delta) {
-    let scoreObj = {
+function DirectScoreGradeDelta(
+    game: Game,
+    score: number,
+    percent: number,
+    chart: ChartDocument,
+    delta: number
+): SGDReturn | null {
+    let grade = GetGrade(game, percent);
+
+    if (!grade) {
+        throw new Error(`Invalid grade created from ${game}, ${percent}`);
+    }
+
+    let scoreObj: PartialScore = {
         scoreData: {
-            score: score,
-            grade: GetGrade(game, percent),
+            score,
+            grade,
         },
     };
 
     return ScoreGradeDelta(game, scoreObj, chart, delta);
 }
 
-function ScoreGradeDelta(game, score, chart, delta) {
+interface SGDReturn {
+    grade: string;
+    delta: number;
+    formattedString: string;
+}
+
+interface PartialScore {
+    scoreData: {
+        score: number;
+        grade: string;
+    };
+}
+
+function ScoreGradeDelta(
+    game: Game,
+    score: PartialScore,
+    chart: ChartDocument,
+    delta: number
+): SGDReturn | null {
     let nextGrade = grades[game][grades[game].indexOf(score.scoreData.grade) + delta];
 
     if (nextGrade) {
@@ -1839,7 +2089,12 @@ function ScoreGradeDelta(game, score, chart, delta) {
     }
 }
 
-function AbsoluteScoreGradeDelta(game, score, percent, absDelta) {
+function AbsoluteScoreGradeDelta(
+    game: Game,
+    score: number,
+    percent: number,
+    absDelta: number
+): SGDReturn | null {
     let grade = grades[game][absDelta];
     if (grade) {
         let chart = null;
@@ -1852,7 +2107,7 @@ function AbsoluteScoreGradeDelta(game, score, percent, absDelta) {
             };
         }
 
-        let sc = CalculateScore(game, gradeBoundaries[game][absDelta], chart);
+        let sc = CalculateScore(game, gradeBoundaries[game][absDelta], chart as ChartDocument);
         if (sc) {
             let delta = score - sc;
             let formattedString = `(${grade})`;
@@ -1870,8 +2125,8 @@ function AbsoluteScoreGradeDelta(game, score, percent, absDelta) {
     }
 }
 
-function CalculateScore(game, percent, chart) {
-    let score;
+function CalculateScore(game: Game, percent: number, chart: ChartDocument): number | null {
+    let score = percent;
 
     if (game === "iidx" || game === "bms") {
         score = chart.notedata.notecount * 2 * (percent / 100);
@@ -1883,22 +2138,17 @@ function CalculateScore(game, percent, chart) {
         score = 100000 * (percent / 100);
     } else if (game === "sdvx" || game === "usc") {
         score = 10000000 * (percent / 100);
-    } else if (game === "maimai") {
-        return null; // this won't work.
     } else if (game === "chunithm") {
         score = 1000000 * (percent / 100);
-    } else if (game === "gitadora") {
-        score = percent;
     }
 
     if (score) {
-        return Math.ceil(score);
-    } else {
-        return null;
+        return score;
     }
+    return null;
 }
 
-function PercentToScore(percent, game, chartData) {
+function PercentToScore(percent: number, game: Game, chartData: ChartDocument): number {
     let eScore = 0;
 
     if (game === "iidx" || game === "bms") {
@@ -1907,7 +2157,7 @@ function PercentToScore(percent, game, chartData) {
         eScore = percent * 1000000;
     } else if (game === "popn") {
         eScore = percent * 100000;
-    } else if (game === "sdvx" && score === "usc") {
+    } else if (game === "sdvx" || game === "usc") {
         eScore = percent * 10000000;
     } else if (game === "ddr") {
         // todo
@@ -1920,12 +2170,11 @@ function PercentToScore(percent, game, chartData) {
     return eScore;
 }
 
-function FormatDifficulty(chart, game) {
+function FormatDifficulty(chart: ChartDocument, game: Game): string {
     if (validPlaytypes[game].length > 1) {
         return `${chart.playtype} ${chart.difficulty}`;
-    } else {
-        return chart.difficulty;
     }
+    return chart.difficulty;
 }
 
 const gamePercentMax = {
@@ -2404,60 +2653,57 @@ const defaultGameClasses = {
     usc: {},
 };
 
-// if we're in node and not the browser
-if (typeof window === "undefined") {
-    module.exports = {
-        supportedGames,
-        gameOrders,
-        folders,
-        internalServiceGames,
-        versionHuman,
-        grades,
-        lamps,
-        lampColours,
-        gradeColours,
-        GetLevel,
-        GetXPForLevel,
-        serviceSupportedGames,
-        defaultPlaytype,
-        gameChartIndicators,
-        GetGrade,
-        gradeBoundaries,
-        gameHuman,
-        ratingParameters,
-        validPlaytypes,
-        ScoreGradeDelta,
-        judgeColours,
-        gameColours,
-        validTierlistTiers,
-        clearLamp,
-        validModifiers,
-        adviceChartTags,
-        adviceNoteTags,
-        gameRelevantScoreBucket,
-        judgementWindows,
-        PercentToScore,
-        ChangeAlpha,
-        validDifficulties,
-        validHitData,
-        validHitMeta,
-        validAltScores,
-        levels,
-        boundaryHCF,
-        gameSpecificCalc,
-        expChartScale,
-        FormatDifficulty,
-        DirectScoreGradeDelta,
-        gameSpecificCalcDescriptions,
-        difficultyShorthand,
-        defaultDifficulty,
-        gamePercentMax,
-        AbsoluteScoreGradeDelta,
-        defaultGameClasses,
-        gameClassValues,
-        validScoreMeta,
-        clearGrade,
-        defaultTable,
-        folderTables,
-    };
-}
+export default {
+    supportedGames,
+    gameOrders,
+    folders,
+    internalServiceGames,
+    versionHuman,
+    grades,
+    lamps,
+    lampColours,
+    gradeColours,
+    GetLevel,
+    GetXPForLevel,
+    serviceSupportedGames,
+    defaultPlaytype,
+    gameChartIndicators,
+    GetGrade,
+    gradeBoundaries,
+    gameHuman,
+    ratingParameters,
+    validPlaytypes,
+    ScoreGradeDelta,
+    judgeColours,
+    gameColours,
+    validTierlistTiers,
+    clearLamp,
+    validModifiers,
+    adviceChartTags,
+    adviceNoteTags,
+    gameRelevantScoreBucket,
+    judgementWindows,
+    PercentToScore,
+    ChangeAlpha,
+    validDifficulties,
+    validHitData,
+    validHitMeta,
+    validAltScores,
+    levels,
+    boundaryHCF,
+    gameSpecificCalc,
+    expChartScale,
+    FormatDifficulty,
+    DirectScoreGradeDelta,
+    gameSpecificCalcDescriptions,
+    difficultyShorthand,
+    defaultDifficulty,
+    gamePercentMax,
+    AbsoluteScoreGradeDelta,
+    defaultGameClasses,
+    gameClassValues,
+    validScoreMeta,
+    clearGrade,
+    defaultTable,
+    folderTables,
+};
