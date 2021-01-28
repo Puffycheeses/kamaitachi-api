@@ -1,8 +1,9 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-const middlewares = require("../../middlewares.js");
 
-// mounted on /v1
+/**
+ * @namespace /v1
+ */
 
 const MAJOR_VER = 4;
 const MINOR_VER = 1;
@@ -13,6 +14,10 @@ router.use((req, res, next) => {
     next();
 });
 
+/**
+ * Returns the current status of the Kamaitachi API.
+ * @name /v1
+ */
 router.get("/", async function (req, res) {
     return res.status(200).json({
         success: true,
@@ -23,30 +28,34 @@ router.get("/", async function (req, res) {
                 patch: PATCH_VER,
             },
         },
-        description: `Server Status OK. Running kamaitachi-api v${[MAJOR_VER, MINOR_VER, PATCH_VER].join(".")}`,
+        description: `Server Status OK. Running kamaitachi-api v${[
+            MAJOR_VER,
+            MINOR_VER,
+            PATCH_VER,
+        ].join(".")}`,
     });
 });
 
 // mounts:
-const usersRouter = require("./users/users.js");
-const tierlistsRouter = require("./tierlists/tierlists.js");
-const scoresRouter = require("./scores/scores.js");
-const leaderboardsRouter = require("./leaderboards/leaderboards.js");
-const gamesRouter = require("./games/games.js");
-const rivalsRouter = require("./rivals/rivals.js");
-const clansRouter = require("./clans/clans.js");
-const importsRouter = require("./imports/imports.js");
-const statsRouter = require("./stats/stats.js");
-const queryRouter = require("./queries/queries.js");
-const folderRouter = require("./folders/folders.js");
-const sessionRouter = require("./sessions/sessions.js");
-const ffactRouter = require("./fun-facts/fun-facts.js");
-const goalRouter = require("./goals/goals.js");
-const milestonesRouter = require("./milestones/milestones.js");
-const userGoalsRouter = require("./user-goals/user-goals.js");
-const userMilestoneRouter = require("./user-milestones/user-milestones.js");
-const searchRouter = require("./search/search.js");
-const sessionFeedRouter = require("./session-feed/session-feed.js");
+import usersRouter from "./users/users";
+import tierlistsRouter from "./tierlists/tierlists";
+import scoresRouter from "./scores/scores";
+import leaderboardsRouter from "./leaderboards/leaderboards";
+import gamesRouter from "./games/games";
+import rivalsRouter from "./rivals/rivals";
+import clansRouter from "./clans/clans";
+import importsRouter from "./imports/imports";
+import statsRouter from "./stats/stats";
+import queryRouter from "./queries/queries";
+import folderRouter from "./folders/folders";
+import sessionRouter from "./sessions/sessions";
+import ffactRouter from "./fun-facts/fun-facts";
+import goalRouter from "./goals/goals";
+import milestonesRouter from "./milestones/milestones";
+import userGoalsRouter from "./user-goals/user-goals";
+import userMilestoneRouter from "./user-milestones/user-milestones";
+import searchRouter from "./search/search";
+import sessionFeedRouter from "./session-feed/session-feed";
 
 router.use("/users", usersRouter);
 router.use("/sessions", sessionRouter);
@@ -77,4 +86,4 @@ router.use("/session-feed", sessionFeedRouter);
 
 // router.use(middlewares.RequireAPIKey);
 
-module.exports = router;
+export default router;
