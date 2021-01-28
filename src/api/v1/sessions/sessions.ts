@@ -1,9 +1,9 @@
 import * as express from "express";
-const dbCore = require("../../../core/db-core.js");
-const sessionCore = require("../../../core/session-core.js");
+import dbCore from "../../../core/db-core";
+import sessionCore from "../../../core/session-core";
 const router = express.Router({ mergeParams: true });
-const db = require("../../../db.js");
-const apiConfig = require("../../../apiconfig.js");
+import db from "../../../db";
+import apiConfig from "../../../apiconfig";
 
 // mounted on /api/v1/sessions
 
@@ -14,7 +14,15 @@ router.get("/", async function (req, res) {
 
         queryObj = await sessionCore.HandleCustomUserSelections(req, queryObj);
 
-        let dbRes = await dbCore.FancyDBQuery("sessions", req.query, true, MAX_RETURNS, null, false, queryObj);
+        let dbRes = await dbCore.FancyDBQuery(
+            "sessions",
+            req.query,
+            true,
+            MAX_RETURNS,
+            null,
+            false,
+            queryObj
+        );
 
         if (dbRes.body.success) {
             if (req.query.getAssocData === "true") {
@@ -45,4 +53,4 @@ router.get("/", async function (req, res) {
 
 router.use("/:sessionID", require("./sessionID/sessionID.js"));
 
-module.exports = router;
+export default router;

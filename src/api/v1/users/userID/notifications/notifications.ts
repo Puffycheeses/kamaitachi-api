@@ -1,9 +1,9 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-const userHelpers = require("../../../../../core/user-core.js");
-const middlewares = require("../../../../../middlewares.js");
-const dbCore = require("../../../../../core/db-core.js");
-const db = require("../../../../../db.js");
+import userHelpers from "../../../../../core/user-core";
+import middlewares from "../../../../../middlewares";
+import dbCore from "../../../../../core/db-core";
+import db from "../../../../../db";
 
 // mounted on /api/v1/users/:userID/notifications
 router.use(middlewares.RequireUserKeyMatch);
@@ -82,4 +82,4 @@ router.get("/unread", async function (req, res) {
     }
 });
 
-module.exports = router;
+export default router;

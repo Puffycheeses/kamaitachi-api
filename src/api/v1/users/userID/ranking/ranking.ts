@@ -1,7 +1,7 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-const config = require("../../../../../config/config.js");
-const db = require("../../../../../db.js");
+import config from "../../../../../config/config";
+import db from "../../../../../db";
 
 // mounted on /api/v1/users/:userID/ranking
 
@@ -27,7 +27,9 @@ router.get("/", async function (req, res) {
     }
 
     if (user.ratings[game] && user.ratings[game][playtype]) {
-        let ranking = await db.get("users").count({ [`ratings.${game}.${playtype}`]: { $gte: user.ratings[game][playtype] } });
+        let ranking = await db
+            .get("users")
+            .count({ [`ratings.${game}.${playtype}`]: { $gte: user.ratings[game][playtype] } });
         return res.status(200).json({
             success: true,
             description: "Found users ranking.",
@@ -43,4 +45,4 @@ router.get("/", async function (req, res) {
     }
 });
 
-module.exports = router;
+export default router;

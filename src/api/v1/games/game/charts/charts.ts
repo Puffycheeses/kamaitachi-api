@@ -1,5 +1,5 @@
-const db = require("../../../../../db.js");
-const dbCore = require("../../../../../core/db-core.js");
+import db from "../../../../../db";
+import dbCore from "../../../../../core/db-core";
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
 
@@ -13,7 +13,13 @@ router.get("/", async function (req, res) {
     }
 
     try {
-        let dbRes = await dbCore.FancyDBQuery(`charts-${req.params.game}`, req.query, true, CHART_RET_LIMIT, "charts");
+        let dbRes = await dbCore.FancyDBQuery(
+            `charts-${req.params.game}`,
+            req.query,
+            true,
+            CHART_RET_LIMIT,
+            "charts"
+        );
         return res.status(dbRes.statusCode).json(dbRes.body);
     } catch (r) {
         if (r.statusCode && r.body) {
@@ -29,4 +35,4 @@ router.get("/", async function (req, res) {
     }
 });
 
-module.exports = router;
+export default router;

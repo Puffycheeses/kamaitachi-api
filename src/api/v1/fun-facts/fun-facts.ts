@@ -1,11 +1,11 @@
 import * as express from "express";
-const dbCore = require("../../../core/db-core.js");
-const userCore = require("../../../core/user-core.js");
+import dbCore from "../../../core/db-core";
+import userCore from "../../../core/user-core";
 const router = express.Router({ mergeParams: true });
-const db = require("../../../db.js");
-const crypto = require("crypto");
-const middlewares = require("../../../middlewares.js");
-const apiConfig = require("../../../apiconfig.js");
+import db from "../../../db";
+import crypto from "crypto";
+import middlewares from "../../../middlewares";
+import apiConfig from "../../../apiconfig";
 
 // mounted on /api/v1/fun-facts
 
@@ -19,7 +19,10 @@ router.get("/", async function (req, res) {
 
     let requestingUser = await db
         .get("users")
-        .findOne({ id: req.apikey.assignedTo }, { projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS });
+        .findOne(
+            { id: req.apikey.assignedTo },
+            { projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS }
+        );
 
     let aggPipe = [
         {
@@ -112,4 +115,4 @@ router.put("/submit-fun-fact", async function (req, res) {
     });
 });
 
-module.exports = router;
+export default router;

@@ -1,6 +1,6 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-const dbCore = require("../../../core/db-core.js");
+import dbCore from "../../../core/db-core";
 
 // mounted on /api/v1/tierlists
 
@@ -30,7 +30,7 @@ router.get("/", async function (req, res) {
 });
 
 // mounts
-const tierlistdataRouter = require("./tierlistdata/tierlistdata.js");
+import tierlistdataRouter from "./tierlistdata/tierlistdata";
 router.use("/tierlistdata", tierlistdataRouter);
 
-module.exports = router;
+export default router;

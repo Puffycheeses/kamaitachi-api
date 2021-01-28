@@ -1,6 +1,6 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-import dbCore = require("../../../core/db-core.js");
+import * as dbCore from "../../../core/db-core";
 
 // mounted on /api/v1/clans
 
@@ -24,8 +24,8 @@ router.get("/", async function (req, res) {
 });
 
 // mounts
-const clanRouter = require("./clanID/clanID.js");
+import clanRouter from "./clanID/clanID";
 
 router.use("/:clanID", clanRouter);
 
-module.exports = router;
+export default router;

@@ -1,16 +1,22 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-const dbCore = require("../../../../../core/db-core.js");
-const db = require("../../../../../db.js");
-const regexSanitise = require("escape-string-regexp");
-const similar = require("string-similarity");
+import dbCore from "../../../../../core/db-core";
+import db from "../../../../../db";
+import regexSanitise from "escape-string-regexp";
+import similar from "string-similarity";
 // mounted on /api/v1/games/:game/songs
 
 const MAX_RETURNS = 100;
 
 router.get("/", async function (req, res) {
     try {
-        let dbRes = await dbCore.FancyDBQuery(`songs-${req.params.game}`, req.query, true, MAX_RETURNS, "songs");
+        let dbRes = await dbCore.FancyDBQuery(
+            `songs-${req.params.game}`,
+            req.query,
+            true,
+            MAX_RETURNS,
+            "songs"
+        );
 
         if (dbRes.body.success) {
             if (req.query.getAssocCharts) {
@@ -47,7 +53,11 @@ router.get("/search", async function (req, res) {
 
     let r = await db.get(`songs-${req.params.game}`).find(
         {
-            $or: [{ title: searchCriteria }, { "alt-titles": searchCriteria }, { "search-titles": searchCriteria }],
+            $or: [
+                { title: searchCriteria },
+                { "alt-titles": searchCriteria },
+                { "search-titles": searchCriteria },
+            ],
         },
         {
             limit: 100,
@@ -57,9 +67,13 @@ router.get("/search", async function (req, res) {
     // uhhhhhhhh
     r.sort((a, b) => {
         let aTitles = [a.title, ...a["alt-titles"], ...a["search-titles"]];
-        let aBestMatch = Math.max(aTitles.map((e) => similar.compareTwoStrings(search.toLowerCase(), e.toLowerCase())));
+        let aBestMatch = Math.max(
+            aTitles.map((e) => similar.compareTwoStrings(search.toLowerCase(), e.toLowerCase()))
+        );
         let bTitles = [b.title, ...b["alt-titles"], ...b["search-titles"]];
-        let bBestMatch = Math.max(bTitles.map((e) => similar.compareTwoStrings(search.toLowerCase(), e.toLowerCase())));
+        let bBestMatch = Math.max(
+            bTitles.map((e) => similar.compareTwoStrings(search.toLowerCase(), e.toLowerCase()))
+        );
 
         return aBestMatch - bBestMatch;
     });
@@ -72,8 +86,8 @@ router.get("/search", async function (req, res) {
 });
 
 // mounts
-const songIDRouter = require("./songID/songID.js");
+import songIDRouter from "./songID/songID";
 
 router.use("/:songID", songIDRouter);
 
-module.exports = router;
+export default router;

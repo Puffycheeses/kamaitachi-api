@@ -1,8 +1,8 @@
 import * as express from "express";
-const dbCore = require("../../../../../core/db-core.js");
+import dbCore from "../../../../../core/db-core";
 const router = express.Router({ mergeParams: true });
-const userHelpers = require("../../../../../core/user-core.js");
-const db = require("../../../../../db.js");
+import userHelpers from "../../../../../core/user-core";
+import db from "../../../../../db";
 
 // mounted on /api/v1/users/:userID/imports
 
@@ -30,4 +30,4 @@ router.get("/", async function (req, res) {
     }
 });
 
-module.exports = router;
+export default router;

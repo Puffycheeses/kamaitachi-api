@@ -1,8 +1,8 @@
-const db = require("../../../db.js");
+import db from "../../../db";
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-const config = require("../../../config/config.js");
-const userHelpers = require("../../../core/user-core.js");
+import config from "../../../config/config";
+import userHelpers from "../../../core/user-core";
 
 // mounted on /api/v1/games
 
@@ -81,8 +81,8 @@ router.get("/", async function (req, res) {
 });
 
 // mounts
-const gameRouter = require("./game/game.js");
+import gameRouter from "./game/game";
 
 router.use("/:game", gameRouter);
 
-module.exports = router;
+export default router;

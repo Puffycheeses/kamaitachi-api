@@ -1,11 +1,11 @@
 import * as express from "express";
-const dbCore = require("../../../core/db-core.js");
+import dbCore from "../../../core/db-core";
 const router = express.Router({ mergeParams: true });
-const db = require("../../../db.js");
-const config = require("../../../config/config.js");
-const JSum = require("jsum");
-const apiConfig = require("../../../apiconfig.js");
-const middlewares = require("../../../middlewares.js");
+import db from "../../../db";
+import config from "../../../config/config";
+import JSum from "jsum";
+import apiConfig from "../../../apiconfig";
+import middlewares from "../../../middlewares";
 
 // mounted on /api/v1/goals
 
@@ -178,7 +178,9 @@ router.put("/create-simple-chart-goal", RequireValidGame, async function (req, r
         if (game === "iidx" && gVal > chart.notedata.notecount * 2) {
             return res.status(400).json({
                 success: false,
-                description: `Invalid value for score, cannot be greater than ${chart.notedata.notecount * 2}`,
+                description: `Invalid value for score, cannot be greater than ${
+                    chart.notedata.notecount * 2
+                }`,
             });
         } else if (game === "sdvx" && gVal > 10000000) {
             return res.status(400).json({
@@ -303,69 +305,74 @@ router.put("/create-simple-chart-goal", RequireValidGame, async function (req, r
     });
 });
 
-router.put("/create-advanced-goal", RequireValidGame, middlewares.RequireAdmin, async function (req, res) {
-    let gVal = parseFloat(req.body.sgVal);
+router.put(
+    "/create-advanced-goal",
+    RequireValidGame,
+    middlewares.RequireAdmin,
+    async function (req, res) {
+        let gVal = parseFloat(req.body.sgVal);
 
-    if (req.body.sgKey === "scoreData.gradeIndex") {
-        gVal = config.grades[req.body.game].indexOf(req.body.sgVal);
-    } else if (req.body.sgKey === "scoreData.lampIndex") {
-        gVal = config.lamps[req.body.game].indexOf(req.body.sgVal);
-    }
+        if (req.body.sgKey === "scoreData.gradeIndex") {
+            gVal = config.grades[req.body.game].indexOf(req.body.sgVal);
+        } else if (req.body.sgKey === "scoreData.lampIndex") {
+            gVal = config.lamps[req.body.game].indexOf(req.body.sgVal);
+        }
 
-    let scoreQuery = {
-        [req.body.sgKey.replace(/\./g, "¬")]: { "~gte": gVal },
-    };
+        let scoreQuery = {
+            [req.body.sgKey.replace(/\./g, "¬")]: { "~gte": gVal },
+        };
 
-    if (gVal < 0) {
-        return res.status(400).json({
-            success: false,
-            description: "gval is less than 0",
+        if (gVal < 0) {
+            return res.status(400).json({
+                success: false,
+                description: "gval is less than 0",
+            });
+        }
+
+        let goalObj = {
+            directChartID: null,
+            directChartIDs: req.body.directChartIDs || null,
+            chartQuery: req.body.chartQuery,
+            scoreQuery,
+            criteria: {
+                type: req.body.criteria,
+                value: parseFloat(req.body.value),
+                mode: req.body.mode || null,
+            },
+        };
+
+        let goalID = JSum.digest(goalObj, "SHA1", "hex");
+
+        let exists = await db.get("goals").findOne({
+            goalID: goalID,
         });
-    }
 
-    let goalObj = {
-        directChartID: null,
-        directChartIDs: req.body.directChartIDs || null,
-        chartQuery: req.body.chartQuery,
-        scoreQuery,
-        criteria: {
-            type: req.body.criteria,
-            value: parseFloat(req.body.value),
-            mode: req.body.mode || null,
-        },
-    };
+        if (exists) {
+            return res.status(200).json({
+                success: true,
+                description: "Goal already exists.",
+                body: exists,
+            });
+        }
 
-    let goalID = JSum.digest(goalObj, "SHA1", "hex");
+        goalObj.title = `${req.body.title} (${req.body.playtype})`;
+        goalObj.goalID = goalID;
+        goalObj.timeAdded = Date.now();
+        goalObj.createdBy = req.apikey.assignedTo;
+        goalObj.game = req.body.game;
+        goalObj.playtype = req.body.playtype;
 
-    let exists = await db.get("goals").findOne({
-        goalID: goalID,
-    });
+        await db.get("goals").insert(goalObj);
 
-    if (exists) {
-        return res.status(200).json({
+        return res.status(201).json({
             success: true,
-            description: "Goal already exists.",
-            body: exists,
+            description: "Successfully created goal.",
+            body: goalObj,
         });
     }
+);
 
-    goalObj.title = `${req.body.title} (${req.body.playtype})`;
-    goalObj.goalID = goalID;
-    goalObj.timeAdded = Date.now();
-    goalObj.createdBy = req.apikey.assignedTo;
-    goalObj.game = req.body.game;
-    goalObj.playtype = req.body.playtype;
-
-    await db.get("goals").insert(goalObj);
-
-    return res.status(201).json({
-        success: true,
-        description: "Successfully created goal.",
-        body: goalObj,
-    });
-});
-
-const goalIDRouter = require("./goalID/goalID.js");
+import goalIDRouter from "./goalID/goalID";
 router.use("/goal/:goalID", goalIDRouter);
 
-module.exports = router;
+export default router;

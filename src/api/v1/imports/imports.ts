@@ -1,7 +1,7 @@
 import * as express from "express";
-const dbCore = require("../../../core/db-core.js");
+import dbCore from "../../../core/db-core";
 const router = express.Router({ mergeParams: true });
-const db = require("../../../db.js");
+import db from "../../../db";
 
 // mounted on /api/v1/imports
 
@@ -111,4 +111,4 @@ router.get("/:importID/scores", GetImportWithID, async function (req, res) {
     }
 });
 
-module.exports = router;
+export default router;

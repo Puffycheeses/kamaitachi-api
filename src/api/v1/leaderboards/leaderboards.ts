@@ -1,9 +1,9 @@
-const db = require("../../../db.js");
+import db from "../../../db";
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
 const rgxIsInt = /^[0-9]+$/;
-const config = require("../../../config/config.js");
-const apiConfig = require("../../../apiconfig.js");
+import config from "../../../config/config";
+import apiConfig from "../../../apiconfig";
 
 // mounted on /api/v1/leaderboards
 
@@ -25,7 +25,9 @@ router.get("/", async function (req, res) {
                 }
             );
 
-            leaderboardInfo = leaderboardInfo.filter((e) => e.ratings[game] && e.ratings[game][pt] > 0.001);
+            leaderboardInfo = leaderboardInfo.filter(
+                (e) => e.ratings[game] && e.ratings[game][pt] > 0.001
+            );
             leaderboardData[game][pt] = leaderboardInfo;
         }
     }
@@ -38,7 +40,9 @@ router.get("/", async function (req, res) {
 });
 
 router.get("/games/:game", async function (req, res) {
-    let playtype = req.query.playtype ? req.query.playtype : config.defaultPlaytype[req.params.game];
+    let playtype = req.query.playtype
+        ? req.query.playtype
+        : config.defaultPlaytype[req.params.game];
 
     let sortCriteria = `ratings.${req.params.game}.${playtype}`;
 
@@ -85,4 +89,4 @@ router.get("/games/:game", async function (req, res) {
     });
 });
 
-module.exports = router;
+export default router;

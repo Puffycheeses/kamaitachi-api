@@ -1,12 +1,12 @@
-const db = require("../../../../db.js");
-const dbCore = require("../../../../core/db-core.js");
-const userHelpers = require("../../../../core/user-core.js");
+import db from "../../../../db";
+import dbCore from "../../../../core/db-core";
+import userHelpers from "../../../../core/user-core";
 import * as express from "express";
-const crypto = require("crypto");
-const config = require("../../../../config/config.js");
+import crypto from "crypto";
+import config from "../../../../config/config";
 const router = express.Router({ mergeParams: true });
-const esd = require("esd-js");
-const scoreHelpers = require("../../../../core/score-core.js");
+import esd from "esd";
+import scoreHelpers from "../../../../core/score-core";
 
 // mounted on /api/v1/rivals/:rivalGroupID
 
@@ -63,7 +63,8 @@ async function ValidateRivalGroupModification(req, res, next) {
     if (!requestingUser) {
         return res.status(500).json({
             success: false,
-            description: "Fatal error in grabbing your profile. This has been reported, but please ping me about this.",
+            description:
+                "Fatal error in grabbing your profile. This has been reported, but please ping me about this.",
         });
     }
 
@@ -237,7 +238,10 @@ router.patch("/add-member", ValidateRivalGroupModification, async function (req,
         });
     }
 
-    if (!addingUser.ratings[rivalGroup.game] || !addingUser.ratings[rivalGroup.game][rivalGroup.playtype]) {
+    if (
+        !addingUser.ratings[rivalGroup.game] ||
+        !addingUser.ratings[rivalGroup.game][rivalGroup.playtype]
+    ) {
         return res.status(400).json({
             success: false,
             description: "This user has not played this game + playtype combination.",
@@ -246,7 +250,9 @@ router.patch("/add-member", ValidateRivalGroupModification, async function (req,
 
     rivalGroup.members.push(addingUser.id);
 
-    await db.get("rivals").update({ _id: rivalGroup._id }, { $set: { members: rivalGroup.members } });
+    await db
+        .get("rivals")
+        .update({ _id: rivalGroup._id }, { $set: { members: rivalGroup.members } });
 
     return res.status(200).json({
         success: true,
@@ -300,7 +306,9 @@ router.patch("/remove-member", ValidateRivalGroupModification, async function (r
 
     rivalGroup.members = rivalGroup.members.filter((e) => e !== removingUser.id);
 
-    await db.get("rivals").update({ _id: rivalGroup._id }, { $set: { members: rivalGroup.members } });
+    await db
+        .get("rivals")
+        .update({ _id: rivalGroup._id }, { $set: { members: rivalGroup.members } });
 
     return res.status(200).json({
         success: true,
@@ -346,15 +354,27 @@ router.get("/folder-scores", CheckRivalGroupExists, async function (req, res) {
     let charts;
 
     if (req.query.folderType === "levels") {
-        charts = await db.get(`charts-${rg.game}`).find({ level: req.query.folderName, playtype: rg.playtype }, { projection: { _id: 0 } });
+        charts = await db
+            .get(`charts-${rg.game}`)
+            .find(
+                { level: req.query.folderName, playtype: rg.playtype },
+                { projection: { _id: 0 } }
+            );
 
-        songs = await db.get(`songs-${rg.game}`).find({ id: { $in: charts.map((e) => e.id) } }, { projection: { _id: 0 } });
+        songs = await db
+            .get(`songs-${rg.game}`)
+            .find({ id: { $in: charts.map((e) => e.id) } }, { projection: { _id: 0 } });
     } else {
-        songs = await db.get(`songs-${rg.game}`).find({ firstAppearance: req.query.folderName }, { projection: { _id: 0 } });
+        songs = await db
+            .get(`songs-${rg.game}`)
+            .find({ firstAppearance: req.query.folderName }, { projection: { _id: 0 } });
 
         charts = await db
             .get(`charts-${rg.game}`)
-            .find({ id: { $in: songs.map((e) => e.id) }, playtype: rg.playtype }, { projection: { _id: 0 } });
+            .find(
+                { id: { $in: songs.map((e) => e.id) }, playtype: rg.playtype },
+                { projection: { _id: 0 } }
+            );
     }
 
     if (charts.length === 0) {
@@ -494,7 +514,8 @@ router.get("/relevant-scores", CheckRivalGroupExists, async function (req, res) 
     }
 
     // sort members in rating order so we know what bounds to go for
-    let avgRating = members.reduce((a, b) => a + (b.ratings[rg.game][rg.playtype] || 0), 0) / members.length;
+    let avgRating =
+        members.reduce((a, b) => a + (b.ratings[rg.game][rg.playtype] || 0), 0) / members.length;
 
     let lowerBound = avgRating * (1 - boundary);
 
@@ -546,4 +567,4 @@ router.get("/relevant-scores", CheckRivalGroupExists, async function (req, res) 
     });
 });
 
-module.exports = router;
+export default router;

@@ -1,11 +1,11 @@
 import * as express from "express";
+import db from "../../../db";
+import userCore from "../../../core/user-core";
+import apiConfig from "../../../apiconfig";
+import similarity from "string-similarity";
+import regexSanitise from "escape-string-regexp";
+
 const router = express.Router({ mergeParams: true });
-const middlewares = require("../../../middlewares.js");
-const db = require("../../../db.js");
-const userHelpers = require("../../../core/user-core.js");
-const apiConfig = require("../../../apiconfig.js");
-const similarity = require("string-similarity");
-const regexSanitise = require("escape-string-regexp");
 
 // mounted on /api/v1/users
 
@@ -56,9 +56,15 @@ router.get("/", async function (req, res) {
         sortCriteria = req.query.sortCriteria;
     }
 
-    let users = await db
-        .get("users")
-        .find({}, { projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS, limit: userLimit, skip: start, sort: sortCriteria });
+    let users = await db.get("users").find(
+        {},
+        {
+            projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
+            limit: userLimit,
+            skip: start,
+            sort: sortCriteria,
+        }
+    );
 
     let usersBody = { items: users };
     if (users.length !== 0) {
@@ -140,7 +146,7 @@ router.get("/search", async function (req, res) {
     }
 
     if (req.query.exact) {
-        let user = await userHelpers.GetUser(req.query.username);
+        let user = await userCore.GetUser(req.query.username);
 
         if (!user) {
             return res.status(404).json({
@@ -184,7 +190,12 @@ router.get("/search", async function (req, res) {
     if (req.query.limit) {
         let intLimit = parseInt(req.query.limit);
 
-        if (intLimit < 0 || isNaN(intLimit) || !isFinite(intLimit) || intLimit > MAX_USER_RETURN_LIMIT) {
+        if (
+            intLimit < 0 ||
+            isNaN(intLimit) ||
+            !isFinite(intLimit) ||
+            intLimit > MAX_USER_RETURN_LIMIT
+        ) {
             return res.status(400).json({
                 success: false,
                 description: `Invalid limit, must be a +ve integer less than ${MAX_USER_RETURN_LIMIT}`,
@@ -209,7 +220,7 @@ router.get("/search", async function (req, res) {
 });
 
 // mounts
-const userIDRouter = require("./userID/userID.js");
+import userIDRouter from "./userID/userID";
 router.use("/:userID", userIDRouter);
 
-module.exports = router;
+export default router;

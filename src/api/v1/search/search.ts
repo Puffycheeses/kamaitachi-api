@@ -1,10 +1,10 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-const dbCore = require("../../../core/db-core.js");
-const db = require("../../../db.js");
-const regexSanitise = require("escape-string-regexp");
-const similar = require("string-similarity");
-const config = require("../../../config/config.js");
+import dbCore from "../../../core/db-core";
+import db from "../../../db";
+import regexSanitise from "escape-string-regexp";
+import similar from "string-similarity";
+import config from "../../../config/config";
 // mounted on /api/v1/search
 
 // NOTE: this is disgustingly inefficient.
@@ -24,7 +24,11 @@ router.get("/", async function (req, res) {
 
     let promises = [];
 
-    let joinTitles = (song) => [song.title, ...(song["alt-titles"] || []), ...(song["search-titles"] || [])];
+    let joinTitles = (song) => [
+        song.title,
+        ...(song["alt-titles"] || []),
+        ...(song["search-titles"] || []),
+    ];
 
     for (const game of games) {
         promises.push(
@@ -48,7 +52,13 @@ router.get("/", async function (req, res) {
                     for (const s of data) {
                         s.game = game;
                         let titles = joinTitles(s);
-                        let accs = titles.map((e) => similar.compareTwoStrings(search.toLowerCase(), `${e}`.toLowerCase()) || 0);
+                        let accs = titles.map(
+                            (e) =>
+                                similar.compareTwoStrings(
+                                    search.toLowerCase(),
+                                    `${e}`.toLowerCase()
+                                ) || 0
+                        );
                         s.accuracy = Math.max(...accs);
                     }
                     return data;
@@ -73,4 +83,4 @@ router.get("/", async function (req, res) {
     });
 });
 
-module.exports = router;
+export default router;

@@ -1,8 +1,8 @@
 import * as express from "express";
-const dbCore = require("../../../core/db-core.js");
+import dbCore from "../../../core/db-core";
 const router = express.Router({ mergeParams: true });
-const db = require("../../../db.js");
-const apiConfig = require("../../../apiconfig.js");
+import db from "../../../db";
+import apiConfig from "../../../apiconfig";
 // mounted on /api/v1/milestones
 
 const MAX_RETURNS = 100;
@@ -39,8 +39,8 @@ router.get("/", async function (req, res) {
     }
 });
 
-const milestoneIDRouter = require("./milestoneID/milestoneID.js");
+import milestoneIDRouter from "./milestoneID/milestoneID";
 
 router.use("/milestone/:milestoneID", milestoneIDRouter);
 
-module.exports = router;
+export default router;

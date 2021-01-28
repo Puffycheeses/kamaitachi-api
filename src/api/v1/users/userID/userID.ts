@@ -1,7 +1,7 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-const middlewares = require("../../../../middlewares.js");
-const userHelpers = require("../../../../core/user-core.js");
+import middlewares from "../../../../middlewares";
+import userHelpers from "../../../../core/user-core";
 
 // mounted on /api/v1/users/:userID
 
@@ -20,11 +20,11 @@ router.get("/", async function (req, res) {
 });
 
 // mounts
-const friendsRouter = require("./friends/friends.js");
-const importsRouter = require("./imports/imports.js");
-const notificationsRouter = require("./notifications/notifications.js");
-const scoresRouter = require("./scores/scores.js");
-const rankingRouter = require("./ranking/ranking.js");
+import friendsRouter from "./friends/friends";
+import importsRouter from "./imports/imports";
+import notificationsRouter from "./notifications/notifications";
+import scoresRouter from "./scores/scores";
+import rankingRouter from "./ranking/ranking";
 
 router.use("/friends", friendsRouter);
 router.use("/imports", importsRouter);
@@ -32,4 +32,4 @@ router.use("/notifications", notificationsRouter);
 router.use("/scores", scoresRouter);
 router.use("/ranking", rankingRouter);
 
-module.exports = router;
+export default router;

@@ -1,9 +1,9 @@
-const db = require("../../../db.js");
-const dbCore = require("../../../core/db-core.js");
-const userHelpers = require("../../../core/user-core.js");
+import db from "../../../db";
+import dbCore from "../../../core/db-core";
+import userHelpers from "../../../core/user-core";
 import * as express from "express";
-const crypto = require("crypto");
-const config = require("../../../config/config.js");
+import crypto from "crypto";
+import config from "../../../config/config";
 const router = express.Router({ mergeParams: true });
 
 // mounted on /api/v1/rivals
@@ -68,7 +68,8 @@ router.post("/create-group", async function (req, res) {
     if (!founder) {
         return res.status(500).json({
             success: false,
-            description: "Fatal error in grabbing your profile. This has been reported, but please ping me about this.",
+            description:
+                "Fatal error in grabbing your profile. This has been reported, but please ping me about this.",
         });
     }
 
@@ -121,7 +122,7 @@ router.post("/create-group", async function (req, res) {
     });
 });
 
-const rgRouter = require("./rivalGroupID/rivalGroupID.js");
+import rgRouter from "./rivalGroupID/rivalGroupID";
 router.use("/:rivalGroupID", rgRouter);
 
-module.exports = router;
+export default router;

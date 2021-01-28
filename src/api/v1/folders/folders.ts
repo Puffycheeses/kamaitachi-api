@@ -1,10 +1,10 @@
 import * as express from "express";
-const dbCore = require("../../../core/db-core.js");
+import dbCore from "../../../core/db-core";
 const router = express.Router({ mergeParams: true });
-const db = require("../../../db.js");
-const config = require("../../../config/config.js");
-const apiConfig = require("../../../apiconfig.js");
-const folderCore = require("../../../core/folder-core.js");
+import db from "../../../db";
+import config from "../../../config/config";
+import apiConfig from "../../../apiconfig";
+import folderCore from "../../../core/folder-core";
 
 // mounted on /api/v1/folders
 
@@ -79,13 +79,16 @@ router.get("/table-folders", async function (req, res) {
     } else {
         return res.status(401).json({
             success: false,
-            description: "Cannot request folders for no user! (If you're logged in, this defaults to whoever you're logged in as).",
+            description:
+                "Cannot request folders for no user! (If you're logged in, this defaults to whoever you're logged in as).",
         });
     }
 
     let game = req.query.game;
 
-    let playtype = config.validPlaytypes[game].includes(req.query.playtype) ? req.query.playtype : config.defaultPlaytype[game];
+    let playtype = config.validPlaytypes[game].includes(req.query.playtype)
+        ? req.query.playtype
+        : config.defaultPlaytype[game];
 
     // we are going to make a COOL caching optimisation here
     let dataCache = await db.get("folderdata-cache").findOne({
@@ -180,9 +183,14 @@ router.get("/table-folders", async function (req, res) {
                     gradeDist: gradeDist,
                 };
 
-                if (uniqueScores.length === data.charts.length && uniqueScores.length + data.charts.length !== 0) {
-                    stats[folder.folderID][playtype].gradeFolderLamp = uniqueScores[0].scoreData.grade;
-                    stats[folder.folderID][playtype].lampFolderLamp = uniqueOnLamp[0].scoreData.lamp;
+                if (
+                    uniqueScores.length === data.charts.length &&
+                    uniqueScores.length + data.charts.length !== 0
+                ) {
+                    stats[folder.folderID][playtype].gradeFolderLamp =
+                        uniqueScores[0].scoreData.grade;
+                    stats[folder.folderID][playtype].lampFolderLamp =
+                        uniqueOnLamp[0].scoreData.lamp;
                 }
             })
         );
@@ -212,8 +220,8 @@ router.get("/table-folders", async function (req, res) {
 });
 
 // mounts
-const folderIDRouter = require("./folderID/folderID.js");
+import folderIDRouter from "./folderID/folderID";
 
 router.use("/:folderID", folderIDRouter);
 
-module.exports = router;
+export default router;

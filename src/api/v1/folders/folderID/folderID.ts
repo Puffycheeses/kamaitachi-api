@@ -1,10 +1,10 @@
 import * as express from "express";
-const dbCore = require("../../../../core/db-core.js");
+import dbCore from "../../../../core/db-core";
 const router = express.Router({ mergeParams: true });
-const db = require("../../../../db.js");
-const config = require("../../../../config/config.js");
-const scoreCore = require("../../../../core/score-core.js");
-const folderCore = require("../../../../core/folder-core.js");
+import db from "../../../../db";
+import config from "../../../../config/config";
+import scoreCore from "../../../../core/score-core";
+import folderCore from "../../../../core/folder-core";
 
 // mounted on /api/v1/folders/:folderID
 
@@ -48,7 +48,10 @@ async function ValidateUserID(req, res, next) {
     if (Number.isInteger(parseInt(req.query.userID))) {
         let u = await db
             .get("users")
-            .findOne({ id: parseInt(req.query.userID) }, { projection: { password: 0, email: 0, integrations: 0 } });
+            .findOne(
+                { id: parseInt(req.query.userID) },
+                { projection: { password: 0, email: 0, integrations: 0 } }
+            );
 
         if (u) {
             req.requestedUserID = u.id;
@@ -355,7 +358,8 @@ function ValidateTimelineValues(req, res, next) {
         }
 
         if (targetName === "lamp" || targetName === "grade") {
-            let elementActuallyExists = targetName === "lamp" ? config.lamps[game][tVal] : config.grades[game][tVal];
+            let elementActuallyExists =
+                targetName === "lamp" ? config.lamps[game][tVal] : config.grades[game][tVal];
 
             if (elementActuallyExists) {
                 targetVal = tVal;
@@ -378,65 +382,75 @@ const INTERNAL_TARGET_NAME = {
     score: "scoreData.score",
 };
 
-router.get("/timeline", ValidateTimelineValues, ValidateUserID, ValidateRivalGroupID, async function (req, res) {
-    let targetVal = req.query.targetVal;
-    let targetName = req.query.targetName;
-    let requestedUserID = req.requestedUserID;
+router.get(
+    "/timeline",
+    ValidateTimelineValues,
+    ValidateUserID,
+    ValidateRivalGroupID,
+    async function (req, res) {
+        let targetVal = req.query.targetVal;
+        let targetName = req.query.targetName;
+        let requestedUserID = req.requestedUserID;
 
-    let folder = req.folderData;
-    let playtype = req.query.playtype || config.defaultPlaytype[folder.game];
+        let folder = req.folderData;
+        let playtype = req.query.playtype || config.defaultPlaytype[folder.game];
 
-    if (!config.validPlaytypes[folder.game].includes(playtype)) {
-        return res.status(400).json({
-            success: false,
-            description: "Playtype provided, but the one given was invalid.",
+        if (!config.validPlaytypes[folder.game].includes(playtype)) {
+            return res.status(400).json({
+                success: false,
+                description: "Playtype provided, but the one given was invalid.",
+            });
+        }
+
+        let difficulty = req.query.difficulty || null;
+
+        if (req.query.difficulty && !config.validDifficulties[folder.game].includes(difficulty)) {
+            return res.status(400).json({
+                success: false,
+                description: "Difficulty provided, but the one given was invalid.",
+            });
+        }
+
+        let { songs, charts } = await folderCore.GetDataFromFolderQuery(
+            folder,
+            playtype,
+            difficulty
+        );
+
+        let scoreData = await db.get("scores").aggregate([
+            {
+                $match: {
+                    userID: requestedUserID,
+                    chartID: { $in: charts.map((e) => e.chartID) },
+                    [INTERNAL_TARGET_NAME[targetName]]: { $gte: targetVal },
+                    timeAchieved: { $ne: null }, // vomit
+                },
+            },
+            {
+                $sort: {
+                    timeAchieved: 1,
+                },
+            },
+            {
+                $group: {
+                    _id: "$chartID",
+                    sc: { $first: "$$ROOT" },
+                },
+            },
+        ]);
+
+        let scores = scoreData.map((e) => e.sc);
+
+        return res.status(200).json({
+            success: true,
+            description: "hey",
+            body: {
+                songs,
+                charts,
+                scores,
+            },
         });
     }
+);
 
-    let difficulty = req.query.difficulty || null;
-
-    if (req.query.difficulty && !config.validDifficulties[folder.game].includes(difficulty)) {
-        return res.status(400).json({
-            success: false,
-            description: "Difficulty provided, but the one given was invalid.",
-        });
-    }
-
-    let { songs, charts } = await folderCore.GetDataFromFolderQuery(folder, playtype, difficulty);
-
-    let scoreData = await db.get("scores").aggregate([
-        {
-            $match: {
-                userID: requestedUserID,
-                chartID: { $in: charts.map((e) => e.chartID) },
-                [INTERNAL_TARGET_NAME[targetName]]: { $gte: targetVal },
-                timeAchieved: { $ne: null }, // vomit
-            },
-        },
-        {
-            $sort: {
-                timeAchieved: 1,
-            },
-        },
-        {
-            $group: {
-                _id: "$chartID",
-                sc: { $first: "$$ROOT" },
-            },
-        },
-    ]);
-
-    let scores = scoreData.map((e) => e.sc);
-
-    return res.status(200).json({
-        success: true,
-        description: "hey",
-        body: {
-            songs,
-            charts,
-            scores,
-        },
-    });
-});
-
-module.exports = router;
+export default router;

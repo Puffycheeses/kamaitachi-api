@@ -1,4 +1,4 @@
-const db = require("../../../../db.js");
+import db from "../../../../db";
 async function GetTierlistWithID(tierlistID) {
     let tierlist = await db.get("tierlist").findOne({ tierlistID }, { projection: { _id: 0 } });
 
@@ -6,12 +6,11 @@ async function GetTierlistWithID(tierlistID) {
 }
 
 async function GetDefaultTierlist(game, playtype) {
-    let tierlist = await db.get("tierlist").findOne({ game, playtype, isDefault: true }, { projection: { _id: 0 } });
+    let tierlist = await db
+        .get("tierlist")
+        .findOne({ game, playtype, isDefault: true }, { projection: { _id: 0 } });
 
     return tierlist;
 }
 
-module.exports = {
-    GetTierlistWithID,
-    GetDefaultTierlist,
-};
+export { GetTierlistWithID, GetDefaultTierlist };

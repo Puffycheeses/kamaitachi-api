@@ -1,16 +1,18 @@
 import * as express from "express";
-const db = require("../../../../../db.js");
+import db from "../../../../../db";
 const router = express.Router({ mergeParams: true });
-const userCore = require("../../../../../core/user-core.js");
-const middlewares = require("../../../../../middlewares.js");
-const apiConfig = require("../../../../../apiconfig.js");
+import userCore from "../../../../../core/user-core";
+import middlewares from "../../../../../middlewares";
+import apiConfig from "../../../../../apiconfig";
 
 // mounted on /api/v1/users/:userID/friends
 
 router.get("/", async function (req, res) {
     let user = req.requestedUser;
 
-    let friends = await db.get("users").find({ id: { $in: user.friends } }, { projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS });
+    let friends = await db
+        .get("users")
+        .find({ id: { $in: user.friends } }, { projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS });
 
     return res.status(200).json({
         success: true,
@@ -112,4 +114,4 @@ router.patch("/remove", middlewares.RequireUserKeyMatch, async function (req, re
     });
 });
 
-module.exports = router;
+export default router;

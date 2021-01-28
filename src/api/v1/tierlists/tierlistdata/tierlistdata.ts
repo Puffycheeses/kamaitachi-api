@@ -1,8 +1,8 @@
-const db = require("../../../../db.js");
-const dbCore = require("../../../../core/db-core.js");
+import db from "../../../../db";
+import dbCore from "../../../../core/db-core";
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-const tierlistHelpers = require("./tierlisthelpers.js");
+import tierlistHelpers from "./tierlisthelpers";
 
 // mounted on /api/v1/tierlists/tierlistdata
 
@@ -47,4 +47,4 @@ router.get("/", async function (req, res) {
     }
 });
 
-module.exports = router;
+export default router;

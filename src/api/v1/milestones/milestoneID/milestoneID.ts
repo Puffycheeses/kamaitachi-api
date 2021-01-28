@@ -1,9 +1,9 @@
 import * as express from "express";
-const dbCore = require("../../../../core/db-core.js");
-const goalCore = require("../../../../core/goal-core.js");
+import dbCore from "../../../../core/db-core";
+import goalCore from "../../../../core/goal-core";
 const router = express.Router({ mergeParams: true });
-const db = require("../../../../db.js");
-const config = require("../../../../config/config.js");
+import db from "../../../../db";
+import config from "../../../../config/config";
 
 // mounted on /api/v1/milestones/milestone/:milestoneID
 
@@ -145,4 +145,4 @@ router.delete("/remove-milestone", async function (req, res) {
     });
 });
 
-module.exports = router;
+export default router;

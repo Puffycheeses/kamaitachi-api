@@ -1,8 +1,8 @@
-const db = require("../../../db.js");
+import db from "../../../db";
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-const dbCore = require("../../../core/db-core.js");
-const apiConfig = require("../../../apiconfig.js");
+import dbCore from "../../../core/db-core";
+import apiConfig from "../../../apiconfig";
 
 // mounted on api/v1/stats
 
@@ -36,11 +36,17 @@ async function GetScoreCounts(idObj, skip, limit, queryObj) {
 
     let monthStats = await db
         .get("scores")
-        .aggregate([{ $match: Object.assign({}, queryObj, { timeAchieved: { $gt: monthStart } }) }, ...mainPipeline]);
+        .aggregate([
+            { $match: Object.assign({}, queryObj, { timeAchieved: { $gt: monthStart } }) },
+            ...mainPipeline,
+        ]);
 
     let todayStats = await db
         .get("scores")
-        .aggregate([{ $match: Object.assign({}, queryObj, { timeAchieved: { $gt: todayStart } }) }, ...mainPipeline]);
+        .aggregate([
+            { $match: Object.assign({}, queryObj, { timeAchieved: { $gt: todayStart } }) },
+            ...mainPipeline,
+        ]);
 
     return {
         alltime: allTimeStats,
@@ -117,4 +123,4 @@ router.get("/score-counts", async function (req, res) {
     });
 });
 
-module.exports = router;
+export default router;

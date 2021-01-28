@@ -1,8 +1,8 @@
-import db from "../../../../db.js";
-import middlewares = require("../../../../middlewares.js");
+import db from "../../../../db";
+import middlewares from "../../../../middlewares";
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-import dbCore = require("../../../../core/db-core.js");
+import dbCore from "../../../../core/db-core";
 
 // mounted on /api/v1/clans/:clanID
 router.use(middlewares.RequireExistingClan);
@@ -187,4 +187,4 @@ router.patch("/change-name", middlewares.RequireClanAdmin, async function (req, 
     });
 });
 
-module.exports = router;
+export default router;

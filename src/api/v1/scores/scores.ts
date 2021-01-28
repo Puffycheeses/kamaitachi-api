@@ -1,17 +1,24 @@
-const db = require("../../../db.js");
-const dbCore = require("../../../core/db-core.js");
+import db from "../../../db";
+import dbCore from "../../../core/db-core";
 import * as express from "express";
+import scoreCore from "../../../core/score-core";
+import config from "../../../config/config";
+import middlewares from "../../../middlewares";
+import regexSanitise from "escape-string-regexp";
+
 const router = express.Router({ mergeParams: true });
-const scoreHelpers = require("../../../core/score-core.js");
-const config = require("../../../config/config.js");
-const middlewares = require("../../../middlewares.js");
-const regexSanitise = require("escape-string-regexp");
 
-// mounted on /api/v1/scores
+/**
+ * @namespace v1/scores
+ */
 
+/**
+ * Returns a count of all of Kamaitachi's currently loaded scores.
+ * @name GET /v1/scores
+ */
 router.get("/", async function (req, res) {
     let scoreCount = await db.get("scores").count({});
-    let gameCount = {};
+    let gameCount: Record<string, number> = {};
     for (const game of config.supportedGames) {
         gameCount[game] = await db.get("scores").count({ game: game });
     }
@@ -25,15 +32,23 @@ router.get("/", async function (req, res) {
     });
 });
 
-router.get("/:userID/best", middlewares.RequireExistingUser, async function (req, res) {
-    if (!config.supportedGames.includes(req.query.game)) {
+/**
+ * Retrieves a users' best 100 scores sorted on calculatedData.rating.
+ * @name GET /v1/scores/:userID/best
+ */
+router.get("/:userID/best", middlewares.RequireExistingUser, async function (req: KTRequest, res) {
+    // overassert typescript so we can use this parameter as a member of Game.
+    // note that we check below whether this is even the case.
+    let game: Game = req.query.game as Game;
+
+    if (!config.supportedGames.includes(game)) {
         return res.status(400).json({
             success: false,
             description: "This game is not supported, or one was not provided.",
         });
     }
 
-    if (!config.validPlaytypes[req.query.game].includes(req.query.playtype)) {
+    if (!config.validPlaytypes[game].includes(req.query.playtype)) {
         return res.status(400).json({
             success: false,
             description: "This playtype is not supported, or one was not provided.",
@@ -48,66 +63,22 @@ router.get("/:userID/best", middlewares.RequireExistingUser, async function (req
 
     // else if we get here we're all good
 
-    let bestScores = await db.get("scores").find(
+    let bestScores = (await db.get("scores").find(
         {
             userID: parseInt(req.params.userID),
             game: req.query.game,
             "scoreData.playtype": req.query.playtype,
             isScorePB: true,
-            validity: { $ne: "invalid" },
         },
         {
             sort: { "calculatedData.rating": -1 },
             limit: 100,
-            start: startPoint,
+            skip: startPoint,
         }
-    );
+    )) as ScoreDocument[];
 
     if (req.query.autocoerce !== "false") {
-        bestScores = await scoreHelpers.AutoCoerce(bestScores);
-    }
-
-    let rivalGroup = await db.get("rivals").findOne({
-        game: req.query.game,
-        playtype: req.query.playtype,
-        isDefault: true,
-    });
-
-    // monkey patch rankings on
-    for (const score of bestScores) {
-        let ranking =
-            (await db.get("scores").count(
-                {
-                    songID: score.songID,
-                    "scoreData.difficulty": score.scoreData.difficulty,
-                    "scoreData.playtype": score.scoreData.playtype,
-                    isScorePB: true,
-                    "calculatedData.rating": { $gte: score.calculatedData.rating },
-                },
-                {
-                    sort: { "calculatedData.rating": -1 },
-                }
-            )) + 1;
-
-        score.ranking = ranking;
-
-        if (rivalGroup) {
-            let rgRanking =
-                (await db.get("scores").count(
-                    {
-                        userID: { $in: rivalGroup.members },
-                        songID: score.songID,
-                        "scoreData.difficulty": score.scoreData.difficulty,
-                        "scoreData.playtype": score.scoreData.playtype,
-                        isScorePB: true,
-                        "calculatedData.rating": { $gte: score.calculatedData.rating },
-                    },
-                    {
-                        sort: { "calculatedData.rating": -1 },
-                    }
-                )) + 1;
-            score.rgRanking = rgRanking;
-        }
+        bestScores = await scoreCore.AutoCoerce(bestScores);
     }
 
     if (bestScores.length === 0) {
@@ -122,7 +93,9 @@ router.get("/:userID/best", middlewares.RequireExistingUser, async function (req
         });
     }
 
-    let songs = await db.get(`songs-${req.query.game}`).find({ id: { $in: bestScores.map((e) => e.songID) } });
+    let songs = await db
+        .get(`songs-${req.query.game}`)
+        .find({ id: { $in: bestScores.map((e) => e.songID) } });
 
     let charts = await db.get(`charts-${req.query.game}`).find({
         $or: bestScores.map((e) => ({
@@ -144,8 +117,17 @@ router.get("/:userID/best", middlewares.RequireExistingUser, async function (req
 });
 
 const SCORE_LIMIT = 100;
-router.get("/query", async function (req, res) {
-    let baseObj = {};
+/**
+ * Performs a query on the score database. This also supports saved queries by passing the queryID parameter.
+ * @name GET /v1/scores/query
+ * @param queryID - The ID for a saved query stored inside db.queries.
+ * @param titleSearch - Limits the results of a query to songs that match /like/ the title.
+ * @param autoCoerce - if it exists, and is not "false", will automatically join scores
+ * such that they return PB data.
+ * @param userID - if "self", will limit the returned scores to only those by the requesting user.
+ */
+router.get("/query", async function (req: KTRequest, res) {
+    let baseObj: Record<string, unknown> = {};
 
     if (req.query.queryID) {
         let queryObj = await db.get("queries").findOne({
@@ -174,20 +156,6 @@ router.get("/query", async function (req, res) {
     if (!req.query.allowInvalid || req.query.allowInvalid !== "true") {
         baseObj.validity = { $ne: "invalid" };
     }
-    if (req.query.folderID) {
-        let folder = await db.get("folders").findOne({
-            folderID: req.query.folderID,
-        });
-
-        if (!folder) {
-            return res.status(404).json({
-                success: false,
-                description: `The folder ${req.query.folderID} does not exist.`,
-            });
-        }
-
-        // else, lets patch this onto baseObj
-    }
 
     if (req.query.titleSearch) {
         let regex = new RegExp(regexSanitise(req.query.titleSearch), "i");
@@ -206,7 +174,7 @@ router.get("/query", async function (req, res) {
             for (const game of config.supportedGames) {
                 let similarSongs = await db.get(`songs-${game}`).find(likeQuery);
 
-                baseObj.$or.push({
+                (baseObj.$or as Array<unknown>).push({
                     songID: { $in: similarSongs.map((e) => e.id) },
                     game: game,
                 });
@@ -215,19 +183,29 @@ router.get("/query", async function (req, res) {
     }
 
     if (req.query.userID === "self" && req.user) {
-        req.query.userID = `${req.user.id}`;
+        req.query.userID = req.user.id.toString();
     }
 
     try {
-        let resBody = await dbCore.FancyDBQuery("scores", req.query, true, SCORE_LIMIT, false, false, baseObj);
+        let resBody = (await dbCore.FancyDBQuery<ScoreDocument>(
+            "scores",
+            req.query,
+            true,
+            SCORE_LIMIT,
+            undefined,
+            false,
+            baseObj
+        )) as FancyQueryPseudoResponse<ScoreDocument>;
 
         // there are some other options we can use if this operation is successful
         if (resBody.body.success) {
             if (req.query.autoCoerce !== "false") {
-                resBody.body.body.items = await scoreHelpers.AutoCoerce(resBody.body.body.items);
+                resBody.body.body.items = await scoreCore.AutoCoerce(
+                    resBody.body.body.items as ScoreDocument[]
+                );
             }
-            if (req.query.getAssocData && req.query.getAssocData !== "false") {
-                resBody.body.body = await scoreHelpers.GetAssocData(resBody.body.body);
+            if (req.query.getAssocData && req.query.getAssocData === "true") {
+                resBody.body.body = await scoreCore.GetAssocData(resBody.body.body);
             }
 
             // if this was an existing query, increment popularity
@@ -259,8 +237,8 @@ router.get("/query", async function (req, res) {
     }
 });
 
-const scoreIDRouter = require("./scoreID/scoreID.js");
+import scoreIDRouter from "./scoreID/scoreID";
 
 router.use("/:scoreID", scoreIDRouter);
 
-module.exports = router;
+export default router;

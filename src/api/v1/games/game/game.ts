@@ -1,9 +1,9 @@
-const db = require("../../../../db.js");
+import db from "../../../../db";
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-const config = require("../../../../config/config.js");
-const middlewares = require("../../../../middlewares.js");
-const userHelpers = require("../../../../core/user-core.js");
+import config from "../../../../config/config";
+import middlewares from "../../../../middlewares";
+import userHelpers from "../../../../core/user-core";
 
 // mounted on /api/v1/games/:game
 
@@ -68,10 +68,10 @@ router.get("/playercount", async function (req, res) {
 });
 
 // mounts
-const songsRouter = require("./songs/songs.js");
-const chartsRouter = require("./charts/charts.js");
+import songsRouter from "./songs/songs";
+import chartsRouter from "./charts/charts";
 
 router.use("/songs", songsRouter);
 router.use("/charts", chartsRouter);
 
-module.exports = router;
+export default router;

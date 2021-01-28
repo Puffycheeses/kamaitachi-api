@@ -1,5 +1,9 @@
-const db = require("../db.js");
-async function HandleCustomUserSelections(req, queryObj) {
+import db from "../db";
+
+async function HandleCustomUserSelections(
+    req: Express.Request,
+    queryObj: Record<string, unknown>
+): Promise<Record<string, unknown>> {
     if (req.query.myRivals && req.user) {
         let rivalGroups = await db.get("rivals").find({
             isDefault: true,
@@ -7,9 +11,9 @@ async function HandleCustomUserSelections(req, queryObj) {
         });
 
         if (rivalGroups.length) {
-            queryObj = {
+            return {
                 $or: rivalGroups.map((e) => ({
-                    userID: { $in: e.members.filter((m) => m !== req.user.id) },
+                    userID: { $in: e.members.filter((m: integer) => m !== req.user?.id) },
                     game: e.game,
                     playtype: e.playtype,
                 })),
@@ -30,4 +34,4 @@ async function HandleCustomUserSelections(req, queryObj) {
     return queryObj;
 }
 
-module.exports = { HandleCustomUserSelections };
+export { HandleCustomUserSelections };

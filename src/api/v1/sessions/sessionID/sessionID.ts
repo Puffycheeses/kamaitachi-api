@@ -1,8 +1,8 @@
 import * as express from "express";
-const dbCore = require("../../../../core/db-core.js");
+import dbCore from "../../../../core/db-core";
 const router = express.Router({ mergeParams: true });
-const db = require("../../../../db.js");
-const apiConfig = require("../../../../apiconfig.js");
+import db from "../../../../db";
+import apiConfig from "../../../../apiconfig";
 
 // mounted on /api/v1/sessions/:sessionID
 
@@ -201,15 +201,19 @@ router.patch("/set-desc", GetSessionWithID, ValidateUser, async function (req, r
 });
 
 router.patch("/toggle-highlight", GetSessionWithID, ValidateUser, async function (req, res) {
-    await db.get("sessions").update({ _id: req.sessionObj._id }, { $set: { highlight: !req.sessionObj.highlight } });
+    await db
+        .get("sessions")
+        .update({ _id: req.sessionObj._id }, { $set: { highlight: !req.sessionObj.highlight } });
 
     return res.status(200).json({
         success: true,
-        description: `Successfully ${req.sessionObj.highlight ? "unhighlighted session." : "highlighted session!"}`,
+        description: `Successfully ${
+            req.sessionObj.highlight ? "unhighlighted session." : "highlighted session!"
+        }`,
         body: {
             highlightStatus: !req.sessionObj.highlight,
         },
     });
 });
 
-module.exports = router;
+export default router;

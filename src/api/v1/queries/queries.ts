@@ -1,9 +1,9 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
-const dbCore = require("../../../core/db-core.js");
-const jsum = require("jsum");
-const db = require("../../../db.js");
-const apiConfig = require("../../../apiconfig.js");
+import dbCore from "../../../core/db-core";
+import jsum from "jsum";
+import db from "../../../db";
+import apiConfig from "../../../apiconfig";
 
 // mounted on /v1/queries
 
@@ -162,4 +162,4 @@ router.put("/add-query", async function (req, res) {
     });
 });
 
-module.exports = router;
+export default router;
