@@ -2,36 +2,31 @@ import dbCore from "../../../../../core/db-core";
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
 
-// mounted on /api/v1/games/:game/charts
+/**
+ * @namespace /v1/games/:game/charts
+ */
 
 const CHART_RET_LIMIT = 100;
-router.get("/", async (req, res) => {
+
+/**
+ * Performs a fancy query on the charts database for the given game.
+ * @name GET /v1/games/:game/charts
+ * @note songID in query is identical to passing ID, and is a hack fix for poor DB decisions.
+ */
+router.get("/", async (req: KTRequest, res) => {
     // hack fix for poor db naming.
     if (req.query.songID) {
         req.query.id = req.query.songID;
     }
 
-    try {
-        let dbRes = await dbCore.FancyDBQuery(
-            `charts-${req.params.game}`,
-            req.query,
-            true,
-            CHART_RET_LIMIT,
-            "charts"
-        );
-        return res.status(dbRes.statusCode).json(dbRes.body);
-    } catch (r) {
-        if (r.statusCode && r.body) {
-            return res.status(r.statusCode).json(r.body);
-        } else {
-            console.error(req.originalUrl);
-            console.error(r);
-            return res.status(500).json({
-                success: false,
-                description: "An unknown internal server error has occured.",
-            });
-        }
-    }
+    let dbRes = await dbCore.FancyDBQuery(
+        `charts-${req.params.game}` as ValidDatabases,
+        req.query,
+        true,
+        CHART_RET_LIMIT,
+        "charts"
+    );
+    return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
 export default router;
