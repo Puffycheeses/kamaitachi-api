@@ -14,8 +14,8 @@ interface FolderQueryReturns {
  */
 async function GetDataFromFolderQuery(
     folder: FolderDocument,
-    playtype: string,
-    difficulty: string,
+    playtype: Playtypes[Game] | null,
+    difficulty: Difficulties[Game] | null,
     onlyGetCharts?: boolean
 ): Promise<FolderQueryReturns> {
     let coll = folder.query.collection;
