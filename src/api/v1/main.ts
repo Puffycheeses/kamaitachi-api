@@ -18,8 +18,8 @@ router.use((req, res, next) => {
  * Returns the current status of the Kamaitachi API.
  * @name /v1
  */
-router.get("/", async function (req, res) {
-    return res.status(200).json({
+router.get("/", async (req, res) =>
+    res.status(200).json({
         success: true,
         body: {
             version: {
@@ -33,8 +33,8 @@ router.get("/", async function (req, res) {
             MINOR_VER,
             PATCH_VER,
         ].join(".")}`,
-    });
-});
+    })
+);
 
 // mounts:
 import usersRouter from "./users/users";
@@ -43,7 +43,6 @@ import scoresRouter from "./scores/scores";
 import leaderboardsRouter from "./leaderboards/leaderboards";
 import gamesRouter from "./games/games";
 import rivalsRouter from "./rivals/rivals";
-import clansRouter from "./clans/clans";
 import importsRouter from "./imports/imports";
 import statsRouter from "./stats/stats";
 import queryRouter from "./queries/queries";
@@ -74,7 +73,6 @@ router.use("/user-milestones", userMilestoneRouter);
 router.use("/imports", importsRouter);
 router.use("/folders", folderRouter);
 router.use("/fun-facts", ffactRouter);
-router.use("/clans", clansRouter);
 router.use("/session-feed", sessionFeedRouter);
 
 // require APIKey more or less means "require logged in".
