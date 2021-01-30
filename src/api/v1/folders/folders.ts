@@ -5,30 +5,43 @@ import db from "../../../db";
 import config from "../../../config/config";
 import apiConfig from "../../../apiconfig";
 import folderCore from "../../../core/folder-core";
+import common from "../../../core/common-core";
 
-// mounted on /api/v1/folders
+/**
+ * @namespace /v1/folders
+ */
 
 const MAX_RETURNS = 100;
-router.get("/", async function (req, res) {
-    try {
-        let dbRes = await dbCore.FancyDBQuery("folders", req.query, true, MAX_RETURNS);
-        return res.status(dbRes.statusCode).json(dbRes.body);
-    } catch (r) {
-        if (r.statusCode && r.body) {
-            return res.status(r.statusCode).json(r.body);
-        } else {
-            console.error(req.originalUrl);
-            console.error(r);
-            return res.status(500).json({
-                success: false,
-                description: "An unknown internal server error has occured.",
-            });
-        }
-    }
+
+/**
+ * Returns up to 100 folders.
+ * @name GET /v1/folders
+ */
+router.get("/", async (req: KTRequest, res) => {
+    let dbRes = await dbCore.FancyDBQuery("folders", req.query, true, MAX_RETURNS);
+    return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
-router.get("/table-folders", async function (req, res) {
-    if (!req.query.game || !config.supportedGames.includes(req.query.game)) {
+interface TableStat {
+    allScores: integer;
+    uniqueScores: integer;
+    totalCharts: integer;
+    lampDist: Record<string, integer>;
+    gradeDist: Record<string, integer>;
+    gradeFolderLamp?: string;
+    lampFolderLamp?: string;
+}
+
+type TableStatsObject = Record<Playtypes[Game], TableStat>;
+
+/**
+ * Returns the folders inside a table (A set of folders).
+ * This requires a user to be logged in, or one to specifically be passed.
+ * This also returns the given users statistics on said table.
+ * @name GET /v1/folders/table-folders
+ */
+router.get("/table-folders", async (req: KTRequest, res) => {
+    if (!common.IsValidGame(req.query.game)) {
         return res.status(400).json({
             success: false,
             description: "No valid game given.",
@@ -54,7 +67,7 @@ router.get("/table-folders", async function (req, res) {
         }
     }
 
-    let userID;
+    let userID: integer;
 
     if (parseInt(req.query.userID)) {
         let u = await db.get("users").findOne(
@@ -86,7 +99,7 @@ router.get("/table-folders", async function (req, res) {
 
     let game = req.query.game;
 
-    let playtype = config.validPlaytypes[game].includes(req.query.playtype)
+    let playtype = common.IsValidPlaytype(req.query.playtype, game)
         ? req.query.playtype
         : config.defaultPlaytype[game];
 
@@ -120,14 +133,17 @@ router.get("/table-folders", async function (req, res) {
         });
     }
 
-    let stats = {};
+    let stats: Record<string, Partial<TableStatsObject>> = {};
 
     let folderProm = [];
 
     for (const folder of tableFolders) {
         folderProm.push(
+            // eslint things that ScoreDocument[][] is some crazy variable declaration
+            // weird.
+            // eslint-disable-next-line no-loop-func
             folderCore.GetDataFromFolderQuery(folder, playtype, null, true).then(async (data) => {
-                let [scores, uniqueScores, uniqueOnLamp] = await Promise.all([
+                let [scores, uniqueScores, uniqueOnLamp]: ScoreDocument[][] = await Promise.all([
                     db.get("scores").find({
                         userID: userID,
                         chartID: { $in: data.charts.map((e) => e.chartID) },
@@ -158,8 +174,8 @@ router.get("/table-folders", async function (req, res) {
                     stats[folder.folderID] = {};
                 }
 
-                let gradeDist = {};
-                let lampDist = {};
+                let gradeDist: Record<string, number> = {};
+                let lampDist: Record<string, number> = {};
                 for (const sc of uniqueScores) {
                     if (gradeDist[sc.scoreData.grade]) {
                         gradeDist[sc.scoreData.grade] += 1;
@@ -187,9 +203,9 @@ router.get("/table-folders", async function (req, res) {
                     uniqueScores.length === data.charts.length &&
                     uniqueScores.length + data.charts.length !== 0
                 ) {
-                    stats[folder.folderID][playtype].gradeFolderLamp =
+                    stats[folder.folderID][playtype]!.gradeFolderLamp =
                         uniqueScores[0].scoreData.grade;
-                    stats[folder.folderID][playtype].lampFolderLamp =
+                    stats[folder.folderID][playtype]!.lampFolderLamp =
                         uniqueOnLamp[0].scoreData.lamp;
                 }
             })
