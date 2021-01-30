@@ -43,7 +43,7 @@ router.use(RequireValidFolderID);
 
 /**
  * Returns the folder with the ID as a parameter.
- * @name GET v1/folders/:folderID
+ * @name GET /v1/folders/:folderID
  */
 router.get("/", async (req, res) =>
     res.status(200).json({
@@ -101,7 +101,7 @@ async function ValidateRivalGroupID(
 
 /**
  * Returns the charts that belong to the given folderID.
- * @name GET v1/folders/:folderID/charts
+ * @name GET /v1/folders/:folderID/charts
  * @param playtype - The playtype to filter charts by.
  * @param difficulty - The difficulty to filter charts by.
  */
@@ -147,7 +147,7 @@ router.get("/charts", async (req: KTRequest, res) => {
 
 /**
  * Gets a given user's scores on the folder.
- * @name GET v1/folders/:folderID/scores
+ * @name GET /v1/folders/:folderID/scores
  * @param playtype - Limits returned scores to only those for the given playtype.
  * @param difficulty - Limits returned scores to only those for the given difficulty.
  * @param getServerRecords - (unimplemented) returns the server records for all charts in the folder.
@@ -277,7 +277,7 @@ router.get("/scores", ValidateUserID, ValidateRivalGroupID, async (req, res) => 
 
 /**
  * Returns a users goals on the given folder.
- * @name GET v1/folders/:folderID/goals
+ * @name GET /v1/folders/:folderID/goals
  */
 router.get("/goals", ValidateUserID, async (req, res) => {
     let folder = req.folderData as FolderDocument;
@@ -309,7 +309,7 @@ router.get("/goals", ValidateUserID, async (req, res) => {
 
 /**
  * Returns tierlist data for the given folder.
- * @name GET v1/folders/:folderID/tierlist-data
+ * @name GET /v1/folders/:folderID/tierlist-data
  */
 router.get("/tierlist-data", async (req: KTRequest, res) => {
     let folder = req.folderData as FolderDocument;
@@ -409,7 +409,7 @@ const INTERNAL_TARGET_NAME = {
 
 /**
  * Gets the data necessary to render a Kamaitachi WebUI timeline.
- * @name GET v1/folders/:folderID/timeline
+ * @name GET /v1/folders/:folderID/timeline
  * @param targetName - lamp, grade, percent or score depending on what the timeline pivots on.
  * @param targetVal - a number representing the target in question.
  */
