@@ -28,6 +28,13 @@ interface GamesResponseCache {
 let gamesResponseCache: null | GamesResponseCache = null;
 const ONE_HOUR = 1000 * 60 * 60;
 
+/**
+ * Returns information about all games.
+ * @name GET /v1/games
+ * @note This is expensive, and results are cached for an hour upon being hit.
+ * You should check whether your response code is 201, to determine whether
+ * you got a fresh copy.
+ */
 router.get("/", async (req, res) => {
     if (gamesResponseCache && gamesResponseCache.timestamp + ONE_HOUR < Date.now()) {
         return res.status(200).json({
