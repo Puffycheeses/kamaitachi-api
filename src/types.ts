@@ -13,10 +13,7 @@ declare global {
         _id?: IObjectID;
     }
 
-    /**
-     * ValidDatabases: Indicates the databases expected by FQ.
-     */
-    export type ValidDatabases =
+    export type Databases =
         | "sessions"
         | "folders"
         | "scores"
@@ -26,13 +23,18 @@ declare global {
         | "imports"
         | "tierlistdata"
         | "tierlist"
-        | "songs"
-        | "charts"
         | "clans"
         | "goals"
         | "user-goals"
         | "user-milestones"
         | "milestones";
+
+    /**
+     * ValidFQDatabases: Indicates the databases expected by FQ config overrides.
+     */
+    export type ValidFQDatabases = Databases | "songs" | "charts";
+
+    export type ValidDatabases = Databases | `songs-${Game}` | `charts-${Game}`;
 
     /**
      * FQType: Indicates the type of variable expected by fancyquery for this key.
