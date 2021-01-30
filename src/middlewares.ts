@@ -124,6 +124,8 @@ async function RequireExistingSongID(
         });
     }
 
+    req.song = song;
+
     next();
 }
 
