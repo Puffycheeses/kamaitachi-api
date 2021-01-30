@@ -4,10 +4,17 @@ const router = express.Router({ mergeParams: true });
 import config from "../../../../config/config";
 import middlewares from "../../../../middlewares";
 
-// mounted on /api/v1/games/:game
+/**
+ * @namespace /v1/games/:game
+ */
 
 router.use(middlewares.RequireValidGame);
 
+/**
+ * Returns information about that specific game,
+ * including config settings, songs, charts and scores.
+ * @name GET /v1/games/:game
+ */
 router.get("/", async (req, res) => {
     let scoreCount = await db.get("scores").count({ game: req.params.game });
     let songCount = await db.get(`songs-${req.params.game}`).count({});
@@ -46,10 +53,15 @@ router.get("/", async (req, res) => {
     });
 });
 
+/**
+ * Returns the amount of players (people with non-zero ratings)
+ * on the given game.
+ * @name GET /v1/games/:game/playercount
+ */
 router.get("/playercount", async (req, res) => {
-    let playtypes = config.validPlaytypes[req.params.game];
+    let playtypes = config.validPlaytypes[req.params.game as Game];
 
-    let ret = {};
+    let ret: Partial<Record<Playtypes[Game], integer>> = {};
 
     for (const pt of playtypes) {
         let players = await db.get("users").count({
