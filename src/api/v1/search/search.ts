@@ -8,7 +8,7 @@ import config from "../../../config/config";
 
 // NOTE: this is disgustingly inefficient.
 // CAN SERIOUSLY BE OPTIMISED - zkldi
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     let search = regexSanitise(req.query.title || "");
     let searchCriteria = search;
     if (!req.query.exact) {

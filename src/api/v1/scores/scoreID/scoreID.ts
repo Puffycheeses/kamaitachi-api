@@ -53,20 +53,20 @@ async function ScoreUserKeyMatch(
  * Returns the exactly requested score document.
  * @name GET /v1/scores/:scoreID
  */
-router.get("/", async function (req, res) {
-    return res.status(200).json({
+router.get("/", async (req, res) =>
+    res.status(200).json({
         success: true,
         description: `Found score with ID: ${req.params.scoreID}`,
         body: req.score,
-    });
-});
+    })
+);
 
 /**
  * Changes the highlight status of the requested score document.
  * @access Requesting user must be the creator of the given score.
  * @name PATCH /v1/scores/:scoreID/toggle-highlight
  */
-router.patch("/toggle-highlight", ScoreUserKeyMatch, async function (req, res) {
+router.patch("/toggle-highlight", ScoreUserKeyMatch, async (req, res) => {
     let score = req.score as ScoreDocument;
 
     await db.get("scores").update(
@@ -95,7 +95,7 @@ router.patch("/toggle-highlight", ScoreUserKeyMatch, async function (req, res) {
  * @name PATCH /v1/scores/:scoreID/edit-comment
  * @param comment - a 240 characters or less string representing the comment to add to the score.
  */
-router.patch("/edit-comment", ScoreUserKeyMatch, async function (req, res) {
+router.patch("/edit-comment", ScoreUserKeyMatch, async (req, res) => {
     if (!req.body.comment) {
         return res.status(400).json({
             success: false,
@@ -140,7 +140,7 @@ router.patch("/edit-comment", ScoreUserKeyMatch, async function (req, res) {
  * @access Requesting user must be the creator of the given score.
  * @name PATCH /v1/scores/:scoreID/remove-comment
  */
-router.patch("/remove-comment", ScoreUserKeyMatch, async function (req, res) {
+router.patch("/remove-comment", ScoreUserKeyMatch, async (req, res) => {
     let score = req.score as ScoreDocument;
 
     await db.get("scores").update(

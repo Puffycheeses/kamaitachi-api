@@ -6,7 +6,7 @@ import db from "../../../db";
 // mounted on /api/v1/imports
 
 const MAX_RETURNS = 100;
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     try {
         let dbRes = await dbCore.FancyDBQuery("imports", req.query, true, MAX_RETURNS);
         return res.status(dbRes.statusCode).json(dbRes.body);
@@ -40,7 +40,7 @@ async function GetImportWithID(req, res, next) {
     next();
 }
 
-router.get("/:importID", GetImportWithID, async function (req, res) {
+router.get("/:importID", GetImportWithID, async (req, res) => {
     let importObj = req.importObj;
 
     return res.status(200).json({
@@ -50,7 +50,7 @@ router.get("/:importID", GetImportWithID, async function (req, res) {
     });
 });
 
-router.get("/:importID/scores", GetImportWithID, async function (req, res) {
+router.get("/:importID/scores", GetImportWithID, async (req, res) => {
     let importObj = req.importObj;
 
     let start = parseInt(req.query.start) || 0;

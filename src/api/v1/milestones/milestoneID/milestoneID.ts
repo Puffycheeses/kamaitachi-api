@@ -1,9 +1,7 @@
 import * as express from "express";
-import dbCore from "../../../../core/db-core";
 import goalCore from "../../../../core/goal-core";
 const router = express.Router({ mergeParams: true });
 import db from "../../../../db";
-import config from "../../../../config/config";
 
 // mounted on /api/v1/milestones/milestone/:milestoneID
 
@@ -26,16 +24,16 @@ async function ValidateMilestoneID(req, res, next) {
 
 router.use(ValidateMilestoneID);
 
-router.get("/", async function (req, res) {
-    return res.status(200).json({
+router.get("/", async (req, res) =>
+    res.status(200).json({
         success: true,
         description: `Successfully found goal ${req.ktchiMilestone.title}.`,
         body: req.ktchiMilestone,
-    });
-});
+    })
+);
 
 // this code is almost identical to the goalID setting.
-router.patch("/set-milestone", async function (req, res) {
+router.patch("/set-milestone", async (req, res) => {
     let milestone = req.ktchiMilestone;
     let exists = await db.get("user-milestones").findOne({
         userID: req.apikey.assignedTo,
@@ -112,7 +110,7 @@ router.patch("/set-milestone", async function (req, res) {
     });
 });
 
-router.delete("/remove-milestone", async function (req, res) {
+router.delete("/remove-milestone", async (req, res) => {
     let exists = await db.get("user-milestones").findOne({
         userID: req.apikey.assignedTo,
         milestoneID: req.params.milestoneID,

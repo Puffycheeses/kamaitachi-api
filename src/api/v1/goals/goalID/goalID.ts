@@ -1,9 +1,7 @@
 import * as express from "express";
-import dbCore from "../../../../core/db-core";
 import goalCore from "../../../../core/goal-core";
 const router = express.Router({ mergeParams: true });
 import db from "../../../../db";
-import config from "../../../../config/config";
 
 // mounted on /api/v1/goals/goal/:goalID
 
@@ -26,15 +24,15 @@ async function ValidateGoalID(req, res, next) {
 
 router.use(ValidateGoalID);
 
-router.get("/", async function (req, res) {
-    return res.status(200).json({
+router.get("/", async (req, res) =>
+    res.status(200).json({
         success: true,
         description: `Successfully found goal ${req.ktchiGoal.title}.`,
         body: req.ktchiGoal,
-    });
-});
+    })
+);
 
-router.patch("/assign-goal", async function (req, res) {
+router.patch("/assign-goal", async (req, res) => {
     let goal = req.ktchiGoal;
     let exists = await db.get("user-goals").findOne({
         userID: req.apikey.assignedTo,
@@ -58,7 +56,7 @@ router.patch("/assign-goal", async function (req, res) {
     });
 });
 
-router.delete("/remove-goal", async function (req, res) {
+router.delete("/remove-goal", async (req, res) => {
     let exists = await db.get("user-goals").findOne({
         userID: req.apikey.assignedTo,
         goalID: req.params.goalID,

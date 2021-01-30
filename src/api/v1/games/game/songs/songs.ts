@@ -8,7 +8,7 @@ import similar from "string-similarity";
 
 const MAX_RETURNS = 100;
 
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     try {
         let dbRes = await dbCore.FancyDBQuery(
             `songs-${req.params.game}`,
@@ -44,7 +44,7 @@ router.get("/", async function (req, res) {
 
 // NOTE: this is disgustingly inefficient.
 // CAN SERIOUSLY BE OPTIMISED - zkldi
-router.get("/search", async function (req, res) {
+router.get("/search", async (req, res) => {
     let search = regexSanitise(req.query.title || "");
     let searchCriteria = search;
     if (!req.query.exact) {

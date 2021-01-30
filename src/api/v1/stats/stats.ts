@@ -8,9 +8,7 @@ import apiConfig from "../../../apiconfig";
 
 const STAT_LIMIT = 50;
 
-async function GetScoreCounts(idObj, skip, limit, queryObj) {
-    queryObj = queryObj || {};
-
+async function GetScoreCounts(idObj, skip, limit, queryObj = {}) {
     let now = new Date();
 
     // month does it from the start of this month
@@ -55,7 +53,7 @@ async function GetScoreCounts(idObj, skip, limit, queryObj) {
     };
 }
 
-router.get("/score-counts", async function (req, res) {
+router.get("/score-counts", async (req, res) => {
     let queryObj = {};
 
     let validKeys = apiConfig.validKeys.scores;

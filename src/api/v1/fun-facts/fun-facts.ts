@@ -6,7 +6,7 @@ import apiConfig from "../../../apiconfig";
 
 // mounted on /api/v1/fun-facts
 
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     if (!req.apikey) {
         return res.status(401).json({
             success: false,
@@ -68,7 +68,7 @@ router.get("/", async function (req, res) {
     });
 });
 
-router.put("/submit-fun-fact", async function (req, res) {
+router.put("/submit-fun-fact", async (req, res) => {
     if (!req.body.funfact) {
         return res.status(400).json({
             success: false,

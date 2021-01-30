@@ -5,7 +5,7 @@ import db from "../../../../../db";
 
 // mounted on /api/v1/users/:userID/scores
 
-router.get("/count", async function (req, res) {
+router.get("/count", async (req, res) => {
     let user = req.requestedUser;
 
     req.query.userID = `${user.id}`;
@@ -36,7 +36,7 @@ interface PartialTimestampScore {
     timeAchieved: number;
 }
 
-router.get("/heatmap", async function (req, res) {
+router.get("/heatmap", async (req, res) => {
     let user = req.requestedUser;
 
     // actually, its just 365 days, but you know how it is.

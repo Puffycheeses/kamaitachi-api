@@ -8,7 +8,7 @@ import apiConfig from "../../../apiconfig";
 // mounted on /api/v1/sessions
 
 const MAX_RETURNS = 100;
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     try {
         let queryObj = {};
 
@@ -51,6 +51,8 @@ router.get("/", async function (req, res) {
     }
 });
 
-router.use("/:sessionID", require("./sessionID/sessionID.js"));
+import sessionIDRouter from "./sessionID/sessionID";
+
+router.use("/:sessionID", sessionIDRouter);
 
 export default router;

@@ -10,7 +10,7 @@ import apiConfig from "../../../apiconfig";
 // query for queries
 // confusing naming, i guess?
 const RETURN_LIMIT = 100;
-router.get("/query", async function (req, res) {
+router.get("/query", async (req, res) => {
     try {
         let dbr = await dbCore.FancyDBQuery("queries", req.query, true, RETURN_LIMIT);
 
@@ -42,7 +42,7 @@ router.get("/query", async function (req, res) {
     }
 });
 
-router.delete("/remove-query", async function (req, res) {
+router.delete("/remove-query", async (req, res) => {
     if (!req.body.queryID) {
         return res.status(400).json({
             success: false,
@@ -90,7 +90,7 @@ const validQueryOptions = [
     "scoreData.percent",
 ];
 
-router.put("/add-query", async function (req, res) {
+router.put("/add-query", async (req, res) => {
     if (!req.body.name) {
         return res.status(400).json({
             success: false,

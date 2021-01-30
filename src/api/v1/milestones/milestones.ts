@@ -6,7 +6,7 @@ import apiConfig from "../../../apiconfig";
 // mounted on /api/v1/milestones
 
 const MAX_RETURNS = 100;
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     try {
         let dbRes = await dbCore.FancyDBQuery("milestones", req.query, true, MAX_RETURNS);
 

@@ -69,11 +69,11 @@ import apiRouterV1 from "./api/v1/main";
 app.use("/v1", apiRouterV1);
 
 // if anything has not been found by this point, they're 404ing.
-app.get("*", async function (req, res) {
-    return res.status(404).json({
+app.get("*", async (req, res) =>
+    res.status(404).json({
         success: false,
         description: "404: Endpoint does not exist.",
-    });
-});
+    })
+);
 
 export default app;

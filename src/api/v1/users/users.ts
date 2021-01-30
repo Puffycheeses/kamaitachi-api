@@ -12,7 +12,7 @@ const router = express.Router({ mergeParams: true });
 const MAX_USER_RETURN_LIMIT = 100;
 const ALLOWED_SORT_CRITERIA = ["id", "xp", "username", "displayname"];
 
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     let rgxIsNum = /^[0-9]+$/;
     let userLimit = MAX_USER_RETURN_LIMIT;
     if (req.query.limit) {
@@ -78,7 +78,7 @@ router.get("/", async function (req, res) {
     });
 });
 
-router.get("/online", async function (req, res) {
+router.get("/online", async (req, res) => {
     let userLimit = MAX_USER_RETURN_LIMIT;
     if (req.query.limit) {
         if (!rgxIsNum.match(req.query.limit)) {
@@ -137,7 +137,7 @@ router.get("/online", async function (req, res) {
     });
 });
 
-router.get("/search", async function (req, res) {
+router.get("/search", async (req, res) => {
     if (!req.query.username) {
         return res.status(400).json({
             success: false,

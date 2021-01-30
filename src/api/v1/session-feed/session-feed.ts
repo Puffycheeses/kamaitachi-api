@@ -9,7 +9,7 @@ import sessionCore from "../../../core/session-core";
 // (saves having to make multiple requests.)
 // note that, if this looks strange, it's because it is making optimisations **everywhere**.
 const MAX_RETURNS = 50;
-router.get("/", async function (req: KTRequest, res) {
+router.get("/", async (req: KTRequest, res) => {
     try {
         let queryObj = {};
         queryObj = await sessionCore.HandleCustomUserSelections(req, queryObj);

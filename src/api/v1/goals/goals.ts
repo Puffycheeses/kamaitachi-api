@@ -10,7 +10,7 @@ import middlewares from "../../../middlewares";
 // mounted on /api/v1/goals
 
 const MAX_RETURNS = 100;
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     try {
         let dbRes = await dbCore.FancyDBQuery("goals", req.query, true, MAX_RETURNS);
 
@@ -93,12 +93,12 @@ const SUPPORTED_SCORE_GOAL_KEYS = {
     // isLampPB: "boolean"
 };
 
-const HUMAN_SCORE_GOAL_OPT = {
-    lt: "<",
-    lte: "<=",
-    gt: ">",
-    gte: ">=",
-};
+// const HUMAN_SCORE_GOAL_OPT = {
+//     lt: "<",
+//     lte: "<=",
+//     gt: ">",
+//     gte: ">=",
+// };
 
 const HUMAN_SCORE_GOAL_KEY = {
     "scoreData.score": "Score",
@@ -108,7 +108,7 @@ const HUMAN_SCORE_GOAL_KEY = {
     // "scoreData.esd": "ESD",
 };
 
-router.put("/create-simple-chart-goal", RequireValidGame, async function (req, res) {
+router.put("/create-simple-chart-goal", RequireValidGame, async (req, res) => {
     if (!req.body.chartID) {
         return res.status(400).json({
             success: false,
@@ -309,7 +309,7 @@ router.put(
     "/create-advanced-goal",
     RequireValidGame,
     middlewares.RequireAdmin,
-    async function (req, res) {
+    async (req, res) => {
         let gVal = parseFloat(req.body.sgVal);
 
         if (req.body.sgKey === "scoreData.gradeIndex") {

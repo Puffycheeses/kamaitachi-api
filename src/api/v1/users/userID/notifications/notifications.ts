@@ -9,7 +9,7 @@ router.use(middlewares.RequireUserKeyMatch);
 
 const MAX_RETURNS = 100;
 
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     let user = req.requestedUser as PublicUserDocument;
 
     req.query.toUserID = `${user.id}`;
@@ -32,7 +32,7 @@ router.get("/", async function (req, res) {
     }
 });
 
-router.delete("/delete/:notifID", async function (req, res) {
+router.delete("/delete/:notifID", async (req, res) => {
     let notif = await db.get("notifications").findOne({
         notifID: req.params.notifID,
         toUserID: req.apikey.assignedTo,
@@ -57,7 +57,7 @@ router.delete("/delete/:notifID", async function (req, res) {
 });
 
 // sugar for notifications?read=false
-router.get("/unread", async function (req, res) {
+router.get("/unread", async (req, res) => {
     let user = req.requestedUser;
 
     req.query.toUserID = `${user.id}`;

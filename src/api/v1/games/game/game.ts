@@ -8,7 +8,7 @@ import middlewares from "../../../../middlewares";
 
 router.use(middlewares.RequireValidGame);
 
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     let scoreCount = await db.get("scores").count({ game: req.params.game });
     let songCount = await db.get(`songs-${req.params.game}`).count({});
     let chartCount = await db.get(`charts-${req.params.game}`).count({});
@@ -46,7 +46,7 @@ router.get("/", async function (req, res) {
     });
 });
 
-router.get("/playercount", async function (req, res) {
+router.get("/playercount", async (req, res) => {
     let playtypes = config.validPlaytypes[req.params.game];
 
     let ret = {};

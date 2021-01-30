@@ -28,7 +28,7 @@ interface GamesResponseCache {
 let gamesResponseCache: null | GamesResponseCache = null;
 const ONE_HOUR = 1000 * 60 * 60;
 
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     if (gamesResponseCache && gamesResponseCache.timestamp + ONE_HOUR < Date.now()) {
         return res.status(200).json({
             success: true,

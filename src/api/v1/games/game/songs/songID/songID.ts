@@ -8,7 +8,7 @@ import dbCore from "../../../../../../core/db-core";
 
 router.use(middlewares.RequireExistingSongID);
 
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     let song = await db
         .get(`songs-${req.params.game}`)
         .findOne({ id: parseInt(req.params.songID) }, { projection: { _id: 0 } });
@@ -29,7 +29,7 @@ router.get("/", async function (req, res) {
 
 const CHART_RET_LIMIT = 100;
 
-router.get("/charts", async function (req, res) {
+router.get("/charts", async (req, res) => {
     req.query.id = req.params.songID;
 
     try {

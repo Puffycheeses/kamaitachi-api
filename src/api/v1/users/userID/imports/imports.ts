@@ -5,7 +5,7 @@ const router = express.Router({ mergeParams: true });
 // mounted on /api/v1/users/:userID/imports
 
 const MAX_RETURNS = 100;
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     let user = req.requestedUser;
 
     req.query.userID = `${user.id}`;

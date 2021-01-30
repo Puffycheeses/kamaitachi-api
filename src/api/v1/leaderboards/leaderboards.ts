@@ -9,7 +9,7 @@ import apiConfig from "../../../apiconfig";
 
 const RETURN_LIMIT = 100;
 
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     let leaderboardData = {};
 
     for (const game of config.supportedGames) {
@@ -39,7 +39,7 @@ router.get("/", async function (req, res) {
     });
 });
 
-router.get("/games/:game", async function (req, res) {
+router.get("/games/:game", async (req, res) => {
     let playtype = req.query.playtype
         ? req.query.playtype
         : config.defaultPlaytype[req.params.game];

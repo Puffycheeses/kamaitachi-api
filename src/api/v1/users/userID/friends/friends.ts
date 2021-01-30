@@ -7,7 +7,7 @@ import apiConfig from "../../../../../apiconfig";
 
 // mounted on /api/v1/users/:userID/friends
 
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     let user = req.requestedUser;
 
     let friends = await db
@@ -23,7 +23,7 @@ router.get("/", async function (req, res) {
     });
 });
 
-router.get("/online", async function (req, res) {
+router.get("/online", async (req, res) => {
     let user = req.requestedUser;
 
     let curTime = Date.now();
@@ -46,7 +46,7 @@ router.get("/online", async function (req, res) {
     });
 });
 
-router.patch("/add", middlewares.RequireUserKeyMatch, async function (req, res) {
+router.patch("/add", middlewares.RequireUserKeyMatch, async (req, res) => {
     let friend = await userCore.GetUser(req.body.friendID);
 
     if (!friend) {
@@ -83,7 +83,7 @@ router.patch("/add", middlewares.RequireUserKeyMatch, async function (req, res) 
     });
 });
 
-router.patch("/remove", middlewares.RequireUserKeyMatch, async function (req, res) {
+router.patch("/remove", middlewares.RequireUserKeyMatch, async (req, res) => {
     let friend = await userCore.GetUser(req.body.friendID);
 
     if (!friend) {

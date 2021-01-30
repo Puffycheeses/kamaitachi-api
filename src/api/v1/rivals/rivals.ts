@@ -9,7 +9,7 @@ const router = express.Router({ mergeParams: true });
 // mounted on /api/v1/rivals
 
 const RETURN_LIMIT = 50;
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     try {
         let rivalsBody = await dbCore.FancyDBQuery("rivals", req.query, true, RETURN_LIMIT);
 
@@ -28,7 +28,7 @@ router.get("/", async function (req, res) {
     }
 });
 
-router.post("/create-group", async function (req, res) {
+router.post("/create-group", async (req, res) => {
     if (!req.body.name || req.body.name.length > 40) {
         return res.status(400).json({
             success: false,

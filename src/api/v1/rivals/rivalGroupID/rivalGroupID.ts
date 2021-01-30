@@ -23,7 +23,7 @@ async function CheckRivalGroupExists(req, res, next) {
     next();
 }
 
-router.get("/", CheckRivalGroupExists, async function (req, res) {
+router.get("/", CheckRivalGroupExists, async (req, res) => {
     let rg = req.rg;
 
     return res.status(200).json({
@@ -77,7 +77,7 @@ async function ValidateRivalGroupModification(req, res, next) {
     next();
 }
 
-router.delete("/delete-group", ValidateRivalGroupModification, async function (req, res) {
+router.delete("/delete-group", ValidateRivalGroupModification, async (req, res) => {
     let rg = req.rg;
 
     await db.get("rivals").remove({ _id: rg._id });
@@ -88,7 +88,7 @@ router.delete("/delete-group", ValidateRivalGroupModification, async function (r
     });
 });
 
-router.patch("/modify-group", ValidateRivalGroupModification, async function (req, res) {
+router.patch("/modify-group", ValidateRivalGroupModification, async (req, res) => {
     let rg = req.rg;
 
     if (req.body.name) {
@@ -202,7 +202,7 @@ router.patch("/modify-group", ValidateRivalGroupModification, async function (re
     });
 });
 
-router.patch("/add-member", ValidateRivalGroupModification, async function (req, res) {
+router.patch("/add-member", ValidateRivalGroupModification, async (req, res) => {
     if (!req.body.addUserID) {
         return res.status(400).json({
             success: false,
@@ -260,15 +260,15 @@ router.patch("/add-member", ValidateRivalGroupModification, async function (req,
     });
 });
 
-router.patch("/set-default", ValidateRivalGroupModification, async function (req, res) {
+router.patch("/set-default", ValidateRivalGroupModification, async (req, res) =>
     // todo
-    return res.status(404).json({
+    res.status(404).json({
         success: false,
         description: "unimplemented.",
-    });
-});
+    })
+);
 
-router.patch("/remove-member", ValidateRivalGroupModification, async function (req, res) {
+router.patch("/remove-member", ValidateRivalGroupModification, async (req, res) => {
     if (!req.body.removeUserID) {
         return res.status(400).json({
             success: false,
@@ -316,7 +316,7 @@ router.patch("/remove-member", ValidateRivalGroupModification, async function (r
     });
 });
 
-router.get("/members", CheckRivalGroupExists, async function (req, res) {
+router.get("/members", CheckRivalGroupExists, async (req, res) => {
     let rg = req.rg;
 
     let members = await userHelpers.GetUsers(rg.members);
@@ -330,7 +330,7 @@ router.get("/members", CheckRivalGroupExists, async function (req, res) {
     });
 });
 
-router.get("/folder-scores", CheckRivalGroupExists, async function (req, res) {
+router.get("/folder-scores", CheckRivalGroupExists, async (req, res) => {
     let rg = req.rg;
 
     if (req.query.folderType !== "levels" && req.query.folderType !== "versions") {
@@ -411,7 +411,7 @@ router.get("/folder-scores", CheckRivalGroupExists, async function (req, res) {
     });
 });
 
-router.get("/score-feed", CheckRivalGroupExists, async function (req, res) {
+router.get("/score-feed", CheckRivalGroupExists, async (req, res) => {
     let rg = req.rg;
 
     if (!req.query.includeSelf) {
@@ -492,7 +492,7 @@ router.get("/score-feed", CheckRivalGroupExists, async function (req, res) {
     });
 });
 
-router.get("/relevant-scores", CheckRivalGroupExists, async function (req, res) {
+router.get("/relevant-scores", CheckRivalGroupExists, async (req, res) => {
     let rg = req.rg;
 
     let members = await userHelpers.GetUsers(rg.members);

@@ -1,4 +1,3 @@
-import db from "../../../../../db";
 import dbCore from "../../../../../core/db-core";
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
@@ -6,7 +5,7 @@ const router = express.Router({ mergeParams: true });
 // mounted on /api/v1/games/:game/charts
 
 const CHART_RET_LIMIT = 100;
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     // hack fix for poor db naming.
     if (req.query.songID) {
         req.query.id = req.query.songID;

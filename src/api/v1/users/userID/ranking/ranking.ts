@@ -5,7 +5,7 @@ import db from "../../../../../db";
 
 // mounted on /api/v1/users/:userID/ranking
 
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     let user = req.requestedUser;
 
     let game = req.query.game;

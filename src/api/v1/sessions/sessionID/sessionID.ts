@@ -20,7 +20,7 @@ async function GetSessionWithID(req, res, next) {
     next();
 }
 
-router.get("/", GetSessionWithID, async function (req, res) {
+router.get("/", GetSessionWithID, async (req, res) => {
     let sessionObj = req.sessionObj;
 
     return res.status(200).json({
@@ -30,7 +30,7 @@ router.get("/", GetSessionWithID, async function (req, res) {
     });
 });
 
-router.get("/scores", GetSessionWithID, async function (req, res) {
+router.get("/scores", GetSessionWithID, async (req, res) => {
     let sessionObj = req.sessionObj;
 
     let start = parseInt(req.query.start) || 0;
@@ -94,7 +94,7 @@ router.get("/scores", GetSessionWithID, async function (req, res) {
 });
 
 // gets the parenting folders of a sessions' played charts.
-router.get("/folders", GetSessionWithID, async function (req, res) {
+router.get("/folders", GetSessionWithID, async (req, res) => {
     let ses = req.sessionObj;
     let scoreIDs = ses.scores.map((e) => e.scoreID);
     let scores = await db.get("scores").find({
@@ -142,7 +142,7 @@ async function ValidateUser(req, res, next) {
     next();
 }
 
-router.patch("/set-name", GetSessionWithID, ValidateUser, async function (req, res) {
+router.patch("/set-name", GetSessionWithID, ValidateUser, async (req, res) => {
     if (!req.body.name) {
         return res.status(400).json({
             success: false,
@@ -170,7 +170,7 @@ router.patch("/set-name", GetSessionWithID, ValidateUser, async function (req, r
     });
 });
 
-router.patch("/set-desc", GetSessionWithID, ValidateUser, async function (req, res) {
+router.patch("/set-desc", GetSessionWithID, ValidateUser, async (req, res) => {
     if (!req.body.desc) {
         return res.status(400).json({
             success: false,
@@ -198,7 +198,7 @@ router.patch("/set-desc", GetSessionWithID, ValidateUser, async function (req, r
     });
 });
 
-router.patch("/toggle-highlight", GetSessionWithID, ValidateUser, async function (req, res) {
+router.patch("/toggle-highlight", GetSessionWithID, ValidateUser, async (req, res) => {
     await db
         .get("sessions")
         .update({ _id: req.sessionObj._id }, { $set: { highlight: !req.sessionObj.highlight } });

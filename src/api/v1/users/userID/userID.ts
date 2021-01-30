@@ -6,7 +6,7 @@ import middlewares from "../../../../middlewares";
 
 router.use(middlewares.RequireExistingUser);
 
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     let user = req.requestedUser;
 
     return res.status(200).json({

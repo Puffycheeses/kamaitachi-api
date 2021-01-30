@@ -16,7 +16,7 @@ const router = express.Router({ mergeParams: true });
  * Returns a count of all of Kamaitachi's currently loaded scores.
  * @name GET /v1/scores
  */
-router.get("/", async function (req, res) {
+router.get("/", async (req, res) => {
     let scoreCount = await db.get("scores").count({});
     let gameCount: Record<string, number> = {};
     for (const game of config.supportedGames) {
@@ -36,7 +36,7 @@ router.get("/", async function (req, res) {
  * Retrieves a users' best 100 scores sorted on calculatedData.rating.
  * @name GET /v1/scores/:userID/best
  */
-router.get("/:userID/best", middlewares.RequireExistingUser, async function (req: KTRequest, res) {
+router.get("/:userID/best", middlewares.RequireExistingUser, async (req: KTRequest, res) => {
     // overassert typescript so we can use this parameter as a member of Game.
     // note that we check below whether this is even the case.
     let game: Game = req.query.game as Game;
@@ -126,7 +126,7 @@ const SCORE_LIMIT = 100;
  * such that they return PB data.
  * @param userID - if "self", will limit the returned scores to only those by the requesting user.
  */
-router.get("/query", async function (req: KTRequest, res) {
+router.get("/query", async (req: KTRequest, res) => {
     let baseObj: Record<string, unknown> = {};
 
     if (req.query.queryID) {
