@@ -97,7 +97,7 @@ const gameSpecificCalcDescriptions = {
     },
 };
 
-const validDifficulties = {
+const validDifficulties: Record<Game, string[]> = {
     iidx: ["BEGINNER", "NORMAL", "HYPER", "ANOTHER", "LEGGENDARIA"],
     museca: ["Green", "Yellow", "Red"],
     maimai: ["Easy", "Basic", "Advanced", "Expert", "Master", "Re:Master"],
@@ -120,7 +120,7 @@ const validDifficulties = {
     usc: ["NOV", "ADV", "EXH", "INF"],
 };
 
-const defaultTable = {
+const defaultTable: Record<Game, string> = {
     iidx: "Levels",
     bms: "Insane",
     museca: "Levels",
@@ -134,7 +134,7 @@ const defaultTable = {
     maimai: "Levels",
 };
 
-const folderTables = {
+const folderTables: Record<Game, string[]> = {
     iidx: ["Levels", "Levels (Omnimix)", "Versions"],
     bms: ["Normal", "Insane", "Overjoy", "Satellite", "Stella"],
     museca: ["Levels", "Versions"],
@@ -148,7 +148,7 @@ const folderTables = {
     maimai: ["Levels", "Versions"],
 };
 
-const difficultyShorthand = {
+const difficultyShorthand: Record<Game, Partial<Record<Difficulties[Game], string>>> = {
     iidx: {
         BEGINNER: "B",
         NORMAL: "N",
@@ -230,7 +230,7 @@ const difficultyShorthand = {
     },
 };
 
-const validHitData = {
+const validHitData: Record<Game, string[]> = {
     iidx: ["pgreat", "great", "good", "bad", "poor"],
     bms: ["pgreat", "great", "good", "bad", "poor"],
     museca: ["critical", "near", "miss"],
@@ -245,7 +245,7 @@ const validHitData = {
 };
 
 const BASE_VALID_HIT_META = ["fast", "slow", "maxCombo"];
-const validHitMeta = {
+const validHitMeta: Record<Game, string[]> = {
     iidx: ["bp", "gauge", "gaugeHistory", "comboBreak", ...BASE_VALID_HIT_META],
     museca: BASE_VALID_HIT_META,
     ddr: BASE_VALID_HIT_META,
@@ -276,7 +276,7 @@ const validHitMeta = {
     usc: ["gauge", ...BASE_VALID_HIT_META],
 };
 
-const validScoreMeta = {
+const validScoreMeta: Record<Game, Record<string, unknown>> = {
     iidx: {
         optionsRandom: ["NONRAN", "RANDOM", "R-RANDOM", "S-RANDOM", "MIRROR"],
         optionsAssist: [
@@ -339,14 +339,14 @@ const validScoreMeta = {
     },
 };
 
-const gameColours = {
+const gameColours: Record<Game, string> = {
     iidx: "#E7BDB3",
     museca: "#C9A4A0",
     maimai: "#AE8094",
     sdvx: "#D6B7B1",
     ddr: "#CC5079",
     gitadora: "#CA9CA9",
-    gfdm: "#DA836E",
+    // gfdm: "#DA836E",
     jubeat: "#129A7D",
     popn: "#F39CA4",
     bms: "#B5DCCD",
@@ -354,14 +354,14 @@ const gameColours = {
     usc: "#D6B7B1", // TODO
 };
 
-const gameRelevantScoreBucket = {
+const gameRelevantScoreBucket: Record<Game, string> = {
     iidx: "lamp",
     museca: "grade",
     maimai: "grade",
     sdvx: "grade",
     ddr: "lamp",
     gitadora: "grade",
-    gfdm: "grade",
+    // gfdm: "grade",
     jubeat: "grade",
     popn: "grade",
     bms: "lamp",
@@ -370,14 +370,14 @@ const gameRelevantScoreBucket = {
 };
 
 // human readable stuff for games
-const gameHuman = {
+const gameHuman: Record<Game, string> = {
     iidx: "beatmania IIDX",
     museca: "MÚSECA",
     maimai: "maimai",
     sdvx: "SOUND VOLTEX",
     ddr: "Dance Dance Revolution",
     gitadora: "GITADORA",
-    gfdm: "GuitarFreaks & DrumMania",
+    // gfdm: "GuitarFreaks & DrumMania",
     jubeat: "jubeat",
     popn: "pop'n music",
     bms: "BMS",
@@ -682,7 +682,7 @@ const gameOrders = {
     usc: ["0"],
 };
 
-const defaultPlaytype = {
+const defaultPlaytype: Record<Game, Playtypes[Game]> = {
     iidx: "SP",
     museca: "Single",
     maimai: "Single",
@@ -696,7 +696,7 @@ const defaultPlaytype = {
     usc: "Single",
 };
 
-const defaultDifficulty = {
+const defaultDifficulty: Record<Game, string> = {
     iidx: "ANOTHER",
     museca: "Red",
     maimai: "Master",
@@ -1067,7 +1067,7 @@ const validPlaytypes: Record<Game, Playtypes[Game][]> = {
     usc: ["Single"],
 };
 
-const validTierlistTiers = {
+const validTierlistTiers: Record<Game, string[]> = {
     iidx: ["clear", "hardclear", "exhardclear"],
     museca: ["clear"],
     maimai: [],
@@ -1082,7 +1082,7 @@ const validTierlistTiers = {
 };
 
 // correct order for grades
-const grades = {
+const grades: Record<Game, string[]> = {
     iidx: ["F", "E", "D", "C", "B", "A", "AA", "AAA", "MAX-", "MAX"],
     bms: ["F", "E", "D", "C", "B", "A", "AA", "AAA", "MAX-", "MAX"],
     museca: ["没", "拙", "凡", "佳", "良", "優", "秀", "傑", "傑G"],
@@ -1113,7 +1113,7 @@ const grades = {
     usc: ["D", "C", "B", "A", "A+", "AA", "AA+", "AAA", "AAA+", "S"],
 };
 
-const gradeBoundaries = {
+const gradeBoundaries: Record<Game, number[]> = {
     iidx: [0, 22.22, 33.33, 44.44, 55.55, 66.66, 77.77, 88.88, 94.44, 100.0],
     bms: [0, 22.22, 33.33, 44.44, 55.55, 66.66, 77.77, 88.88, 94.44, 100.0],
     museca: [0, 60, 70, 80, 85, 90, 95, 97.5, 100],
@@ -1130,7 +1130,7 @@ const gradeBoundaries = {
 };
 
 // these are to resolve some GARBAGE in chart.js
-const boundaryHCF = {
+const boundaryHCF: Record<Game, number> = {
     iidx: 5.555,
     bms: 5.555,
     museca: 2.5,
@@ -1144,7 +1144,7 @@ const boundaryHCF = {
     usc: 1,
 };
 
-const expChartScale = {
+const expChartScale: Record<Game, number> = {
     iidx: 1,
     bms: 1,
     museca: 5,
@@ -1159,7 +1159,7 @@ const expChartScale = {
 };
 
 // valid lamps for a game, and also in order.
-const lamps = {
+const lamps: Record<Game, string[]> = {
     iidx: [
         "NO PLAY",
         "FAILED",
@@ -1201,7 +1201,7 @@ const lamps = {
 
 // Alternative scores that make sense for the game, note that iidx's money score isn't actually used by anyone
 // and is removed in IIDX 28, to nobodies dismay.
-const validAltScores = {
+const validAltScores: Record<Game, string[]> = {
     iidx: ["money"],
     ddr: ["ex"],
     bms: ["money"],
@@ -1218,7 +1218,7 @@ const validAltScores = {
 // first lamp that is considered a "true clear" by the game.
 // laugh now, but who'll be laughing when some nerds at sega come up with a brand new
 // minimal clear grade called "SOFTER EASIER ASSIST CLEAR EPIC X3"
-const clearLamp = {
+const clearLamp: Record<Game, string> = {
     iidx: "CLEAR",
     bms: "EASY CLEAR",
     museca: "CLEAR",
@@ -1229,6 +1229,7 @@ const clearLamp = {
     ddr: "CLEAR",
     chunithm: "CLEAR",
     gitadora: "CLEAR",
+    usc: "CLEAR",
 };
 
 // minimum grade considered by the game (or kamaitachi) to be a clearing grade.
