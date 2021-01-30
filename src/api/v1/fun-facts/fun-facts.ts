@@ -4,8 +4,14 @@ import db from "../../../db";
 import crypto from "crypto";
 import apiConfig from "../../../apiconfig";
 
-// mounted on /api/v1/fun-facts
+/**
+ * @namespace /v1/fun-facts
+ */
 
+/**
+ * Returns a random fun fact. If a user has nsfwsplashes disabled, this excludes nsfw splashes.
+ * @name GET /v1/fun-facts
+ */
 router.get("/", async (req, res) => {
     if (!req.apikey) {
         return res.status(401).json({
@@ -21,7 +27,7 @@ router.get("/", async (req, res) => {
             { projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS }
         );
 
-    let aggPipe = [
+    let aggPipe: Record<string, unknown>[] = [
         {
             $sample: { size: 1 },
         },
@@ -68,6 +74,13 @@ router.get("/", async (req, res) => {
     });
 });
 
+/**
+ * Submits a fun fact.
+ * @name PUT /v1/fun-facts/submit-fun-fact
+ * @param funfact - A 280 characters or less string containing the fun fact.
+ * @param nsfw - If this fun fact is nsfw.
+ * @param anonymous - If this fun fact should be anonymous.
+ */
 router.put("/submit-fun-fact", async (req, res) => {
     if (!req.body.funfact) {
         return res.status(400).json({
@@ -76,7 +89,7 @@ router.put("/submit-fun-fact", async (req, res) => {
         });
     }
 
-    if (req.body.funfact.length > 280) {
+    if (req.body.funfact.length >= 280) {
         return res.status(400).json({
             success: false,
             description: "Fun facts cannot exceed 280 characters.",
@@ -98,7 +111,7 @@ router.put("/submit-fun-fact", async (req, res) => {
         text: req.body.funfact,
         nsfw: !!req.body.nsfw,
         anonymous: !!req.body.anonymous,
-        userID: req.apikey.assignedTo,
+        userID: req.apikey!.assignedTo,
         funfactID: crypto.randomBytes(20).toString("hex"),
         timestamp: Date.now(),
     };
