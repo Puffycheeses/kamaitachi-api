@@ -5,7 +5,7 @@ const REMOVE_PRIVATE_USER_RETURNS = { password: 0, email: 0, integrations: 0 };
 // this is 5 minutes in miliseconds.
 const TIME_DELTA_ONLINE = 300000;
 
-const validKeys: Record<ValidDatabases, Record<string, FQType>> = {
+const validKeys: Record<ValidFQDatabases, Record<string, FQType>> = {
     sessions: {
         name: "string",
         desc: "string",
@@ -138,7 +138,7 @@ const validKeys: Record<ValidDatabases, Record<string, FQType>> = {
     },
 };
 
-const validSorts: Record<ValidDatabases, string[]> = {
+const validSorts: Record<ValidFQDatabases, string[]> = {
     sessions: ["timeEnded", "timeStarted", "performance", "timestamp"],
     notifications: ["timeSent"],
     imports: ["timeEnded", "timeStarted"],
@@ -170,7 +170,7 @@ const validSorts: Record<ValidDatabases, string[]> = {
     milestones: ["createdBy"],
 };
 
-const defaultSorts: Record<ValidDatabases, string> = {
+const defaultSorts: Record<ValidFQDatabases, string> = {
     sessions: "timeEnded",
     goals: "timeAdded",
     notifications: "timeSent",
