@@ -30,6 +30,7 @@
         "@typescript-eslint/no-unused-vars": "error",
         "@typescript-eslint/no-unused-expressions": "error",
         "@typescript-eslint/no-extra-semi": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
         "no-unused-labels": "error",
         "prefer-const": "off",
         "eqeqeq": "error",
@@ -52,6 +53,7 @@
         "no-duplicate-imports": "error",
         "dot-notation": "error",
         "space-before-blocks": "error",
-        "no-prototype-builtins": "off"
+        "no-prototype-builtins": "off",
+        "prefer-arrow-callback": "error"
     }
 }
