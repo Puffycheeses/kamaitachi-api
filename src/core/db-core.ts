@@ -24,7 +24,7 @@ async function FancyDBQuery<T>(
     query: Record<string, string>,
     paginate?: boolean,
     limit?: integer,
-    configOverride?: ValidDatabases,
+    configOverride?: ValidFQDatabases,
     useCount?: boolean,
     passedBaseQueryObj?: FilterQuery<unknown>
 ): Promise<
@@ -71,7 +71,7 @@ async function UnstableFancyDBQuery<T>(
     query: Record<string, string>,
     paginate?: boolean,
     limit?: integer,
-    configOverride?: ValidDatabases,
+    configOverride?: ValidFQDatabases,
     useCount?: boolean,
     passedBaseQueryObj?: FilterQuery<unknown>
 ): Promise<FancyQueryPseudoResponse<T> | FancyQueryCountPseudoResponse> {
@@ -85,9 +85,13 @@ async function UnstableFancyDBQuery<T>(
         validSorts = apiConfig.validSorts[configOverride];
         defaultSort = apiConfig.defaultSorts[configOverride];
     } else {
-        validKeys = apiConfig.validKeys[databaseName];
-        validSorts = apiConfig.validSorts[databaseName];
-        defaultSort = apiConfig.defaultSorts[databaseName];
+        // WARN: overzealous assertion here,
+        // if you pass something like "songs-iidx", this will fail if no override is present.
+        // this is currently just overrode, but typescripts concern is genuine.
+        let dn = databaseName as ValidFQDatabases;
+        validKeys = apiConfig.validKeys[dn];
+        validSorts = apiConfig.validSorts[dn];
+        defaultSort = apiConfig.defaultSorts[dn];
     }
 
     // modifies baseQueryObj byref to have all the stuff we care about

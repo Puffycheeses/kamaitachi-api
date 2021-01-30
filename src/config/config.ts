@@ -386,7 +386,7 @@ const gameHuman: Record<Game, string> = {
 };
 
 // human readable stuff for versions
-const versionHuman = {
+const versionHuman: Record<Game, Record<string, string>> = {
     iidx: {
         0: "1st Style",
         1: "substream",
@@ -524,6 +524,12 @@ const versionHuman = {
         matixx: "Matixx",
         exchain: "EXCHAIN",
         nextage: "NEX+AGE",
+    },
+    bms: {
+        0: "BMS",
+    },
+    usc: {
+        0: "USC",
     },
 };
 
