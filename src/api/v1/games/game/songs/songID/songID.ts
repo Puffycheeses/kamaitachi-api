@@ -1,23 +1,21 @@
-import db from "../../../../../../db";
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
 import middlewares from "../../../../../../middlewares";
 import dbCore from "../../../../../../core/db-core";
 
-// mounted on /api/v1/games/:game/songs/:songID
+/**
+ * @namespace /v1/games/:game/songs/:songID
+ */
 
 router.use(middlewares.RequireExistingSongID);
 
+/**
+ * Returns the song at the given ID.
+ * @name GET /v1/games/:game/songs/:songID
+ */
 router.get("/", async (req, res) => {
-    let song = await db
-        .get(`songs-${req.params.game}`)
-        .findOne({ id: parseInt(req.params.songID) }, { projection: { _id: 0 } });
-    if (!song) {
-        return res.status(500).json({
-            success: false,
-            description: "Server Error, Song has been removed from the database while processing.",
-        });
-    }
+    let song = req.song!;
+
     return res.status(200).json({
         success: true,
         description: `Found song ${song.title}.`,
@@ -29,30 +27,30 @@ router.get("/", async (req, res) => {
 
 const CHART_RET_LIMIT = 100;
 
-router.get("/charts", async (req, res) => {
+interface ChartsReturn extends FancyQueryBody<ChartDocument> {
+    song: SongDocument;
+}
+
+/**
+ * Returns the charts that belong to the song at the given ID.
+ * @name GET /v1/games/:game/songs/:songID/charts
+ */
+router.get("/charts", async (req: KTRequest, res) => {
     req.query.id = req.params.songID;
 
-    try {
-        let dbRes = await dbCore.FancyDBQuery(
-            `charts-${req.params.game}`,
-            req.query,
-            true,
-            CHART_RET_LIMIT,
-            "charts"
-        );
-        return res.status(dbRes.statusCode).json(dbRes.body);
-    } catch (r) {
-        if (r.statusCode && r.body) {
-            return res.status(r.statusCode).json(r.body);
-        } else {
-            console.error(req.originalUrl);
-            console.error(r);
-            return res.status(500).json({
-                success: false,
-                description: "An unknown internal server error has occured.",
-            });
-        }
+    let dbRes = await dbCore.FancyDBQuery(
+        `charts-${req.params.game}` as ValidDatabases,
+        req.query,
+        true,
+        CHART_RET_LIMIT,
+        "charts"
+    );
+
+    if (dbRes.body.success) {
+        (dbRes.body.body as ChartsReturn).song = req.song!;
     }
+
+    return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
 export default router;
