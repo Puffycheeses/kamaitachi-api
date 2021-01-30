@@ -19,6 +19,14 @@ declare global {
              * For scoreID endpoints, the specific score requested by the user.
              */
             score?: ScoreDocument;
+            /**
+             * For folder related endpoints, this is the folder requested
+             */
+            folderData?: FolderDocument;
+            /**
+             * For rival related endpoints, this is the folder requested
+             */
+            rivalGroup?: RivalGroupDocument;
         }
     }
 }
