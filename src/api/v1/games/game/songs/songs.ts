@@ -2,81 +2,83 @@ import * as express from "express";
 const router = express.Router({ mergeParams: true });
 import dbCore from "../../../../../core/db-core";
 import db from "../../../../../db";
-import regexSanitise from "escape-string-regexp";
-import similar from "string-similarity";
-// mounted on /api/v1/games/:game/songs
+
+/**
+ * @namespace /v1/games/:game/songs
+ */
 
 const MAX_RETURNS = 100;
 
-router.get("/", async (req, res) => {
-    try {
-        let dbRes = await dbCore.FancyDBQuery(
-            `songs-${req.params.game}`,
-            req.query,
-            true,
-            MAX_RETURNS,
-            "songs"
-        );
+interface SongsReturn extends FancyQueryBody<SongDocument> {
+    charts?: ChartDocument[];
+}
 
-        if (dbRes.body.success) {
-            if (req.query.getAssocCharts) {
-                let charts = await db.get(`charts-${req.params.game}`).find({
-                    id: { $in: dbRes.body.body.items.map((e) => e.id) },
-                });
+/**
+ * Performs a fancy query on the game's songs.
+ * @name GET /v1/games/:game/songs
+ * @param getAssocCharts - If present, also retrives all charts from the songs.
+ */
+router.get("/", async (req: KTRequest, res) => {
+    let dbRes = (await dbCore.FancyDBQuery<SongDocument>(
+        `songs-${req.params.game}` as ValidDatabases,
+        req.query,
+        true,
+        MAX_RETURNS,
+        "songs"
+    )) as FancyQueryPseudoResponse<SongDocument>;
 
-                dbRes.body.body.charts = charts;
-            }
-        }
-        return res.status(dbRes.statusCode).json(dbRes.body);
-    } catch (r) {
-        if (r.statusCode && r.body) {
-            return res.status(r.statusCode).json(r.body);
-        } else {
-            console.error(req.originalUrl);
-            console.error(r);
-            return res.status(500).json({
-                success: false,
-                description: "An unknown internal server error has occured.",
+    if (dbRes.body.success) {
+        if (req.query.getAssocCharts) {
+            let charts = await db.get(`charts-${req.params.game}`).find({
+                id: { $in: dbRes.body.body.items.map((e) => e.id) },
             });
+
+            (dbRes.body.body as SongsReturn).charts = charts;
         }
     }
+    return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
-// NOTE: this is disgustingly inefficient.
-// CAN SERIOUSLY BE OPTIMISED - zkldi
-router.get("/search", async (req, res) => {
-    let search = regexSanitise(req.query.title || "");
-    let searchCriteria = search;
-    if (!req.query.exact) {
-        searchCriteria = new RegExp(`${search}`, "i");
+// DO NOT WORRY ABOUT THIS
+interface TextRT extends SongDocument {
+    _ts: number;
+}
+
+router.get("/search", async (req: KTRequest, res) => {
+    let r: SongDocument[];
+
+    if (req.query.exact) {
+        r = await db.get(`songs-${req.params.game}`).find(
+            {
+                title: req.query.title,
+            },
+            {
+                limit: 100,
+            }
+        );
+    } else {
+        let aggR: TextRT[] = await db.get(`songs-${req.params.game}`).aggregate([
+            {
+                $match: {
+                    $text: {
+                        $search: "hello",
+                        $language: "en",
+                    },
+                },
+            },
+            {
+                $limit: 100,
+                _ts: { $meta: "textScore" },
+            },
+        ]);
+
+        aggR.sort((a, b) => b._ts - a._ts);
+
+        r = aggR;
+
+        // todo: write some code here to remove the _ts field,
+        // however, typescript really does not like that.
     }
-
-    let r = await db.get(`songs-${req.params.game}`).find(
-        {
-            $or: [
-                { title: searchCriteria },
-                { "alt-titles": searchCriteria },
-                { "search-titles": searchCriteria },
-            ],
-        },
-        {
-            limit: 100,
-        }
-    );
-
-    // uhhhhhhhh
-    r.sort((a, b) => {
-        let aTitles = [a.title, ...a["alt-titles"], ...a["search-titles"]];
-        let aBestMatch = Math.max(
-            aTitles.map((e) => similar.compareTwoStrings(search.toLowerCase(), e.toLowerCase()))
-        );
-        let bTitles = [b.title, ...b["alt-titles"], ...b["search-titles"]];
-        let bBestMatch = Math.max(
-            bTitles.map((e) => similar.compareTwoStrings(search.toLowerCase(), e.toLowerCase()))
-        );
-
-        return aBestMatch - bBestMatch;
-    });
 
     return res.status(200).json({
         success: true,
