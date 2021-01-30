@@ -27,6 +27,53 @@ async function FancyDBQuery<T>(
     configOverride?: ValidDatabases,
     useCount?: boolean,
     passedBaseQueryObj?: FilterQuery<unknown>
+): Promise<
+    FancyQueryPseudoResponse<T> | FancyQueryCountPseudoResponse | FancyQueryPseudoErrorResponse
+> {
+    try {
+        let dbRes = await UnstableFancyDBQuery<T>(
+            databaseName,
+            query,
+            paginate,
+            limit,
+            configOverride,
+            useCount,
+            passedBaseQueryObj
+        );
+
+        return dbRes;
+    } catch (err) {
+        if (err.statusCode && err.body) {
+            return {
+                statusCode: err.statusCode,
+                body: err.body,
+            };
+        } else {
+            console.error(`==== FATAL ERROR IN FANCYDBQUERY ${databaseName} ====`);
+            console.error(err);
+            console.error(query);
+            console.error(passedBaseQueryObj);
+            console.error(paginate, limit, configOverride, useCount);
+            console.error(`==== END VARDUMP ====`);
+            return {
+                statusCode: 500,
+                body: {
+                    success: false,
+                    description: "An unknown internal server error has occured.",
+                },
+            };
+        }
+    }
+}
+
+async function UnstableFancyDBQuery<T>(
+    databaseName: ValidDatabases,
+    query: Record<string, string>,
+    paginate?: boolean,
+    limit?: integer,
+    configOverride?: ValidDatabases,
+    useCount?: boolean,
+    passedBaseQueryObj?: FilterQuery<unknown>
 ): Promise<FancyQueryPseudoResponse<T> | FancyQueryCountPseudoResponse> {
     let baseQueryObj = passedBaseQueryObj || {};
 
