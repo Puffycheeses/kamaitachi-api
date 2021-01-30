@@ -58,8 +58,8 @@ declare global {
     /**
      * This is the generic response from the Kamaitachi API in event of a failure.
      */
-    export interface APIResponse {
-        success: boolean;
+    export interface UnsuccessfulAPIResponse {
+        success: false;
         description: string;
     }
 
@@ -67,7 +67,9 @@ declare global {
      * In the event of a successful API request, body is attached onto the request, which contains
      * endpoint-defined information about the response, such as database data.
      */
-    export interface SuccessfulAPIResponse extends APIResponse {
+    export interface SuccessfulAPIResponse {
+        success: true;
+        description: string;
         body: Record<string, unknown>;
     }
 
@@ -78,7 +80,7 @@ declare global {
     interface FancyQueryPseudoResponse<T> {
         statusCode: integer;
         body: {
-            success: boolean;
+            success: true;
             description: string;
             body: FancyQueryBody<T>;
         };
@@ -86,6 +88,14 @@ declare global {
     interface FancyQueryBody<T> {
         items: T[];
         nextStartPoint?: integer;
+    }
+
+    interface FancyQueryPseudoErrorResponse {
+        statusCode: integer;
+        body: {
+            success: false;
+            description: string;
+        };
     }
 
     interface FancyQueryCountPseudoResponse {
@@ -113,6 +123,28 @@ declare global {
         bms: "7K" | "14K" | "5K";
         chunithm: "Single";
         gitadora: "Gita" | "Dora";
+    }
+
+    export interface Difficulties {
+        iidx: "BEGINNER" | "NORMAL" | "HYPER" | "ANOTHER" | "LEGGENDARIA";
+        museca: "Green" | "Yellow" | "Red";
+        maimai: "Easy" | "Basic" | "Advanced" | "Expert" | "Master" | "Re:Master";
+        jubeat: "BSC" | "ADV" | "EXT";
+        popn: "Easy" | "Normal" | "Hyper" | "EX";
+        sdvx: "NOV" | "ADV" | "EXH" | "MXM" | "INF" | "GRV" | "HVN" | "VVD";
+        ddr: "BEGINNER" | "BASIC" | "DIFFICULT" | "EXPERT" | "CHALLENGE";
+        bms: "BEGINNER" | "NORMAL" | "HYPER" | "ANOTHER" | "INSANE" | "CUSTOM";
+        chunithm: "BASIC" | "ADVANCED" | "EXPERT" | "MASTER" | "WORLD'S END";
+        gitadora:
+            | "BASIC"
+            | "ADVANCED"
+            | "EXTREME"
+            | "MASTER"
+            | "BASS BASIC"
+            | "BASS ADVANCED"
+            | "BASS EXTREME"
+            | "BASS MASTER";
+        usc: "NOV" | "ADV" | "EXH" | "INF";
     }
 
     export interface CustomRatings {
@@ -206,6 +238,25 @@ declare global {
         createdBy: integer;
         game: Game;
         playtype: Playtypes[Game];
+    }
+
+    export interface RivalGroupDocument extends MongoDBDocument {
+        name: string;
+        desc: string;
+        founderID: integer;
+        members: Array<integer>;
+        mutualGroup: boolean;
+        isDefault: boolean;
+        game: Game;
+        playtype: Playtypes[Game];
+        settings: {
+            scoreCompareMode: "relevant" | "todo";
+            strictness: number;
+            boundary: number;
+            scoreCompareFType: "levels" | "versions";
+            scoreCompareFName: string;
+        };
+        rivalGroupID: string;
     }
 
     export interface UserGoalDocument extends MongoDBDocument {
@@ -324,7 +375,7 @@ declare global {
         id: integer;
         level: string;
         levelNum: number;
-        difficulty: string;
+        difficulty: Difficulties[Game];
         playtype: string;
         length: string;
         bpmMin: number;
@@ -348,6 +399,15 @@ declare global {
             usePrefix?: boolean;
             grades?: Array<[string, number]>;
         };
+    }
+
+    export interface TierlistDataDocument extends MongoDBDocument {
+        playtype: Playtypes[Game];
+        songID: integer;
+        difficulty: Difficulties[Game];
+        tierlistID: string;
+        tiers: Record<string, number>; // temp
+        chartID: string;
     }
 
     export interface SongDocument extends MongoDBDocument {
@@ -382,7 +442,7 @@ declare global {
         userID: integer;
         scoreData: {
             playtype: Playtypes[Game];
-            difficulty: string;
+            difficulty: Difficulties[Game];
             score: number;
             lamp: string;
             hitData: Record<string, integer>;
