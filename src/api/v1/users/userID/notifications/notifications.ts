@@ -4,38 +4,37 @@ import middlewares from "../../../../../middlewares";
 import dbCore from "../../../../../core/db-core";
 import db from "../../../../../db";
 
-// mounted on /api/v1/users/:userID/notifications
+/**
+ * @namespace /v1/users/:userID/notifications
+ */
+
+// users can only access their own notifications.
 router.use(middlewares.RequireUserKeyMatch);
 
 const MAX_RETURNS = 100;
 
-router.get("/", async (req, res) => {
+/**
+ * Performs a fancy query on the users own notifications.
+ * @name GET /v1/users/:userID/notifications
+ */
+router.get("/", async (req: KTRequest, res) => {
     let user = req.requestedUser as PublicUserDocument;
 
-    req.query.toUserID = `${user.id}`;
+    req.query.toUserID = user.id.toString();
 
-    try {
-        let dbRes = await dbCore.FancyDBQuery("notifications", req.query, true, MAX_RETURNS);
+    let dbRes = await dbCore.FancyDBQuery("notifications", req.query, true, MAX_RETURNS);
 
-        return res.status(dbRes.statusCode).json(dbRes.body);
-    } catch (r) {
-        if (r.statusCode && r.body) {
-            return res.status(r.statusCode).json(r.body);
-        } else {
-            console.error(req.originalUrl);
-            console.error(r);
-            return res.status(500).json({
-                success: false,
-                description: "An unknown internal server error has occured.",
-            });
-        }
-    }
+    return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
-router.delete("/delete/:notifID", async (req, res) => {
+/**
+ * Deletes a notification at the given ID.
+ * @name DELETE /v1/users/:userID/notifications/:notifID
+ */
+router.delete("/:notifID", async (req, res) => {
     let notif = await db.get("notifications").findOne({
         notifID: req.params.notifID,
-        toUserID: req.apikey.assignedTo,
+        toUserID: req.apikey!.assignedTo,
     });
 
     if (!notif) {
@@ -54,31 +53,6 @@ router.delete("/delete/:notifID", async (req, res) => {
         description: "Successfully deleted notification.",
         body: notif,
     });
-});
-
-// sugar for notifications?read=false
-router.get("/unread", async (req, res) => {
-    let user = req.requestedUser;
-
-    req.query.toUserID = `${user.id}`;
-    req.query.read = "false";
-
-    try {
-        let dbRes = await dbCore.FancyDBQuery("notifications", req.query, true, MAX_RETURNS);
-
-        return res.status(dbRes.statusCode).json(dbRes.body);
-    } catch (r) {
-        if (r.statusCode && r.body) {
-            return res.status(r.statusCode).json(r.body);
-        } else {
-            console.error(req.originalUrl);
-            console.error(r);
-            return res.status(500).json({
-                success: false,
-                description: "An unknown internal server error has occured.",
-            });
-        }
-    }
 });
 
 export default router;
