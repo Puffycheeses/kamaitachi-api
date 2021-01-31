@@ -2,50 +2,47 @@ import * as express from "express";
 import dbCore from "../../../core/db-core";
 const router = express.Router({ mergeParams: true });
 import db from "../../../db";
-import apiConfig from "../../../apiconfig";
+import userCore from "../../../core/user-core";
 
-// mounted on /api/v1/user-goals
+/**
+ * @namespace /v1/user-goals
+ */
 
 const MAX_RETURNS = 100;
-router.get("/", async (req, res) => {
-    try {
-        let dbRes = await dbCore.FancyDBQuery("user-goals", req.query, true, MAX_RETURNS);
 
-        if (dbRes.body.success) {
-            if (req.query.getAssocUsers) {
-                let assocUsers = await db.get("users").find(
-                    {
-                        id: { $in: dbRes.body.body.items.map((e) => e.userID) },
-                    },
-                    {
-                        projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
-                    }
-                );
+interface UserGoalFQReturn extends FancyQueryBody<UserGoalDocument> {
+    users?: PublicUserDocument[];
+    goals?: GoalDocument[];
+}
 
-                dbRes.body.body.users = assocUsers;
-            }
+/**
+ * Performs a fancy query on the user-goals database.
+ * @name GET /v1/user-goals
+ */
+router.get("/", async (req: KTRequest, res) => {
+    let dbRes = (await dbCore.FancyDBQuery(
+        "user-goals",
+        req.query,
+        true,
+        MAX_RETURNS
+    )) as FancyQueryPseudoResponse<UserGoalDocument>;
 
-            if (req.query.getAssocGoals) {
-                let assocGoals = await db.get("goals").find({
-                    goalID: { $in: dbRes.body.body.items.map((e) => e.goalID) },
-                });
+    if (dbRes.body.success) {
+        if (req.query.getAssocUsers) {
+            let assocUsers = await userCore.GetUsers(dbRes.body.body.items.map((e) => e.userID));
 
-                dbRes.body.body.goals = assocGoals;
-            }
+            (dbRes.body.body as UserGoalFQReturn).users = assocUsers;
         }
-        return res.status(dbRes.statusCode).json(dbRes.body);
-    } catch (r) {
-        if (r.statusCode && r.body) {
-            return res.status(r.statusCode).json(r.body);
-        } else {
-            console.error(req.originalUrl);
-            console.error(r);
-            return res.status(500).json({
-                success: false,
-                description: "An unknown internal server error has occured.",
+
+        if (req.query.getAssocGoals) {
+            let assocGoals = await db.get("goals").find({
+                goalID: { $in: dbRes.body.body.items.map((e) => e.goalID) },
             });
+
+            (dbRes.body.body as UserGoalFQReturn).goals = assocGoals;
         }
     }
+    return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
 export default router;
