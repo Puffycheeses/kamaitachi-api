@@ -16,8 +16,13 @@ function IsValidDifficulty(string: string, game: Game): string is Difficulties[G
     return config.validDifficulties[game].includes(string);
 }
 
+function IsValidCustomRating(rating: string, game: Game, playtype: Playtypes[Game]): boolean {
+    return !!config.gameSpecificCalc[game]?.[playtype]?.includes(rating);
+}
+
 export default {
     IsValidGame,
     IsValidPlaytype,
     IsValidDifficulty,
+    IsValidCustomRating,
 };
