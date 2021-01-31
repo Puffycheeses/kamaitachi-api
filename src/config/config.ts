@@ -354,7 +354,7 @@ const gameColours: Record<Game, string> = {
     usc: "#D6B7B1", // TODO
 };
 
-const gameRelevantScoreBucket: Record<Game, string> = {
+const gameRelevantScoreBucket: Record<Game, "grade" | "lamp"> = {
     iidx: "lamp",
     museca: "grade",
     maimai: "grade",
@@ -2196,6 +2196,7 @@ const gamePercentMax = {
     chunithm: 101,
     maimai: 150, // just an edge case maxim, since i'm too lazy to actually calc it.
     maimaidx: 150,
+    usc: 100,
 };
 
 const __internalIIDXDans = {
