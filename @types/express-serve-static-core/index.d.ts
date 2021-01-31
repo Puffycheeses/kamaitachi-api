@@ -20,6 +20,7 @@ declare global {
             ktchiGoal?: GoalDocument;
             importObj?: ImportDocument;
             ktchiMilestone?: MilestoneDocument;
+            ktchiSession?: SessionDocument;
         }
     }
 }
