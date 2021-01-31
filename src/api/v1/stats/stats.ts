@@ -4,11 +4,38 @@ const router = express.Router({ mergeParams: true });
 import dbCore from "../../../core/db-core";
 import apiConfig from "../../../apiconfig";
 
-// mounted on api/v1/stats
+/**
+ * @namespace /v1/stats
+ */
 
 const STAT_LIMIT = 50;
 
-async function GetScoreCounts(idObj, skip, limit, queryObj = {}) {
+interface ScoreCountsAggReturn {
+    _id: {
+        songID: integer;
+        scoreData?: {
+            difficulty: Difficulties[Game];
+            playtype: Playtypes[Game];
+        };
+        game: Game;
+    };
+    count: integer;
+}
+
+/**
+ * Retrieves values for alltime, this month and the past 24 hours
+ * Indicating how much certain songs have been played in that time.
+ * @param idObj How to group songs.
+ * @param skip Where to start searching from.
+ * @param limit When to stop searching.
+ * @param queryObj any query to limit the returns of scores.
+ */
+async function GetScoreCounts(
+    idObj: Record<string, unknown>,
+    skip: integer,
+    limit: integer,
+    queryObj = {}
+) {
     let now = new Date();
 
     // month does it from the start of this month
@@ -30,21 +57,23 @@ async function GetScoreCounts(idObj, skip, limit, queryObj = {}) {
         { $limit: limit },
     ];
 
-    let allTimeStats = await db.get("scores").aggregate([{ $match: queryObj }, ...mainPipeline]);
+    let allTimeStats = (await db
+        .get("scores")
+        .aggregate([{ $match: queryObj }, ...mainPipeline])) as ScoreCountsAggReturn[];
 
-    let monthStats = await db
+    let monthStats = (await db
         .get("scores")
         .aggregate([
             { $match: Object.assign({}, queryObj, { timeAchieved: { $gt: monthStart } }) },
             ...mainPipeline,
-        ]);
+        ])) as ScoreCountsAggReturn[];
 
-    let todayStats = await db
+    let todayStats = (await db
         .get("scores")
         .aggregate([
             { $match: Object.assign({}, queryObj, { timeAchieved: { $gt: todayStart } }) },
             ...mainPipeline,
-        ]);
+        ])) as ScoreCountsAggReturn[];
 
     return {
         alltime: allTimeStats,
@@ -53,7 +82,14 @@ async function GetScoreCounts(idObj, skip, limit, queryObj = {}) {
     };
 }
 
-router.get("/score-counts", async (req, res) => {
+/**
+ * Returns the frequency at which songs have been played, as of all-time,
+ * this month and past 24 hours.
+ * @name GET /v1/stats/score-counts
+ * @param separateCharts - Whether to separate these returns on charts or not.
+ * @param getAssocData - Retrieve associated song data.
+ */
+router.get("/score-counts", async (req: KTRequest, res) => {
     let queryObj = {};
 
     let validKeys = apiConfig.validKeys.scores;
@@ -75,7 +111,7 @@ router.get("/score-counts", async (req, res) => {
     let skip = parseInt(req.query.skip) || 0;
     let limit = parseInt(req.query.limit) < STAT_LIMIT ? parseInt(req.query.limit) : STAT_LIMIT;
 
-    let groupConcat = {
+    let groupConcat: Record<string, unknown> = {
         game: "$game",
         songID: "$songID",
     };
@@ -91,22 +127,24 @@ router.get("/score-counts", async (req, res) => {
 
     let rBody = {
         scoreCounts,
+        songData: {} as Partial<Record<Game, SongDocument[]>>,
     };
 
     if (req.query.getAssocData && req.query.getAssocData === "true") {
-        let songData = {};
-        let gameSongIDs = {};
-        for (const key in scoreCounts) {
-            for (const result of scoreCounts[key]) {
+        let songData: Partial<Record<Game, SongDocument[]>> = {};
+        let gameSongIDs: Partial<Record<Game, integer[]>> = {};
+        for (const v of Object.values(scoreCounts)) {
+            for (const result of v) {
                 if (!gameSongIDs[result._id.game]) {
                     gameSongIDs[result._id.game] = [result._id.songID];
                 } else {
-                    gameSongIDs[result._id.game].push(result._id.songID);
+                    gameSongIDs[result._id.game]!.push(result._id.songID);
                 }
             }
         }
 
-        for (const game in gameSongIDs) {
+        for (const g in gameSongIDs) {
+            let game = g as Game;
             songData[game] = await db.get(`songs-${game}`).find({
                 id: { $in: gameSongIDs[game] },
             });
