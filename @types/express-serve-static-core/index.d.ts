@@ -17,6 +17,9 @@ declare global {
             folderData?: FolderDocument;
             rivalGroup?: RivalGroupDocument;
             song?: SongDocument;
+            ktchiGoal?: GoalDocument;
+            importObj?: ImportDocument;
+            ktchiMilestone?: MilestoneDocument;
         }
     }
 }
