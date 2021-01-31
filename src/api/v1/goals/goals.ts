@@ -4,68 +4,69 @@ const router = express.Router({ mergeParams: true });
 import db from "../../../db";
 import config from "../../../config/config";
 import JSum from "jsum";
-import apiConfig from "../../../apiconfig";
-import middlewares from "../../../middlewares";
+import userCore from "../../../core/user-core";
+import common from "../../../core/common-core";
 
-// mounted on /api/v1/goals
+/**
+ * @namespace /v1/goals
+ */
 
 const MAX_RETURNS = 100;
-router.get("/", async (req, res) => {
-    try {
-        let dbRes = await dbCore.FancyDBQuery("goals", req.query, true, MAX_RETURNS);
 
-        if (dbRes.body.success) {
-            if (req.query.getAssocUsers) {
-                dbRes.body.body.users = await db.get("users").find(
-                    {
-                        id: { $in: dbRes.body.body.items.map((e) => e.createdBy) },
-                    },
-                    {
-                        projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
-                    }
-                );
-            }
+interface GoalsReturn extends FancyQueryBody<GoalDocument> {
+    users?: PublicUserDocument[];
+    ugc?: Record<string, integer>;
+}
 
-            // lol
-            if (req.query.getAssocUserGoalCounts) {
-                let ugc = await db.get("user-goals").aggregate([
-                    {
-                        $match: {
-                            goalID: { $in: dbRes.body.body.items.map((e) => e.goalID) },
-                        },
-                    },
-                    {
-                        $group: {
-                            _id: "$goalID",
-                            count: { $sum: 1 },
-                        },
-                    },
-                ]);
+/**
+ * Performs a fancy query on the goals database.
+ * @name GET /v1/goals
+ * @param getAssocUsers - Gets the associated user documents.
+ * @param getAsocUserGoalCounts - Gets the amount of users who have this goal set.
+ */
+router.get("/", async (req: KTRequest, res) => {
+    let dbRes = (await dbCore.FancyDBQuery<GoalDocument>(
+        "goals",
+        req.query,
+        true,
+        MAX_RETURNS
+    )) as FancyQueryPseudoResponse<GoalDocument>;
 
-                let ugcObj = {};
-                for (const ug of ugc) {
-                    ugcObj[ug._id] = ug.count;
-                }
-
-                dbRes.body.body.ugc = ugcObj;
-            }
+    if (dbRes.body.success) {
+        if (req.query.getAssocUsers) {
+            (dbRes.body.body as GoalsReturn).users = await userCore.GetUsers(
+                dbRes.body.body.items.map((e) => e.createdBy)
+            );
         }
-        return res.status(dbRes.statusCode).json(dbRes.body);
-    } catch (r) {
-        if (r.statusCode && r.body) {
-            return res.status(r.statusCode).json(r.body);
-        } else {
-            console.error(req.originalUrl);
-            console.error(r);
-            return res.status(500).json({
-                success: false,
-                description: "An unknown internal server error has occured.",
-            });
+
+        if (req.query.getAssocUserGoalCounts) {
+            let ugc = await db.get("user-goals").aggregate([
+                {
+                    $match: {
+                        goalID: { $in: dbRes.body.body.items.map((e) => e.goalID) },
+                    },
+                },
+                {
+                    $group: {
+                        _id: "$goalID",
+                        count: { $sum: 1 },
+                    },
+                },
+            ]);
+
+            let ugcObj: Record<string, integer> = {};
+            for (const ug of ugc) {
+                ugcObj[ug._id] = ug.count;
+            }
+
+            (dbRes.body.body as GoalsReturn).ugc = ugcObj;
         }
     }
+
+    return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
-async function RequireValidGame(req, res, next) {
+async function RequireValidGame(req: KTRequest, res: express.Response, next: express.NextFunction) {
     if (!req.body.game) {
         return res.status(400).json({
             success: false,
@@ -73,7 +74,7 @@ async function RequireValidGame(req, res, next) {
         });
     }
 
-    if (!config.supportedGames.includes(req.body.game)) {
+    if (!common.IsValidGame(req.body.game)) {
         return res.status(400).json({
             success: false,
             description: `Game ${req.body.game} is not supported.`,
@@ -83,7 +84,7 @@ async function RequireValidGame(req, res, next) {
     next();
 }
 
-const SUPPORTED_SCORE_GOAL_KEYS = {
+const SUPPORTED_SCORE_GOAL_KEYS: Record<ValidGoalKey, string> = {
     "scoreData.score": "float",
     "scoreData.percent": "float",
     "scoreData.gradeIndex": "integer",
@@ -100,7 +101,13 @@ const SUPPORTED_SCORE_GOAL_KEYS = {
 //     gte: ">=",
 // };
 
-const HUMAN_SCORE_GOAL_KEY = {
+type ValidGoalKey =
+    | "scoreData.score"
+    | "scoreData.percent"
+    | "scoreData.gradeIndex"
+    | "scoreData.lampIndex";
+
+const HUMAN_SCORE_GOAL_KEY: Record<ValidGoalKey, string> = {
     "scoreData.score": "Score",
     "scoreData.percent": "Percent",
     "scoreData.gradeIndex": "Grade",
@@ -108,7 +115,13 @@ const HUMAN_SCORE_GOAL_KEY = {
     // "scoreData.esd": "ESD",
 };
 
-router.put("/create-simple-chart-goal", RequireValidGame, async (req, res) => {
+/**
+ * Creates a "simple" chart goal, which takes one chart, a target name and a target val
+ * @name PUT /v1/goals/create-simple-chart-goal
+ * @param scoreGoalKey - See ValidGoalKey
+ * @param scoreGoalValue - A float which sets the target of the key.
+ */
+router.put("/create-simple-chart-goal", RequireValidGame, async (req: KTRequest, res) => {
     if (!req.body.chartID) {
         return res.status(400).json({
             success: false,
@@ -116,7 +129,7 @@ router.put("/create-simple-chart-goal", RequireValidGame, async (req, res) => {
         });
     }
 
-    if (!SUPPORTED_SCORE_GOAL_KEYS[req.body.scoreGoalKey]) {
+    if (!SUPPORTED_SCORE_GOAL_KEYS[req.body.scoreGoalKey as ValidGoalKey]) {
         return res.status(400).json({
             success: false,
             description: `Invalid scoreGoalKey of ${req.body.scoreGoalKey}`,
@@ -139,7 +152,7 @@ router.put("/create-simple-chart-goal", RequireValidGame, async (req, res) => {
         });
     }
 
-    let game = req.body.game;
+    let game = req.body.game as Game;
     let chart = await db.get(`charts-${game}`).findOne({
         chartID: req.body.chartID,
     });
@@ -166,7 +179,7 @@ router.put("/create-simple-chart-goal", RequireValidGame, async (req, res) => {
             });
         }
     } else if (req.body.scoreGoalKey === "scoreData.percent") {
-        if (game !== "maimai" && gVal > 100.0) {
+        if (gVal > config.gamePercentMax[game]) {
             return res.status(400).json({
                 success: false,
                 description: "Invalid value for percent.",
@@ -223,7 +236,7 @@ router.put("/create-simple-chart-goal", RequireValidGame, async (req, res) => {
     //     queryVal = {"~gte": gVal}
     // }
 
-    let scoreQuery = {
+    let scoreQuery: Record<string, unknown> = {
         [req.body.scoreGoalKey.replace(/\./g, "¬")]: queryVal,
     };
 
@@ -233,7 +246,7 @@ router.put("/create-simple-chart-goal", RequireValidGame, async (req, res) => {
         scoreQuery.isScorePB = true;
     }
 
-    let goalObj = {
+    let goalObj: Partial<GoalDocument> = {
         directChartID: req.body.chartID,
         scoreQuery,
         criteria: {
@@ -286,13 +299,13 @@ router.put("/create-simple-chart-goal", RequireValidGame, async (req, res) => {
     }
 
     let humanTitle = `${song.title} (${config.FormatDifficulty(chart, game)}) ${
-        HUMAN_SCORE_GOAL_KEY[req.body.scoreGoalKey]
+        HUMAN_SCORE_GOAL_KEY[req.body.scoreGoalKey as ValidGoalKey]
     }: ${prettyValue}`;
 
     goalObj.title = humanTitle;
     goalObj.goalID = goalID;
     goalObj.timeAdded = Date.now();
-    goalObj.createdBy = req.apikey.assignedTo;
+    goalObj.createdBy = req.apikey!.assignedTo;
     goalObj.game = game;
     goalObj.playtype = chart.playtype;
 
@@ -304,73 +317,6 @@ router.put("/create-simple-chart-goal", RequireValidGame, async (req, res) => {
         body: goalObj,
     });
 });
-
-router.put(
-    "/create-advanced-goal",
-    RequireValidGame,
-    middlewares.RequireAdmin,
-    async (req, res) => {
-        let gVal = parseFloat(req.body.sgVal);
-
-        if (req.body.sgKey === "scoreData.gradeIndex") {
-            gVal = config.grades[req.body.game].indexOf(req.body.sgVal);
-        } else if (req.body.sgKey === "scoreData.lampIndex") {
-            gVal = config.lamps[req.body.game].indexOf(req.body.sgVal);
-        }
-
-        let scoreQuery = {
-            [req.body.sgKey.replace(/\./g, "¬")]: { "~gte": gVal },
-        };
-
-        if (gVal < 0) {
-            return res.status(400).json({
-                success: false,
-                description: "gval is less than 0",
-            });
-        }
-
-        let goalObj = {
-            directChartID: null,
-            directChartIDs: req.body.directChartIDs || null,
-            chartQuery: req.body.chartQuery,
-            scoreQuery,
-            criteria: {
-                type: req.body.criteria,
-                value: parseFloat(req.body.value),
-                mode: req.body.mode || null,
-            },
-        };
-
-        let goalID = JSum.digest(goalObj, "SHA1", "hex");
-
-        let exists = await db.get("goals").findOne({
-            goalID: goalID,
-        });
-
-        if (exists) {
-            return res.status(200).json({
-                success: true,
-                description: "Goal already exists.",
-                body: exists,
-            });
-        }
-
-        goalObj.title = `${req.body.title} (${req.body.playtype})`;
-        goalObj.goalID = goalID;
-        goalObj.timeAdded = Date.now();
-        goalObj.createdBy = req.apikey.assignedTo;
-        goalObj.game = req.body.game;
-        goalObj.playtype = req.body.playtype;
-
-        await db.get("goals").insert(goalObj);
-
-        return res.status(201).json({
-            success: true,
-            description: "Successfully created goal.",
-            body: goalObj,
-        });
-    }
-);
 
 import goalIDRouter from "./goalID/goalID";
 router.use("/goal/:goalID", goalIDRouter);
