@@ -2,114 +2,38 @@ import * as express from "express";
 import db from "../../../db";
 import userCore from "../../../core/user-core";
 import apiConfig from "../../../apiconfig";
-import similarity from "string-similarity";
 import regexSanitise from "escape-string-regexp";
+import dbCore from "../../../core/db-core";
 
 const router = express.Router({ mergeParams: true });
 
-// mounted on /api/v1/users
+/**
+ * @namespace /v1/users
+ */
 
 const MAX_USER_RETURN_LIMIT = 100;
-const ALLOWED_SORT_CRITERIA = ["id", "xp", "username", "displayname"];
 
-router.get("/", async (req, res) => {
-    let rgxIsNum = /^[0-9]+$/;
-    let userLimit = MAX_USER_RETURN_LIMIT;
-    if (req.query.limit) {
-        if (!rgxIsNum.match(req.query.limit)) {
-            return res.status(400).json({
-                success: false,
-                description: "userLimit is not an integer.",
-            });
-        }
+/**
+ * Performs a fancy query on users.
+ * @name GET /v1/users
+ */
+router.get("/", async (req: KTRequest, res) => {
+    let dbRes = (await dbCore.FancyDBQuery(
+        "users",
+        req.query,
+        true,
+        MAX_USER_RETURN_LIMIT
+    )) as FancyQueryPseudoResponse<PublicUserDocument>;
 
-        if (parseInt(req.query.limit) > MAX_USER_RETURN_LIMIT) {
-            return res.status(400).json({
-                success: false,
-                description: `userLimit is greater than MAX_USER_RETURN_LIMIT, which is ${MAX_USER_RETURN_LIMIT}`,
-            });
-        }
-
-        userLimit = req.query.limit;
-    }
-
-    let start = 0;
-    if (req.query.start) {
-        if (!rgxIsNum.match(req.query.start)) {
-            return res.status(400).json({
-                success: false,
-                description: "start is not an integer.",
-            });
-        }
-
-        start = parseInt(req.query.start);
-    }
-
-    let sortCriteria = "id";
-    if (req.query.sortCriteria) {
-        if (!ALLOWED_SORT_CRITERIA.includes(req.query.sortCriteria)) {
-            return res.status(400).json({
-                success: false,
-                description: "sortCriteria provided is not allowed. Refer to the documentation.",
-            });
-        }
-        sortCriteria = req.query.sortCriteria;
-    }
-
-    let users = await db.get("users").find(
-        {},
-        {
-            projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
-            limit: userLimit,
-            skip: start,
-            sort: sortCriteria,
-        }
-    );
-
-    let usersBody = { items: users };
-    if (users.length !== 0) {
-        usersBody.nextStartPoint = start + userLimit;
-    }
-
-    return res.status(200).json({
-        success: true,
-        description: `Successfully found ${users.length} users.`,
-        body: usersBody,
-    });
+    return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
+/**
+ * Returns ALL online users.
+ * @name GET /v1/users
+ * @todo This won't scale, at all.
+ */
 router.get("/online", async (req, res) => {
-    let userLimit = MAX_USER_RETURN_LIMIT;
-    if (req.query.limit) {
-        if (!rgxIsNum.match(req.query.limit)) {
-            return res.status(400).json({
-                success: false,
-                description: "userLimit is not an integer.",
-            });
-        }
-
-        if (parseInt(req.query.limit) > MAX_USER_RETURN_LIMIT) {
-            return res.status(400).json({
-                success: false,
-                description: `userLimit is greater than MAX_USER_RETURN_LIMIT, which is ${MAX_USER_RETURN_LIMIT}`,
-            });
-        }
-
-        userLimit = req.query.limit;
-    }
-
-    let start = 0;
-    if (req.query.start) {
-        if (!rgxIsNum.match(req.query.start)) {
-            return res.status(400).json({
-                success: false,
-                description: "start is not an integer.",
-            });
-        }
-
-        start = parseInt(req.query.start);
-    }
-
     let curTime = Date.now();
 
     let onlineUsers = await db.get("users").find(
@@ -120,15 +44,10 @@ router.get("/online", async (req, res) => {
         },
         {
             projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
-            skip: start,
-            limit: userLimit,
         }
     );
 
     let usersBody = { items: onlineUsers };
-    if (onlineUsers.length !== 0) {
-        usersBody.nextStartPoint = start + userLimit;
-    }
 
     return res.status(200).json({
         success: true,
@@ -137,7 +56,14 @@ router.get("/online", async (req, res) => {
     });
 });
 
-router.get("/search", async (req, res) => {
+/**
+ * Performs a search on users.
+ * @name GET /v1/users/search
+ * @param username - The username to search.
+ * @param minimalReturns - if exactly "true", will only return username, displayname
+ * and id. This is for realtime search things so as not to thrash the client.
+ */
+router.get("/search", async (req: KTRequest, res) => {
     if (!req.query.username) {
         return res.status(400).json({
             success: false,
@@ -163,52 +89,21 @@ router.get("/search", async (req, res) => {
         });
     }
 
+    let projection: Record<string, 0 | 1> = apiConfig.REMOVE_PRIVATE_USER_RETURNS;
+
+    if (req.query.minimalReturns) {
+        projection = { username: 1, id: 1, displayname: 1 };
+    }
+
     let users = await db.get("users").find(
         {
             username: new RegExp(`${regexSanitise(req.query.username)}`, "i"),
         },
         {
-            projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
+            projection,
             limit: MAX_USER_RETURN_LIMIT,
         }
     );
-
-    for (const user of users) {
-        user.closeness = similarity.compareTwoStrings(user.username, req.query.username);
-    }
-
-    // remove users where their closeness is 0, i.e. they do not match
-    // users = users.filter(e => !!e.closeness);
-
-    if (users.length === 0) {
-        return res.status(404).json({
-            success: false,
-            description: `Found no similar usernames for ${req.query.username}.`,
-        });
-    }
-
-    if (req.query.limit) {
-        let intLimit = parseInt(req.query.limit);
-
-        if (
-            intLimit < 0 ||
-            isNaN(intLimit) ||
-            !isFinite(intLimit) ||
-            intLimit > MAX_USER_RETURN_LIMIT
-        ) {
-            return res.status(400).json({
-                success: false,
-                description: `Invalid limit, must be a +ve integer less than ${MAX_USER_RETURN_LIMIT}`,
-            });
-        }
-
-        users = users.slice(0, intLimit);
-    } else {
-        // return only the closest 100 matches. This doesn't matter now, but it might.
-        users = users.slice(0, MAX_USER_RETURN_LIMIT);
-    }
-
-    users.sort((a, b) => b.closeness - a.closeness);
 
     return res.status(200).json({
         success: true,
