@@ -3,9 +3,15 @@ import goalCore from "../../../../core/goal-core";
 const router = express.Router({ mergeParams: true });
 import db from "../../../../db";
 
-// mounted on /api/v1/milestones/milestone/:milestoneID
+/**
+ * @namespace /v1/milestones/milestone/:milestoneID
+ */
 
-async function ValidateMilestoneID(req, res, next) {
+async function ValidateMilestoneID(
+    req: KTRequest,
+    res: express.Response,
+    next: express.NextFunction
+) {
     let milestone = await db.get("milestones").findOne({
         milestoneID: req.params.milestoneID,
     });
@@ -24,19 +30,28 @@ async function ValidateMilestoneID(req, res, next) {
 
 router.use(ValidateMilestoneID);
 
+/**
+ * Returns the milestone at this milestoneID.
+ * @name GET /v1/milestones/milestone/:milestoneID
+ */
 router.get("/", async (req, res) =>
     res.status(200).json({
         success: true,
-        description: `Successfully found goal ${req.ktchiMilestone.title}.`,
+        description: `Successfully found goal ${req.ktchiMilestone!.title}.`,
         body: req.ktchiMilestone,
     })
 );
 
-// this code is almost identical to the goalID setting.
+/**
+ * Sets this milestone to the requesting user.
+ * @name PATCH /v1/milestones/milestone/:milestoneID/set-milestone
+ */
 router.patch("/set-milestone", async (req, res) => {
-    let milestone = req.ktchiMilestone;
+    let userID = req.apikey!.assignedTo;
+
+    let milestone = req.ktchiMilestone as MilestoneDocument;
     let exists = await db.get("user-milestones").findOne({
-        userID: req.apikey.assignedTo,
+        userID,
         milestoneID: req.params.milestoneID,
     });
 
@@ -48,25 +63,27 @@ router.patch("/set-milestone", async (req, res) => {
     }
 
     // else create user-milestone obj
-    let umObj = {
+    let umObj: UserMilestoneDocument = {
         milestoneID: req.params.milestoneID,
-        userID: req.apikey.assignedTo,
+        userID,
         game: milestone.game,
         playtype: milestone.playtype,
         timeSet: Date.now(),
         achieved: false,
         timeAchieved: null,
-        progress: null,
+        progress: 0,
     };
 
     let goalIDs = goalCore.GetGoalIDsFromMilestone(milestone);
 
     let successCount = 0;
 
+    // this is hilariously slow??
+    // TODO: optimise this in the obvious manner
     for (const goalID of goalIDs) {
         let goalIDExists = await db.get("user-goals").findOne({
             goalID: goalID,
-            userID: req.apikey.assignedTo,
+            userID,
         });
 
         if (goalIDExists) {
@@ -80,7 +97,7 @@ router.patch("/set-milestone", async (req, res) => {
             goalID: goalID,
         });
 
-        let ugObj = await goalCore.CreateUserGoal(goal, req.apikey.assignedTo);
+        let ugObj = await goalCore.CreateUserGoal(goal, userID);
 
         if (ugObj.achieved) {
             successCount++;
@@ -92,8 +109,32 @@ router.patch("/set-milestone", async (req, res) => {
     if (milestone.criteria.type === "all") {
         umObj.achieved = successCount >= goalIDs.length;
     } else if (milestone.criteria.type === "percent") {
+        if (milestone.criteria.value === null) {
+            console.error(
+                `Corrupt Milestone: ${milestone.milestoneID}, null value with type percent.`
+            );
+
+            return res.status(500).json({
+                success: false,
+                description:
+                    "Internal service error while assigning goal. Milestone object is corrupt.",
+            });
+        }
+
         umObj.achieved = successCount >= goalIDs.length * milestone.criteria.value;
     } else if (milestone.criteria.type === "count") {
+        if (milestone.criteria.value === null) {
+            console.error(
+                `Corrupt Milestone: ${milestone.milestoneID}, null value with type count.`
+            );
+
+            return res.status(500).json({
+                success: false,
+                description:
+                    "Internal service error while assigning goal. Milestone object is corrupt.",
+            });
+        }
+
         umObj.achieved = successCount >= milestone.criteria.value;
     }
 
@@ -110,9 +151,15 @@ router.patch("/set-milestone", async (req, res) => {
     });
 });
 
+/**
+ * Removes (or unsets) the milestone at this given ID for the requesting user.
+ * @name DELETE /v1/milestones/milestone/:milestoneID/remove-milestone
+ */
 router.delete("/remove-milestone", async (req, res) => {
+    let userID = req.apikey!.assignedTo;
+
     let exists = await db.get("user-milestones").findOne({
-        userID: req.apikey.assignedTo,
+        userID: userID,
         milestoneID: req.params.milestoneID,
     });
 
@@ -127,13 +174,13 @@ router.delete("/remove-milestone", async (req, res) => {
         _id: exists._id,
     });
 
-    let milestone = req.ktchiMilestone;
+    let milestone = req.ktchiMilestone as MilestoneDocument;
 
     let goalIDs = goalCore.GetGoalIDsFromMilestone(milestone);
 
     await db.get("user-goals").remove({
         goalID: { $in: goalIDs },
-        userID: req.apikey.assignedTo,
+        userID: userID,
     });
 
     return res.status(200).json({
