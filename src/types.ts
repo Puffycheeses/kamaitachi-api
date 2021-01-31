@@ -232,7 +232,7 @@ declare global {
         criteria: {
             type: "gte" | "lte" | "lt" | "gt" | "anyMatch" | "all";
             value: number | null;
-            mode: "proportion" | null;
+            mode?: "proportion" | null;
         };
         title: string;
         goalID: string;
@@ -252,13 +252,34 @@ declare global {
         game: Game;
         playtype: Playtypes[Game];
         settings: {
-            scoreCompareMode: "relevant" | "todo";
+            scoreCompareMode: "relevant" | "folder";
             strictness: number;
             boundary: number;
-            scoreCompareFType: "levels" | "versions";
-            scoreCompareFName: string;
+            scoreCompareFolderID: string;
+            cellShading: "grade" | "lamp";
         };
         rivalGroupID: string;
+    }
+
+    export interface ImportSessionInfo {
+        sessionID: string;
+        name: string; // NONSENSE
+        scoreCount: integer;
+        performance: number;
+    }
+
+    export interface ImportDocument extends MongoDBDocument {
+        userID: integer;
+        timeStarted: integer;
+        timeFinished: integer;
+        game: Game;
+        skippedScores: integer;
+        successfulScores: string[];
+        service: string;
+        sessionInfo: ImportSessionInfo[];
+        importID: string;
+        timeTaken: number;
+        msPerScore: number;
     }
 
     export interface UserGoalDocument extends MongoDBDocument {
@@ -295,7 +316,7 @@ declare global {
              * All: All goals must be achieved in order for the milestone to be complete
              * Count: Goals achieved must be greater than or equal to criteria.value.
              */
-            type: "all" | "count";
+            type: "all" | "count" | "percent";
             value: number | null;
         };
         createdBy: integer;
@@ -304,6 +325,17 @@ declare global {
         milestoneData: MilestoneSection[];
         milestoneID: string;
         group: string | null;
+    }
+
+    export interface QueryDocument extends MongoDBDocument {
+        query: Record<string, string>;
+        queryID: string;
+        name: string;
+        desc: string;
+        byUser: integer;
+        timeAdded: integer;
+        timesUsed: integer;
+        forDatabase: ValidFQDatabases;
     }
 
     /**
@@ -438,6 +470,17 @@ declare global {
         table: string;
     }
 
+    export interface UserMilestoneDocument extends MongoDBDocument {
+        milestoneID: string;
+        userID: integer;
+        game: Game;
+        playtype: Playtypes[Game];
+        timeSet: integer;
+        achieved: boolean;
+        timeAchieved: integer | null;
+        progress: integer;
+    }
+
     export interface ScoreDocument extends MongoDBDocument {
         service: string;
         game: Game;
@@ -477,6 +520,7 @@ declare global {
         isScorePB: boolean;
         isLampPB: boolean;
     }
+
     type KTRequest = Request<
         ParamsDictionary,
         unknown,
