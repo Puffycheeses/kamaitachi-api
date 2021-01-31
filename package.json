@@ -46,12 +46,10 @@
     "dependencies": {
         "cookie-parser": "^1.4.5",
         "escape-string-regexp": "^4.0.0",
-        "esd-js": "^1.4.0",
         "express": "^4.17.1",
         "jsum": "^0.1.4",
         "mongo-sanitize": "^1.1.0",
         "mongodb": "^3.6.0",
-        "monk": "^7.3.2",
-        "string-similarity": "^4.0.2"
+        "monk": "^7.3.2"
     }
 }
