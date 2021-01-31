@@ -5,6 +5,7 @@ import scoreCore from "../../../core/score-core";
 import config from "../../../config/config";
 import middlewares from "../../../middlewares";
 import regexSanitise from "escape-string-regexp";
+import common from "../../../core/common-core";
 
 const router = express.Router({ mergeParams: true });
 
@@ -39,16 +40,16 @@ router.get("/", async (req, res) => {
 router.get("/:userID/best", middlewares.RequireExistingUser, async (req: KTRequest, res) => {
     // overassert typescript so we can use this parameter as a member of Game.
     // note that we check below whether this is even the case.
-    let game: Game = req.query.game as Game;
+    let game = req.query.game;
 
-    if (!config.supportedGames.includes(game)) {
+    if (!common.IsValidGame(game)) {
         return res.status(400).json({
             success: false,
             description: "This game is not supported, or one was not provided.",
         });
     }
 
-    if (!config.validPlaytypes[game].includes(req.query.playtype)) {
+    if (!common.IsValidPlaytype(req.query.playtype, game)) {
         return res.status(400).json({
             success: false,
             description: "This playtype is not supported, or one was not provided.",
@@ -157,6 +158,7 @@ router.get("/query", async (req: KTRequest, res) => {
         baseObj.validity = { $ne: "invalid" };
     }
 
+    // TODO: Remove this disgusting garbage
     if (req.query.titleSearch) {
         let regex = new RegExp(regexSanitise(req.query.titleSearch), "i");
 
