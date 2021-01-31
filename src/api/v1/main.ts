@@ -53,14 +53,12 @@ import goalRouter from "./goals/goals";
 import milestonesRouter from "./milestones/milestones";
 import userGoalsRouter from "./user-goals/user-goals";
 import userMilestoneRouter from "./user-milestones/user-milestones";
-import searchRouter from "./search/search";
 import sessionFeedRouter from "./session-feed/session-feed";
 
 router.use("/users", usersRouter);
 router.use("/sessions", sessionRouter);
 router.use("/tierlists", tierlistsRouter);
 router.use("/leaderboards", leaderboardsRouter);
-router.use("/search", searchRouter);
 router.use("/queries", queryRouter);
 router.use("/stats", statsRouter);
 router.use("/scores", scoresRouter);
