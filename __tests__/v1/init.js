@@ -5,11 +5,11 @@
 // with a great, undebuggable error.
 // it took me 1 whole day to set this up.
 
-const app = require('../../server.js');
-const supertest = require('supertest');
+const app = require("../../server.js");
+const supertest = require("supertest");
 let request;
 let server;
-const db = require("../../__jesthelpers/testingdb.js"); 
+const db = require("../../__jesthelpers/testingdb.js");
 const config = require("../../config/config.js");
 const jestHelpers = require("../../__jesthelpers/jesthelpers.js");
 
@@ -27,65 +27,62 @@ beforeEach((done) => {
 });
 
 // see above
-afterEach((done) => {
-  return server && server.close(done);
-});
-
+afterEach((done) => server && server.close(done));
 
 // Check we're not in production.
 // This used to determine what database we use, but a refactor has fixed this.
 // either way, it's a good sanity check.
-describe("Initialisation safety checks", function(){
-    test("Not in production", async function() {
+describe("Initialisation safety checks", () => {
+    test("Not in production", async () => {
         expect(process.env.NODE_ENV !== "production").toBe(true);
     });
 });
 
 // General initialisation, these check basic parts of the API and basically check we're alive.
-describe("Initialisation", function(){
-    beforeEach(async function() {
+describe("Initialisation", () => {
+    beforeEach(async () => {
         await testingDBInitialiser.ResetTestingDB();
     });
 
     // Check the database has the right information from the above reset testing db.
-    test('Initalise testing DB', async function() {
+    test("Initalise testing DB", async () => {
         let dbToCheck = [
-            {name: "users", expectCount: 2},
-            {name: "charts-iidx", expectCount: 20},
-            {name: "songs-iidx", expectCount: 20},
-            {name: "tierlist", expectCount: 4},
-            {name: "tierlistdata", expectCount: 40}
-        ]
-    
+            { name: "users", expectCount: 2 },
+            { name: "charts-iidx", expectCount: 20 },
+            { name: "songs-iidx", expectCount: 20 },
+            { name: "tierlist", expectCount: 4 },
+            { name: "tierlistdata", expectCount: 40 },
+        ];
+
         for (const dbCheck of dbToCheck) {
             let items = await db.get(dbCheck.name).find({});
             expect(items.length).toBe(dbCheck.expectCount);
         }
     });
-    
-    test('API Core With Valid Key', async function() {
-        let response = await request.get('/v1?key=admin')
-      
+
+    test("API Core With Valid Key", async () => {
+        let response = await request.get("/v1?key=admin");
+
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
         expect(response.body.body.version.major).toBe(1);
     });
-    
-    test('API Core With Expired Key', async function() {
-        let response = await request.get('/v1?key=expire')
-      
-        expect(response.status).toBe(401);
-        expect(response.body.success).toBe(false);
-    });
-    
-    test('API Core With No Key', async function() {
-        let response = await request.get('/v1')
-      
+
+    test("API Core With Expired Key", async () => {
+        let response = await request.get("/v1?key=expire");
+
         expect(response.status).toBe(401);
         expect(response.body.success).toBe(false);
     });
 
-    test("404 handler", async function(){
+    test("API Core With No Key", async () => {
+        let response = await request.get("/v1");
+
+        expect(response.status).toBe(401);
+        expect(response.body.success).toBe(false);
+    });
+
+    test("404 handler", async () => {
         let response = await request.get("/404?key=admin");
 
         expect(response.status).toBe(404);
@@ -96,7 +93,7 @@ describe("Initialisation", function(){
     // 401 is returned instead of 404.
     // this doesn't really matter, because this is open source,
     // either way, I think it's nice.
-    test("401 hiding", async function(){
+    test("401 hiding", async () => {
         let response = await request.get("/404");
 
         expect(response.status).toBe(401);
@@ -104,13 +101,13 @@ describe("Initialisation", function(){
     });
 });
 
-describe("Game Meta Tests", function(){
-    beforeEach(async function() {
+describe("Game Meta Tests", () => {
+    beforeEach(async () => {
         await testingDBInitialiser.ResetTestingDB();
     });
 
-    test('Games check', async function() {
-        let response = await request.get('/v1/games?key=admin');
+    test("Games check", async () => {
+        let response = await request.get("/v1/games?key=admin");
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
         expect(response.body.body.totalSongCount).toBe(20);
@@ -118,21 +115,21 @@ describe("Game Meta Tests", function(){
     });
 
     for (const game of config.supportedGames) {
-        test("Presence of " + game, async function(){
-            let response = await request.get('/v1/games?key=admin');
+        test(`Presence of ${game}`, async () => {
+            let response = await request.get("/v1/games?key=admin");
             expect(game in response.body.body.gameStats).toBe(true);
         });
     }
 });
 
-describe("Specific Game Tests", function(){
-    beforeEach(async function() {
+describe("Specific Game Tests", () => {
+    beforeEach(async () => {
         await testingDBInitialiser.ResetTestingDB();
     });
 
     for (const game of config.supportedGames) {
-        test("Presence of gamedata for " + game, async function(){
-            let response = await request.get("/v1/games/" + game + "?key=admin");
+        test(`Presence of gamedata for ${game}`, async () => {
+            let response = await request.get(`/v1/games/${game}?key=admin`);
             expect(response.status).toBe(200);
             expect(response.body.success).toBe(true);
             expect(response.body.body.gameInfo.game).toBe(game);
@@ -143,23 +140,23 @@ describe("Specific Game Tests", function(){
 // test song query types.
 // IIDX is our testing dataset, and due to the design of the api
 // if that works, all of them work.
-describe("Valid Song Query Tests", function(){
-    beforeEach(async function() {
+describe("Valid Song Query Tests", () => {
+    beforeEach(async () => {
         await testingDBInitialiser.ResetTestingDB();
     });
 
-    test("Default pagination query", async function(){
+    test("Default pagination query", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
         expect(response.body.body.items.length).toBe(20);
-        
+
         expect(jestHelpers.IsSortedOnKey(response.body.body.items, "id")).toBe(true);
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("Pagination query with custom limit", async function(){
+    test("Pagination query with custom limit", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&limit=5");
 
         expect(response.status).toBe(200);
@@ -168,7 +165,7 @@ describe("Valid Song Query Tests", function(){
         expect(response.body.body.nextStartPoint).toBe(6);
     });
 
-    test("Pagination query with custom start", async function(){
+    test("Pagination query with custom start", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&start=17");
 
         expect(response.status).toBe(200);
@@ -177,7 +174,7 @@ describe("Valid Song Query Tests", function(){
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("Pagination query with custom start and limit", async function(){
+    test("Pagination query with custom start and limit", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&start=17&limit=2");
 
         expect(response.status).toBe(200);
@@ -188,8 +185,7 @@ describe("Valid Song Query Tests", function(){
         expect(response.body.body.nextStartPoint).toBe(20);
     });
 
-    
-    test("Exact Title Query", async function(){
+    test("Exact Title Query", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&exact=true&title=GAMBOL");
 
         expect(response.status).toBe(200);
@@ -202,7 +198,7 @@ describe("Valid Song Query Tests", function(){
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("Exact Artist Query", async function(){
+    test("Exact Artist Query", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&exact=true&artist=SLAKE");
 
         expect(response.status).toBe(200);
@@ -215,8 +211,10 @@ describe("Valid Song Query Tests", function(){
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("Exact Genre Query", async function(){
-        let response = await request.get("/v1/games/iidx/songs?key=admin&exact=true&genre=BIG BEAT");
+    test("Exact Genre Query", async () => {
+        let response = await request.get(
+            "/v1/games/iidx/songs?key=admin&exact=true&genre=BIG BEAT"
+        );
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -229,7 +227,7 @@ describe("Valid Song Query Tests", function(){
     });
 
     // default sort criteria is tested in default pagination tests
-    test("Custom Sort Criteria", async function(){
+    test("Custom Sort Criteria", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&sortCriteria=title");
 
         expect(response.status).toBe(200);
@@ -241,110 +239,113 @@ describe("Valid Song Query Tests", function(){
     });
 });
 
-describe("Invalid Song Queries", function(){
-
+describe("Invalid Song Queries", () => {
     // express will convert foo=x&foo=y into foo = [x,y].
     // we reject nested queries, viz. we reject queries where any keys' value is an object.
     // see middlewares.js for more information on this security.
-    test("Reject nested query", async function(){
-        let response = await request.get("/v1/games/iidx/songs?key=admin&title=GAMBOL&title=OTHERKEY");
+    test("Reject nested query", async () => {
+        let response = await request.get(
+            "/v1/games/iidx/songs?key=admin&title=GAMBOL&title=OTHERKEY"
+        );
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Err on exact query with no match", async function(){
-        let response = await request.get("/v1/games/iidx/songs?key=admin&title=TITLETHATDOESNTEXIST&exact=true");
+    test("Err on exact query with no match", async () => {
+        let response = await request.get(
+            "/v1/games/iidx/songs?key=admin&title=TITLETHATDOESNTEXIST&exact=true"
+        );
 
         expect(response.status).toBe(404);
         expect(response.body.success).toBe(false);
     });
-    
-    test("Reject query with invalid int in int param", async function(){
+
+    test("Reject query with invalid int in int param", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&id=asdf");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Reject query with NaN in int param", async function(){
+    test("Reject query with NaN in int param", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&id=NaN");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Reject query with undefined in int param", async function(){
+    test("Reject query with undefined in int param", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&id=undefined");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Reject query with float in int param", async function(){
+    test("Reject query with float in int param", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&id=1.5");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Reject query with negative in int param", async function(){
+    test("Reject query with negative in int param", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&id=-1");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Reject query with excessive limit", async function(){
+    test("Reject query with excessive limit", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&limit=200");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Reject query with negative int start", async function(){
+    test("Reject query with negative int start", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&start=-1");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Reject query with float start", async function(){
+    test("Reject query with float start", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&start=1.5");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Reject query with string start", async function(){
+    test("Reject query with string start", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&start=hello");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Reject query with negative int limit", async function(){
+    test("Reject query with negative int limit", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&limit=-1");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Reject query with float limit", async function(){
+    test("Reject query with float limit", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&limit=1.5");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Reject query with string limit", async function(){
+    test("Reject query with string limit", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&limit=hello");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Reject exact query with no information", async function(){
+    test("Reject exact query with no information", async () => {
         let response = await request.get("/v1/games/iidx/songs?key=admin&exact=true");
 
         expect(response.status).toBe(400);
@@ -352,8 +353,8 @@ describe("Invalid Song Queries", function(){
     });
 });
 
-describe("SongID Tests", function(){
-    test("SongID working", async function(){
+describe("SongID Tests", () => {
+    test("SongID working", async () => {
         let response = await request.get("/v1/games/iidx/songs/1?key=admin");
 
         expect(response.status).toBe(200);
@@ -366,14 +367,14 @@ describe("SongID Tests", function(){
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("Reject nonexistent songID", async function(){
+    test("Reject nonexistent songID", async () => {
         let response = await request.get("/v1/games/iidx/songs/1000000?key=admin");
 
         expect(response.status).toBe(404);
         expect(response.body.success).toBe(false);
     });
 
-    test("SongID Default Charts", async function(){
+    test("SongID Default Charts", async () => {
         let response = await request.get("/v1/games/iidx/songs/1/charts?key=admin");
 
         expect(response.status).toBe(200);
@@ -382,11 +383,11 @@ describe("SongID Tests", function(){
         expect(response.body.body.items).toBeTruthy();
 
         // check all charts returned are members of the given song
-        expect(response.body.body.items.every(e => e.id === 1)).toBe(true);
+        expect(response.body.body.items.every((e) => e.id === 1)).toBe(true);
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("SongID Charts with limit", async function(){
+    test("SongID Charts with limit", async () => {
         let response = await request.get("/v1/games/iidx/songs/1/charts?key=admin&limit=2");
 
         expect(response.status).toBe(200);
@@ -396,11 +397,11 @@ describe("SongID Tests", function(){
         expect(response.body.body.items.length).toBe(2);
 
         // check all charts returned are members of the given song
-        expect(response.body.body.items.every(e => e.id === 1)).toBe(true);
+        expect(response.body.body.items.every((e) => e.id === 1)).toBe(true);
         expect(response.body.body.nextStartPoint).toBe(3);
     });
 
-    test("SongID Charts with start", async function(){
+    test("SongID Charts with start", async () => {
         let response = await request.get("/v1/games/iidx/songs/1/charts?key=admin&start=4");
 
         expect(response.status).toBe(200);
@@ -410,12 +411,14 @@ describe("SongID Tests", function(){
         expect(response.body.body.items.length).toBe(2);
 
         // check all charts returned are members of the given song
-        expect(response.body.body.items.every(e => e.id === 1)).toBe(true);
+        expect(response.body.body.items.every((e) => e.id === 1)).toBe(true);
     });
 
     // note this also checks that queryObj works
-    test("SongID Charts with exact query", async function(){
-        let response = await request.get("/v1/games/iidx/songs/1/charts?key=admin&exact=true&difficulty=ANOTHER&playtype=SP");
+    test("SongID Charts with exact query", async () => {
+        let response = await request.get(
+            "/v1/games/iidx/songs/1/charts?key=admin&exact=true&difficulty=ANOTHER&playtype=SP"
+        );
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -426,14 +429,16 @@ describe("SongID Tests", function(){
         expect(response.body.body.item.id).toBe(1);
     });
 
-    test("Reject songID Chart exact query with no match", async function(){
-        let response = await request.get("/v1/games/iidx/songs/1/charts?key=admin&exact=true&difficulty=LEGGENDARIA&playtype=SP");
+    test("Reject songID Chart exact query with no match", async () => {
+        let response = await request.get(
+            "/v1/games/iidx/songs/1/charts?key=admin&exact=true&difficulty=LEGGENDARIA&playtype=SP"
+        );
 
         expect(response.status).toBe(404);
         expect(response.body.success).toBe(false);
     });
 
-    test("Reject nonexistent songID chart request", async function(){
+    test("Reject nonexistent songID chart request", async () => {
         let response = await request.get("/v1/games/iidx/songs/1000000/charts?key=admin");
 
         expect(response.status).toBe(404);
@@ -441,20 +446,20 @@ describe("SongID Tests", function(){
     });
 });
 
-describe("Folders Meta Tests", function(){
+describe("Folders Meta Tests", () => {
     for (const game of config.supportedGames) {
-        test("Get " + game + " Level Folders", async function(){
-            let response = await request.get("/v1/games/" + game +"/folders/levels?key=admin");
-    
+        test(`Get ${game} Level Folders`, async () => {
+            let response = await request.get(`/v1/games/${game}/folders/levels?key=admin`);
+
             expect(response.status).toBe(200);
             expect(response.body.success).toBe(true);
             expect(response.body.body.items).toBeTruthy();
             expect(response.body.body.gameFolderMode).toBe(config.folders[game].type);
         });
 
-        test("Get " + game + " Version Folders", async function(){
-            let response = await request.get("/v1/games/" + game +"/folders/versions?key=admin");
-    
+        test(`Get ${game} Version Folders`, async () => {
+            let response = await request.get(`/v1/games/${game}/folders/versions?key=admin`);
+
             expect(response.status).toBe(200);
             expect(response.body.success).toBe(true);
             expect(response.body.body.items).toBeTruthy();
@@ -463,8 +468,8 @@ describe("Folders Meta Tests", function(){
     }
 });
 
-describe("Folder Tests", function(){
-    test("Get IIDX Level 1s", async function(){
+describe("Folder Tests", () => {
+    test("Get IIDX Level 1s", async () => {
         let response = await request.get("/v1/games/iidx/folders/levels/1?key=admin");
 
         expect(response.status).toBe(200);
@@ -475,7 +480,7 @@ describe("Folder Tests", function(){
         expect(response.body.body.folderName).toBe("1");
     });
 
-    test("Get IIDX Version 1st style", async function(){
+    test("Get IIDX Version 1st style", async () => {
         let response = await request.get("/v1/games/iidx/folders/versions/0?key=admin");
 
         expect(response.status).toBe(200);
@@ -486,7 +491,7 @@ describe("Folder Tests", function(){
         expect(response.body.body.folderName).toBe("1st Style");
     });
 
-    test("Get IIDX Version substream", async function(){
+    test("Get IIDX Version substream", async () => {
         let response = await request.get("/v1/games/iidx/folders/versions/1?key=admin");
 
         expect(response.status).toBe(200);
@@ -498,9 +503,11 @@ describe("Folder Tests", function(){
     });
 });
 
-describe("Folder Scores Tests", function(){
-    test("Get IIDX Level 1 scores on userID 1", async function(){
-        let response = await request.get("/v1/games/iidx/folders/levels/1/scores?key=admin&userID=1");
+describe("Folder Scores Tests", () => {
+    test("Get IIDX Level 1 scores on userID 1", async () => {
+        let response = await request.get(
+            "/v1/games/iidx/folders/levels/1/scores?key=admin&userID=1"
+        );
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -510,34 +517,36 @@ describe("Folder Scores Tests", function(){
         expect(response.body.body.items.user.id).toBe(1);
     });
 
-    test("Reject folder scores without user", async function(){
+    test("Reject folder scores without user", async () => {
         let response = await request.get("/v1/games/iidx/folders/levels/1/scores?key=admin");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Reject folder scores with non-existent user", async function(){
-        let response = await request.get("/v1/games/iidx/folders/levels/1/scores?key=admin&userID=100");
+    test("Reject folder scores with non-existent user", async () => {
+        let response = await request.get(
+            "/v1/games/iidx/folders/levels/1/scores?key=admin&userID=100"
+        );
 
         expect(response.status).toBe(404);
         expect(response.body.success).toBe(false);
     });
 });
 
-describe("Song Independent Chart Query Tests", function(){
-    test("Default pagination query", async function(){
+describe("Song Independent Chart Query Tests", () => {
+    test("Default pagination query", async () => {
         let response = await request.get("/v1/games/iidx/charts?key=admin");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
         expect(response.body.body.items.length).toBe(20);
-        
+
         expect(jestHelpers.IsSortedOnKey(response.body.body.items, "id")).toBe(true);
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("Pagination query with custom limit", async function(){
+    test("Pagination query with custom limit", async () => {
         let response = await request.get("/v1/games/iidx/charts?key=admin&limit=5");
 
         expect(response.status).toBe(200);
@@ -546,7 +555,7 @@ describe("Song Independent Chart Query Tests", function(){
         expect(response.body.body.nextStartPoint).toBe(6);
     });
 
-    test("Pagination query with custom start", async function(){
+    test("Pagination query with custom start", async () => {
         let response = await request.get("/v1/games/iidx/charts?key=admin&start=17");
 
         expect(response.status).toBe(200);
@@ -555,7 +564,7 @@ describe("Song Independent Chart Query Tests", function(){
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("Pagination query with custom start and limit", async function(){
+    test("Pagination query with custom start and limit", async () => {
         let response = await request.get("/v1/games/iidx/charts?key=admin&start=17&limit=2");
 
         expect(response.status).toBe(200);
@@ -566,21 +575,24 @@ describe("Song Independent Chart Query Tests", function(){
         expect(response.body.body.nextStartPoint).toBe(20);
     });
 
-    
-    test("Exact Difficulty Query", async function(){
-        let response = await request.get("/v1/games/iidx/charts?key=admin&exact=true&difficulty=ANOTHER");
+    test("Exact Difficulty Query", async () => {
+        let response = await request.get(
+            "/v1/games/iidx/charts?key=admin&exact=true&difficulty=ANOTHER"
+        );
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
-        expect(response.body.body.item).toBeTruthy()
+        expect(response.body.body.item).toBeTruthy();
         expect(response.body.body.items).toBeUndefined();
         expect(response.body.body.item.id).toBe(0);
         expect(response.body.body.item.difficulty).toBe("ANOTHER");
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("Exact Difficulty + Playtype + SongID Query", async function(){
-        let response = await request.get("/v1/games/iidx/charts?key=admin&exact=true&difficulty=ANOTHER&playtype=SP&songID=1");
+    test("Exact Difficulty + Playtype + SongID Query", async () => {
+        let response = await request.get(
+            "/v1/games/iidx/charts?key=admin&exact=true&difficulty=ANOTHER&playtype=SP&songID=1"
+        );
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -588,11 +600,11 @@ describe("Song Independent Chart Query Tests", function(){
         expect(response.body.body.items).toBeUndefined();
         expect(response.body.body.item.id).toBe(1);
         expect(response.body.body.item.difficulty).toBe("ANOTHER");
-        expect(response.body.body.item.playtype).toBe("SP"); 
+        expect(response.body.body.item.playtype).toBe("SP");
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("SongID Query", async function(){
+    test("SongID Query", async () => {
         let response = await request.get("/v1/games/iidx/charts?key=admin&songID=1");
 
         expect(response.status).toBe(200);
@@ -604,8 +616,10 @@ describe("Song Independent Chart Query Tests", function(){
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("Custom Sort Criteria", async function(){
-        let response = await request.get("/v1/games/iidx/charts?key=admin&sortCriteria=notedata.notecount");
+    test("Custom Sort Criteria", async () => {
+        let response = await request.get(
+            "/v1/games/iidx/charts?key=admin&sortCriteria=notedata.notecount"
+        );
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -614,23 +628,28 @@ describe("Song Independent Chart Query Tests", function(){
         // hack .map() fix here so we can get notecount as it's nested.
         // dynamic nested key querying seems messy from the js i saw on SO.
         // (todo)
-        expect(jestHelpers.IsSortedOnKey(response.body.body.items.map(e => e.notedata),"notecount"));
+        expect(
+            jestHelpers.IsSortedOnKey(
+                response.body.body.items.map((e) => e.notedata),
+                "notecount"
+            )
+        );
     });
 });
 
-describe("Clan Meta Tests", function(){
-    test("Default pagination query", async function(){
+describe("Clan Meta Tests", () => {
+    test("Default pagination query", async () => {
         let response = await request.get("/v1/clans?key=admin");
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
         expect(response.body.body.items.length).toBe(6);
-        
+
         expect(jestHelpers.IsSortedOnKey(response.body.body.items, "xp")).toBe(true);
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("Pagination query with custom limit", async function(){
+    test("Pagination query with custom limit", async () => {
         let response = await request.get("/v1/clans?key=admin&limit=2");
 
         expect(response.status).toBe(200);
@@ -639,7 +658,7 @@ describe("Clan Meta Tests", function(){
         expect(response.body.body.nextStartPoint).toBe(3);
     });
 
-    test("Pagination query with custom start", async function(){
+    test("Pagination query with custom start", async () => {
         let response = await request.get("/v1/clans?key=admin&start=4");
 
         expect(response.status).toBe(200);
@@ -648,7 +667,7 @@ describe("Clan Meta Tests", function(){
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("Pagination query with custom start and limit", async function(){
+    test("Pagination query with custom start and limit", async () => {
         let response = await request.get("/v1/clans?key=admin&start=3&limit=2");
 
         expect(response.status).toBe(200);
@@ -658,12 +677,12 @@ describe("Clan Meta Tests", function(){
     });
 });
 
-describe("Clan Tests", function(){
+describe("Clan Tests", () => {
     // user 1 is in clan FOUR,
     // user 2 is not in a clan.
     // test accordingly
 
-    test("Check specific clan", async function(){
+    test("Check specific clan", async () => {
         let response = await request.get("/v1/clans/FOUR?key=admin");
 
         expect(response.status).toBe(200);
@@ -671,14 +690,14 @@ describe("Clan Tests", function(){
         expect(response.body.body.item.clanID).toBe("FOUR");
     });
 
-    test("Check non-existent clan", async function(){
+    test("Check non-existent clan", async () => {
         let response = await request.get("/v1/clans/FAKE?key=admin");
 
         expect(response.status).toBe(404);
         expect(response.body.success).toBe(false);
     });
 
-    test("Update clan MOTD as clan admin", async function(){
+    test("Update clan MOTD as clan admin", async () => {
         let response = await request.patch("/v1/clans/FOUR/change-motd?key=admin&motd=new motd");
 
         expect(response.status).toBe(200);
@@ -687,14 +706,14 @@ describe("Clan Tests", function(){
         expect(response.body.body.newMotd).toBe("new motd");
     });
 
-    test("Update clan MOTD not as clan admin", async function(){
+    test("Update clan MOTD not as clan admin", async () => {
         let response = await request.patch("/v1/clans/FOUR/change-motd?key=altuser&motd=new motd");
 
         expect(response.status).toBe(401);
         expect(response.body.success).toBe(false);
     });
 
-    test("Update clan name as clan admin", async function(){
+    test("Update clan name as clan admin", async () => {
         let response = await request.patch("/v1/clans/FOUR/change-name?key=admin&name=Mezzanine");
 
         expect(response.status).toBe(200);
@@ -703,7 +722,7 @@ describe("Clan Tests", function(){
         expect(response.body.body.newName).toBe("Mezzanine");
     });
 
-    test("Update clan name not as clan admin", async function(){
+    test("Update clan name not as clan admin", async () => {
         let response = await request.patch("/v1/clans/FOUR/change-name?key=altuser&name=Mezzanine");
 
         expect(response.status).toBe(401);
@@ -711,8 +730,8 @@ describe("Clan Tests", function(){
     });
 });
 
-describe("Tierlist Meta Tests", function(){
-    test("Default pagination query", async function(){
+describe("Tierlist Meta Tests", () => {
+    test("Default pagination query", async () => {
         let response = await request.get("/v1/tierlists?key=admin");
 
         expect(response.status).toBe(200);
@@ -721,7 +740,7 @@ describe("Tierlist Meta Tests", function(){
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("Pagination query with custom limit", async function(){
+    test("Pagination query with custom limit", async () => {
         let response = await request.get("/v1/tierlists?key=admin&limit=2");
 
         expect(response.status).toBe(200);
@@ -730,7 +749,7 @@ describe("Tierlist Meta Tests", function(){
         expect(response.body.body.nextStartPoint).toBe(3);
     });
 
-    test("Pagination query with custom start", async function(){
+    test("Pagination query with custom start", async () => {
         let response = await request.get("/v1/tierlists?key=admin&start=1");
 
         expect(response.status).toBe(200);
@@ -739,7 +758,7 @@ describe("Tierlist Meta Tests", function(){
         expect(response.body.body.nextStartPoint).toBeUndefined();
     });
 
-    test("Pagination query with custom start and limit", async function(){
+    test("Pagination query with custom start and limit", async () => {
         let response = await request.get("/v1/tierlists?key=admin&start=3&limit=2");
 
         expect(response.status).toBe(200);
@@ -749,37 +768,45 @@ describe("Tierlist Meta Tests", function(){
     });
 });
 
-describe("Tierlist Data Checks", function(){
-    test("Get default with game/playtype", async function(){
-        let response = await request.get("/v1/tierlists/tierlistdata?key=admin&game=iidx&playtype=SP");
+describe("Tierlist Data Checks", () => {
+    test("Get default with game/playtype", async () => {
+        let response = await request.get(
+            "/v1/tierlists/tierlistdata?key=admin&game=iidx&playtype=SP"
+        );
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
     });
 
-    test("Get default with ID", async function(){
-        let response = await request.get("/v1/tierlists/tierlistdata?key=admin&tierlistID=ee9b756e50cff8282091102257b01f423ef855f2");
+    test("Get default with ID", async () => {
+        let response = await request.get(
+            "/v1/tierlists/tierlistdata?key=admin&tierlistID=ee9b756e50cff8282091102257b01f423ef855f2"
+        );
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
     });
 
-    test("Provide no data", async function(){
+    test("Provide no data", async () => {
         let response = await request.get("/v1/tierlists/tierlistdata?key=admin");
 
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
 
-    test("Get exact", async function(){
-        let response = await request.get("/v1/tierlists/tierlistdata?key=admin&game=iidx&playtype=SP&songID=25&exact=true&difficulty=ANOTHER");
+    test("Get exact", async () => {
+        let response = await request.get(
+            "/v1/tierlists/tierlistdata?key=admin&game=iidx&playtype=SP&songID=25&exact=true&difficulty=ANOTHER"
+        );
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
     });
-    
-    test("Get non-existent exact query", async function(){
-        let response = await request.get("/v1/tierlists/tierlistdata?key=admin&game=iidx&playtype=SP&songID=10000&exact=true&difficulty=ANOTHER");
+
+    test("Get non-existent exact query", async () => {
+        let response = await request.get(
+            "/v1/tierlists/tierlistdata?key=admin&game=iidx&playtype=SP&songID=10000&exact=true&difficulty=ANOTHER"
+        );
 
         expect(response.status).toBe(404);
         expect(response.body.success).toBe(false);
