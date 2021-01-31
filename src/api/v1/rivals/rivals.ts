@@ -4,31 +4,31 @@ import userHelpers from "../../../core/user-core";
 import * as express from "express";
 import crypto from "crypto";
 import config from "../../../config/config";
+import common from "../../../core/common-core";
 const router = express.Router({ mergeParams: true });
 
-// mounted on /api/v1/rivals
+/**
+ * @namespace /v1/rivals
+ */
 
 const RETURN_LIMIT = 50;
-router.get("/", async (req, res) => {
-    try {
-        let rivalsBody = await dbCore.FancyDBQuery("rivals", req.query, true, RETURN_LIMIT);
 
-        return res.status(rivalsBody.statusCode).json(rivalsBody.body);
-    } catch (r) {
-        if (r.statusCode && r.body) {
-            return res.status(r.statusCode).json(r.body);
-        } else {
-            console.error(req.originalUrl);
-            console.error(r);
-            return res.status(500).json({
-                success: false,
-                description: "An unknown internal server error has occured.",
-            });
-        }
-    }
+/**
+ * Performs a fancyquery on the rivals database.
+ * @name GET /v1/rivals/
+ */
+router.get("/", async (req: KTRequest, res) => {
+    let rivalsBody = await dbCore.FancyDBQuery("rivals", req.query, true, RETURN_LIMIT);
+
+    return res.status(rivalsBody.statusCode).json(rivalsBody.body);
 });
 
-router.post("/create-group", async (req, res) => {
+/**
+ * Creates a new rival group.
+ * @name POST /v1/rivals/create-group
+ * @todo Investigate why the hell this is POST and not PUT?
+ */
+router.post("/create-group", async (req: KTRequest, res) => {
     if (!req.body.name || req.body.name.length > 40) {
         return res.status(400).json({
             success: false,
@@ -43,16 +43,16 @@ router.post("/create-group", async (req, res) => {
         });
     }
 
-    if (!req.body.game || !config.supportedGames.includes(req.body.game)) {
+    if (!common.IsValidGame(req.body.game)) {
         return res.status(400).json({
             success: false,
             description: "Game is not supported",
         });
     }
 
-    let playtype = req.body.playtype ? req.body.playtype : config.defaultPlaytype[req.body.game];
+    let playtype = req.body.playtype || config.defaultPlaytype[req.body.game];
 
-    if (!config.validPlaytypes[req.body.game].includes(playtype)) {
+    if (!common.IsValidPlaytype(playtype, req.body.game)) {
         return res.status(400).json({
             success: false,
             description: "This playtype isn't supported.",
@@ -89,7 +89,7 @@ router.post("/create-group", async (req, res) => {
         });
     }
 
-    let rgObj = {
+    let rgObj: RivalGroupDocument = {
         name: req.body.name,
         desc: desc,
         founderID: founder.id,
@@ -103,15 +103,10 @@ router.post("/create-group", async (req, res) => {
             strictness: 0.5,
             boundary: 0.1,
             cellShading: config.gameRelevantScoreBucket[req.body.game],
+            scoreCompareFolderID: "",
         },
+        rivalGroupID: crypto.randomBytes(20).toString("hex"),
     };
-
-    let rivalGroupID = crypto
-        .createHash("sha1")
-        .update(JSON.stringify(rgObj) + Date.now())
-        .digest("hex");
-
-    rgObj.rivalGroupID = rivalGroupID;
 
     await db.get("rivals").insert(rgObj);
 
@@ -123,6 +118,6 @@ router.post("/create-group", async (req, res) => {
 });
 
 import rgRouter from "./rivalGroupID/rivalGroupID";
-router.use("/:rivalGroupID", rgRouter);
+router.use("/rival-group/:rivalGroupID", rgRouter);
 
 export default router;

@@ -1,13 +1,19 @@
 import db from "../../../../db";
-import userHelpers from "../../../../core/user-core";
+import userCore from "../../../../core/user-core";
 import * as express from "express";
-import config from "../../../../config/config";
+import folderCore from "../../../../core/folder-core";
 const router = express.Router({ mergeParams: true });
 import scoreHelpers from "../../../../core/score-core";
 
-// mounted on /api/v1/rivals/:rivalGroupID
+/**
+ * @namespace /v1/rivals/rival-group/:rivalGroupID
+ */
 
-async function CheckRivalGroupExists(req, res, next) {
+async function CheckRivalGroupExists(
+    req: KTRequest,
+    res: express.Response,
+    next: express.NextFunction
+) {
     let rg = await db.get("rivals").findOne({ rivalGroupID: req.params.rivalGroupID });
 
     if (!rg) {
@@ -18,13 +24,16 @@ async function CheckRivalGroupExists(req, res, next) {
     }
 
     // hook this onto req and pull it out after using this middleware
-    req.rg = rg;
+    req.rivalGroup = rg;
 
     next();
 }
 
+/**
+ * @name GET /v1/rivals/rival-group/:rivalGroupID
+ */
 router.get("/", CheckRivalGroupExists, async (req, res) => {
-    let rg = req.rg;
+    let rg = req.rivalGroup as RivalGroupDocument;
 
     return res.status(200).json({
         success: true,
@@ -33,7 +42,11 @@ router.get("/", CheckRivalGroupExists, async (req, res) => {
     });
 });
 
-async function ValidateRivalGroupModification(req, res, next) {
+async function ValidateRivalGroupModification(
+    req: KTRequest,
+    res: express.Response,
+    next: express.NextFunction
+) {
     // check ID even given
     if (!req.params.rivalGroupID) {
         return res.status(400).json({
@@ -52,16 +65,12 @@ async function ValidateRivalGroupModification(req, res, next) {
         });
     }
 
-    // check user is owner of group
-    let apiKey = req.body.key ? req.body.key : req.cookies.apikey;
-
-    let requestingUser = await userHelpers.GetUserWithAPIKey(apiKey);
+    let requestingUser = req.user;
 
     if (!requestingUser) {
-        return res.status(500).json({
+        return res.status(401).json({
             success: false,
-            description:
-                "Fatal error in grabbing your profile. This has been reported, but please ping me about this.",
+            description: "This is not your group to edit.",
         });
     }
 
@@ -72,13 +81,17 @@ async function ValidateRivalGroupModification(req, res, next) {
         });
     }
 
-    req.rg = rivalGroup;
+    req.rivalGroup = rivalGroup;
 
     next();
 }
 
+/**
+ * Deletes the requested group.
+ * @name DELETE /v1/rivals/rival-group/:rivalGroupID/delete-group
+ */
 router.delete("/delete-group", ValidateRivalGroupModification, async (req, res) => {
-    let rg = req.rg;
+    let rg = req.rivalGroup as RivalGroupDocument;
 
     await db.get("rivals").remove({ _id: rg._id });
 
@@ -88,8 +101,16 @@ router.delete("/delete-group", ValidateRivalGroupModification, async (req, res) 
     });
 });
 
+/**
+ * Modifies the requested group.
+ * @name PATCH /v1/rivals/rival-group/:rivalGroupID/modify-group
+ * @param name
+ * @param desc
+ * @param boundary - Overrides the boundary for the rivalGroup, affects how
+ * scores are retrieved
+ */
 router.patch("/modify-group", ValidateRivalGroupModification, async (req, res) => {
-    let rg = req.rg;
+    let rg = req.rivalGroup as RivalGroupDocument;
 
     if (req.body.name) {
         if (req.body.name.length > 40) {
@@ -144,7 +165,7 @@ router.patch("/modify-group", ValidateRivalGroupModification, async (req, res) =
 
     if (req.body.cellShading) {
         let cS = req.body.cellShading;
-        if (!["grade", "lamp"].includes(cS)) {
+        if (cS !== "grade" && cS !== "lamp") {
             return res.status(400).json({
                 success: false,
                 description: "cellShading must be either 'lamp' or 'grade'.",
@@ -155,7 +176,7 @@ router.patch("/modify-group", ValidateRivalGroupModification, async (req, res) =
 
     if (req.body.scoreCompareMode) {
         let scMode = req.body.scoreCompareMode;
-        if (!["folder", "relevant"].includes(scMode)) {
+        if (scMode !== "folder" && scMode !== "relevant") {
             return res.status(400).json({
                 success: false,
                 description: "Default score comparison must be folder or relevant.",
@@ -166,30 +187,20 @@ router.patch("/modify-group", ValidateRivalGroupModification, async (req, res) =
     }
 
     if (rg.settings.scoreCompareMode === "folder") {
-        if (req.body.scoreCompareFType) {
-            let fType = req.body.scoreCompareFType;
+        if (req.body.scoreCompareFolderID) {
+            let folder = await db.get("folders").findOne({
+                game: rg.game,
+                folderID: req.body.scoreCompareFolderID,
+            });
 
-            if (!["versions", "levels"].includes(fType)) {
-                return res.status(400).json({
+            if (!folder) {
+                return res.status(404).json({
                     success: false,
-                    description: "Folder Type must be levels or versions.",
+                    description: `Folder ${req.body.scoreCompareFolderID} does not exist.`,
                 });
             }
 
-            rg.settings.scoreCompareFType = fType;
-        }
-
-        if (req.body.scoreCompareFName) {
-            let fName = req.body.scoreCompareFName;
-
-            if (!config.folders[rg.game][rg.settings.scoreCompareFType].includes(fName)) {
-                return res.status(400).json({
-                    success: false,
-                    description: "Folder name must be a valid folder for the respective game.",
-                });
-            }
-
-            rg.settings.scoreCompareFName = fName;
+            rg.settings.scoreCompareFolderID = folder.folderID;
         }
     }
 
@@ -202,6 +213,10 @@ router.patch("/modify-group", ValidateRivalGroupModification, async (req, res) =
     });
 });
 
+/**
+ * Adds a user to the rival group.
+ * @name PATCH /v1/rivals/rival-group/:rivalGroupID/add-member
+ */
 router.patch("/add-member", ValidateRivalGroupModification, async (req, res) => {
     if (!req.body.addUserID) {
         return res.status(400).json({
@@ -210,7 +225,7 @@ router.patch("/add-member", ValidateRivalGroupModification, async (req, res) => 
         });
     }
 
-    let rivalGroup = req.rg;
+    let rivalGroup = req.rivalGroup as RivalGroupDocument;
 
     if (rivalGroup.members.length >= 6) {
         return res.status(400).json({
@@ -219,7 +234,7 @@ router.patch("/add-member", ValidateRivalGroupModification, async (req, res) => 
         });
     }
 
-    let addingUser = await userHelpers.GetUser(req.body.addUserID);
+    let addingUser = await userCore.GetUser(req.body.addUserID);
 
     if (!addingUser) {
         return res.status(400).json({
@@ -253,21 +268,17 @@ router.patch("/add-member", ValidateRivalGroupModification, async (req, res) => 
 
     return res.status(200).json({
         success: true,
-        description: `Successfully added ${req.body.addUserID} to rivalgroup ${rivalGroup.name}`,
+        description: `Successfully added ${addingUser.displayname} to rivalgroup ${rivalGroup.name}`,
         body: {
             newMemberList: rivalGroup.members,
         },
     });
 });
 
-router.patch("/set-default", ValidateRivalGroupModification, async (req, res) =>
-    // todo
-    res.status(404).json({
-        success: false,
-        description: "unimplemented.",
-    })
-);
-
+/**
+ * Removes a user from the rival group.
+ * @name PATCH /v1/rivals/rival-group/:rivalGroupID/add-member
+ */
 router.patch("/remove-member", ValidateRivalGroupModification, async (req, res) => {
     if (!req.body.removeUserID) {
         return res.status(400).json({
@@ -276,9 +287,9 @@ router.patch("/remove-member", ValidateRivalGroupModification, async (req, res) 
         });
     }
 
-    let rivalGroup = req.rg;
+    let rivalGroup = req.rivalGroup as RivalGroupDocument;
 
-    let removingUser = await userHelpers.GetUser(req.body.removeUserID);
+    let removingUser = await userCore.GetUser(req.body.removeUserID);
 
     if (!removingUser) {
         return res.status(400).json({
@@ -301,7 +312,8 @@ router.patch("/remove-member", ValidateRivalGroupModification, async (req, res) 
         });
     }
 
-    rivalGroup.members = rivalGroup.members.filter((e) => e !== removingUser.id);
+    // why does ts think that this is null??????
+    rivalGroup.members = rivalGroup.members.filter((e) => e !== removingUser!.id);
 
     await db
         .get("rivals")
@@ -316,10 +328,14 @@ router.patch("/remove-member", ValidateRivalGroupModification, async (req, res) 
     });
 });
 
+/**
+ * Retrieves the user documents for the members inside the rival group.
+ * @name GET /v1/rivals/rival-group/:rivalGroupID/members
+ */
 router.get("/members", CheckRivalGroupExists, async (req, res) => {
-    let rg = req.rg;
+    let rg = req.rivalGroup as RivalGroupDocument;
 
-    let members = await userHelpers.GetUsers(rg.members);
+    let members = await userCore.GetUsers(rg.members);
 
     return res.status(200).json({
         success: true,
@@ -330,49 +346,26 @@ router.get("/members", CheckRivalGroupExists, async (req, res) => {
     });
 });
 
-router.get("/folder-scores", CheckRivalGroupExists, async (req, res) => {
-    let rg = req.rg;
+/**
+ * Retrieves scores from the rival group on the given folderID.
+ * @name GET /v1/rivals/rival-group/:rivalGroupID/folder-scores
+ * @param folderID - The ID of the folder to pull scores from.
+ */
+router.get("/folder-scores", CheckRivalGroupExists, async (req: KTRequest, res) => {
+    let rg = req.rivalGroup as RivalGroupDocument;
 
-    if (req.query.folderType !== "levels" && req.query.folderType !== "versions") {
+    if (!req.query.folderID) {
         return res.status(400).json({
             success: false,
-            description: "This folderType is not supported.",
+            description: "No folderID provided.",
         });
     }
 
-    if (!config.folders[rg.game][req.query.folderType].includes(req.query.folderName)) {
-        return res.status(400).json({
-            success: false,
-            description: "This folderName does not exist in the database.",
-        });
-    }
+    let folder = await db.get("folders").findOne({
+        folderID: req.query.folderID,
+    });
 
-    let songs;
-    let charts;
-
-    if (req.query.folderType === "levels") {
-        charts = await db
-            .get(`charts-${rg.game}`)
-            .find(
-                { level: req.query.folderName, playtype: rg.playtype },
-                { projection: { _id: 0 } }
-            );
-
-        songs = await db
-            .get(`songs-${rg.game}`)
-            .find({ id: { $in: charts.map((e) => e.id) } }, { projection: { _id: 0 } });
-    } else {
-        songs = await db
-            .get(`songs-${rg.game}`)
-            .find({ firstAppearance: req.query.folderName }, { projection: { _id: 0 } });
-
-        charts = await db
-            .get(`charts-${rg.game}`)
-            .find(
-                { id: { $in: songs.map((e) => e.id) }, playtype: rg.playtype },
-                { projection: { _id: 0 } }
-            );
-    }
+    let { charts, songs } = await folderCore.GetDataFromFolderQuery(folder, rg.playtype, null);
 
     if (charts.length === 0) {
         return res.status(400).json({
@@ -381,22 +374,16 @@ router.get("/folder-scores", CheckRivalGroupExists, async (req, res) => {
         });
     }
 
-    let scores = await db.get("scores").find({
-        $or: charts.map((c) => ({
-            userID: { $in: rg.members },
-            songID: c.id,
-            "scoreData.difficulty": c.difficulty,
-            "scoreData.playtype": rg.playtype,
-            game: rg.game,
-            isScorePB: true,
-        })),
-    });
+    let scores = (await db.get("scores").find({
+        userID: { $in: rg.members },
+        chartID: { $in: charts.map((e) => e.chartID) },
+    })) as ScoreDocument[];
 
-    if (req.query.autocoerce !== "false") {
+    if (req.query.autoCoerce !== "false") {
         scores = await scoreHelpers.AutoCoerce(scores);
     }
 
-    let members = await userHelpers.GetUsers(rg.members);
+    let members = await userCore.GetUsers(rg.members);
 
     return res.status(200).json({
         success: true,
@@ -412,7 +399,7 @@ router.get("/folder-scores", CheckRivalGroupExists, async (req, res) => {
 });
 
 router.get("/score-feed", CheckRivalGroupExists, async (req, res) => {
-    let rg = req.rg;
+    let rg = req.rivalGroup as RivalGroupDocument;
 
     if (!req.query.includeSelf) {
         rg.members = rg.members.filter((e) => e !== rg.founderID);
@@ -431,7 +418,7 @@ router.get("/score-feed", CheckRivalGroupExists, async (req, res) => {
         });
     }
 
-    let members = await userHelpers.GetUsers(rg.members);
+    let members = await userCore.GetUsers(rg.members);
     let impressiveness = parseFloat(req.query.impressiveness) || 0.95;
     let lim = parseInt(req.query.limit) < 100 ? parseInt(req.query.limit) : 100;
     let start = parseInt(req.query.start) || 0;
@@ -450,7 +437,7 @@ router.get("/score-feed", CheckRivalGroupExists, async (req, res) => {
         {
             sort: { timeAchieved: -1 },
             projection: { _id: 0 },
-            start: start,
+            skip: start,
             limit: lim,
         }
     );
@@ -473,11 +460,7 @@ router.get("/score-feed", CheckRivalGroupExists, async (req, res) => {
     });
 
     let chartsArr = await db.get(`charts-${rg.game}`).find({
-        $or: importantScores.map((e) => ({
-            id: e.songID,
-            difficulty: e.scoreData.difficulty,
-            playtype: e.scoreData.playtype,
-        })),
+        chartID: { $in: importantScores.map((e) => e.chartID) },
     });
 
     return res.status(200).json({
@@ -492,10 +475,16 @@ router.get("/score-feed", CheckRivalGroupExists, async (req, res) => {
     });
 });
 
+/**
+ * Retrieves "relevant" scores from the rival group.
+ * @name GET /v1/rivals/rival-group/:rivalGroupID/relevant-scores
+ * @param boundary - Between 0 and 0.2, determines how lenient to be with relevancy.
+ * @param autoCoerce - if exactly "false", scores will NOT be auto-coerced.
+ */
 router.get("/relevant-scores", CheckRivalGroupExists, async (req, res) => {
-    let rg = req.rg;
+    let rg = req.rivalGroup as RivalGroupDocument;
 
-    let members = await userHelpers.GetUsers(rg.members);
+    let members = await userCore.GetUsers(rg.members);
 
     let boundary = rg.settings.boundary;
 
@@ -516,13 +505,13 @@ router.get("/relevant-scores", CheckRivalGroupExists, async (req, res) => {
 
     let lowerBound = avgRating * (1 - boundary);
 
-    let scores = await db.get("scores").find({
+    let scores = (await db.get("scores").find({
         userID: { $in: rg.members },
         "calculatedData.rating": { $gt: lowerBound },
         game: rg.game,
         "scoreData.playtype": rg.playtype,
         isScorePB: true,
-    });
+    })) as ScoreDocument[];
 
     if (scores.length === 0) {
         return res.status(400).json({
@@ -535,16 +524,12 @@ router.get("/relevant-scores", CheckRivalGroupExists, async (req, res) => {
     // scorePBs dont necessarily have the lamp PB. for cases where this is not true,
     // we need to find the scores associated lampPB and monkey patch it on.
 
-    if (req.query.autocoerce !== "false") {
+    if (req.query.autoCoerce !== "false") {
         scores = await scoreHelpers.AutoCoerce(scores);
     }
 
     let charts = await db.get(`charts-${rg.game}`).find({
-        $or: scores.map((s) => ({
-            id: s.songID,
-            difficulty: s.scoreData.difficulty,
-            playtype: s.scoreData.playtype,
-        })),
+        chartID: { $in: scores.map((e) => e.chartID) },
     });
 
     let songs = await db.get(`songs-${rg.game}`).find({
