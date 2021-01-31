@@ -211,23 +211,20 @@ async function SanitiseInput(req: Request, res: Response, next: NextFunction): M
 
     Sanitise(req.body);
 
-    // temp "is-admin" check
-    if (!(req.apikey && req.apikey.assignedTo === 1 && req.body.punchthrough)) {
-        for (const key in req.body) {
-            if (typeof req.body[key] === "object" && req.body.hasOwnProperty(key)) {
-                return res.status(400).json({
-                    success: false,
-                    description:
-                        "Passed data was determined to be malicious. Nesting objects is not allowed.",
-                });
-            } else if (key in Object.prototype) {
-                return res.status(400).json({
-                    success: false,
-                    description: "Passed data was determined to be malicious.",
-                });
-            }
-            req.body[key] = req.body[key].toString(); // potentially safety critical, apologies.
+    for (const key in req.body) {
+        if (typeof req.body[key] === "object" && req.body.hasOwnProperty(key)) {
+            return res.status(400).json({
+                success: false,
+                description:
+                    "Passed data was determined to be malicious. Nesting objects is not allowed.",
+            });
+        } else if (key in Object.prototype) {
+            return res.status(400).json({
+                success: false,
+                description: "Passed data was determined to be malicious.",
+            });
         }
+        req.body[key] = req.body[key].toString(); // potentially safety critical, apologies.
     }
 
     next();
