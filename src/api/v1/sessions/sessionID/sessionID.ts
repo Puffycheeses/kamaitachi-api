@@ -2,9 +2,11 @@ import * as express from "express";
 const router = express.Router({ mergeParams: true });
 import db from "../../../../db";
 
-// mounted on /api/v1/sessions/:sessionID
+/**
+ * @namespace /v1/sessions/:sessionID
+ */
 
-async function GetSessionWithID(req, res, next) {
+async function GetSessionWithID(req: KTRequest, res: express.Response, next: express.NextFunction) {
     let sessionObj = await db.get("sessions").findOne({
         sessionID: req.params.sessionID,
     });
@@ -12,16 +14,20 @@ async function GetSessionWithID(req, res, next) {
     if (!sessionObj) {
         return res.status(400).json({
             success: false,
-            description: `session with ID ${req.params.sessionID} could not be found.`,
+            description: `Session with ID ${req.params.sessionID} could not be found.`,
         });
     }
 
-    req.sessionObj = sessionObj;
+    req.ktchiSession = sessionObj as SessionDocument;
     next();
 }
 
+/**
+ * Returns the session at the given ID.
+ * @name GET /v1/sessions/:sessionID
+ */
 router.get("/", GetSessionWithID, async (req, res) => {
-    let sessionObj = req.sessionObj;
+    let sessionObj = req.ktchiSession;
 
     return res.status(200).json({
         success: true,
@@ -30,8 +36,20 @@ router.get("/", GetSessionWithID, async (req, res) => {
     });
 });
 
+interface SessionScoresReturn {
+    songs?: SongDocument[];
+    charts?: ChartDocument[];
+    scores: ScoreDocument[];
+    session: SessionDocument;
+    nextStartPoint?: integer;
+}
+
+/**
+ * Returns up to 500 scores that are part of the given session.
+ * @name GET /v1/sessions/:sessionID/scores
+ */
 router.get("/scores", GetSessionWithID, async (req, res) => {
-    let sessionObj = req.sessionObj;
+    let sessionObj = req.ktchiSession as SessionDocument;
 
     let start = parseInt(req.query.start) || 0;
 
@@ -52,14 +70,14 @@ router.get("/scores", GetSessionWithID, async (req, res) => {
             id: { $in: scores.map((e) => e.songID) },
         });
 
-        let charts = [];
+        let charts: ChartDocument[] = [];
         if (scores.length !== 0) {
             charts = await db.get(`charts-${sessionObj.game}`).find({
                 chartID: { $in: scores.map((e) => e.chartID) },
             });
         }
 
-        let retBody = {
+        let retBody: SessionScoresReturn = {
             songs,
             charts,
             scores,
@@ -76,7 +94,7 @@ router.get("/scores", GetSessionWithID, async (req, res) => {
             body: retBody,
         });
     } else {
-        let retBody = {
+        let retBody: SessionScoresReturn = {
             scores,
             session: sessionObj,
         };
@@ -93,15 +111,23 @@ router.get("/scores", GetSessionWithID, async (req, res) => {
     }
 });
 
-// gets the parenting folders of a sessions' played charts.
+interface CFLAggregateResult {
+    _id: string;
+    chartIDs: string[];
+}
+
+/**
+ * Retrieves the parenting folders of the scores inside a session.
+ * @name GET /v1/sessions/:sessionID/folders
+ */
 router.get("/folders", GetSessionWithID, async (req, res) => {
-    let ses = req.sessionObj;
+    let ses = req.ktchiSession as SessionDocument;
     let scoreIDs = ses.scores.map((e) => e.scoreID);
     let scores = await db.get("scores").find({
         scoreID: { $in: scoreIDs },
     });
 
-    let parentFolders = await db.get("chart-folder-lookup").aggregate([
+    let parentFolders = (await db.get("chart-folder-lookup").aggregate([
         {
             $match: {
                 chartID: { $in: scores.map((e) => e.chartID) },
@@ -113,7 +139,7 @@ router.get("/folders", GetSessionWithID, async (req, res) => {
                 chartIDs: { $push: "$chartID" },
             },
         },
-    ]);
+    ])) as CFLAggregateResult[];
 
     let folderData = await db.get("folders").find({
         folderID: { $in: parentFolders.map((e) => e._id) },
@@ -130,10 +156,8 @@ router.get("/folders", GetSessionWithID, async (req, res) => {
     });
 });
 
-// options stuff
-
-async function ValidateUser(req, res, next) {
-    if (!req.user || req.user.id !== req.sessionObj.userID) {
+async function ValidateUser(req: KTRequest, res: express.Response, next: express.NextFunction) {
+    if (!req.user || req.user.id !== req.ktchiSession!.userID) {
         return res.status(401).json({
             success: false,
             description: "Unauthorised.",
@@ -142,6 +166,11 @@ async function ValidateUser(req, res, next) {
     next();
 }
 
+/**
+ * Sets the name of a session.
+ * @name PATCH /v1/sessions/:sessionID/set-name
+ * @param name - A 140 character or less string.
+ */
 router.patch("/set-name", GetSessionWithID, ValidateUser, async (req, res) => {
     if (!req.body.name) {
         return res.status(400).json({
@@ -156,7 +185,7 @@ router.patch("/set-name", GetSessionWithID, ValidateUser, async (req, res) => {
         });
     }
 
-    let session = req.sessionObj;
+    let session = req.ktchiSession as SessionDocument;
 
     await db.get("sessions").update({ _id: session._id }, { $set: { name: req.body.name } });
 
@@ -170,6 +199,11 @@ router.patch("/set-name", GetSessionWithID, ValidateUser, async (req, res) => {
     });
 });
 
+/**
+ * Sets the description of a session.
+ * @name PATCH /v1/sessions/:sessionID/set-desc
+ * @param desc - A 280 character or less string.
+ */
 router.patch("/set-desc", GetSessionWithID, ValidateUser, async (req, res) => {
     if (!req.body.desc) {
         return res.status(400).json({
@@ -184,7 +218,7 @@ router.patch("/set-desc", GetSessionWithID, ValidateUser, async (req, res) => {
         });
     }
 
-    let session = req.sessionObj;
+    let session = req.ktchiSession as SessionDocument;
 
     await db.get("sessions").update({ _id: session._id }, { $set: { desc: req.body.desc } });
 
@@ -198,18 +232,24 @@ router.patch("/set-desc", GetSessionWithID, ValidateUser, async (req, res) => {
     });
 });
 
+/**
+ * Toggles the highlighted status of a session.
+ * @name PATCH /v1/sessions/:sessionID/toggle-highlight
+ */
 router.patch("/toggle-highlight", GetSessionWithID, ValidateUser, async (req, res) => {
+    let session = req.ktchiSession as SessionDocument;
+
     await db
         .get("sessions")
-        .update({ _id: req.sessionObj._id }, { $set: { highlight: !req.sessionObj.highlight } });
+        .update({ _id: session._id }, { $set: { highlight: !session.highlight } });
 
     return res.status(200).json({
         success: true,
         description: `Successfully ${
-            req.sessionObj.highlight ? "unhighlighted session." : "highlighted session!"
+            session.highlight ? "Unhighlighted session." : "Highlighted session!"
         }`,
         body: {
-            highlightStatus: !req.sessionObj.highlight,
+            highlightStatus: !session.highlight,
         },
     });
 });
