@@ -103,6 +103,13 @@ async function UnstableFancyDBQuery<T>(
         sort: { [defaultSort]: query.sort === "asc" ? 1 : -1 },
     };
 
+    // This could be refactored to a config setting, but yeah
+    // if we're querying the users database in ANY way, we need to
+    // remove these fields.
+    if (databaseName === "users") {
+        settings.projection = apiConfig.REMOVE_PRIVATE_USER_RETURNS;
+    }
+
     if (query.sortCriteria) {
         if (!validSorts.includes(query.sortCriteria)) {
             throw {
@@ -115,6 +122,7 @@ async function UnstableFancyDBQuery<T>(
         }
 
         // a hack indeed, as NaN/null sinks to the top of every asc/desc sort request.
+        // this is a huge performance hit - zkldi
         if (!baseQueryObj[query.sortCriteria]) {
             baseQueryObj[query.sortCriteria] = { $nin: [NaN, null] };
         }
