@@ -2,42 +2,38 @@ import * as express from "express";
 const router = express.Router({ mergeParams: true });
 import dbCore from "../../../../../core/db-core";
 import db from "../../../../../db";
+import common from "../../../../../core/common-core";
 
-// mounted on /api/v1/users/:userID/scores
+/**
+ * @namespace /v1/users/:userID/scores
+ */
 
-router.get("/count", async (req, res) => {
-    let user = req.requestedUser;
+/**
+ * Counts the users scores that satisfy the fancyquery.
+ * @name GET /v1/users/:userID/scores/count
+ */
+router.get("/count", async (req: KTRequest, res) => {
+    let user = req.requestedUser as PublicUserDocument;
 
-    req.query.userID = `${user.id}`;
+    req.query.userID = user.id.toString();
 
-    if (req.query.playtype) {
-        req.query["scoreData.playtype"] = req.query.playtype;
-    }
+    let dbRes = await dbCore.FancyDBQuery("scores", req.query, false, undefined, undefined, true);
 
-    try {
-        let dbRes = await dbCore.FancyDBQuery("scores", req.query, false, null, null, true);
-
-        return res.status(dbRes.statusCode).json(dbRes.body);
-    } catch (r) {
-        if (r.statusCode && r.body) {
-            return res.status(r.statusCode).json(r.body);
-        } else {
-            console.error(req.originalUrl);
-            console.error(r);
-            return res.status(500).json({
-                success: false,
-                description: "An unknown internal server error has occured.",
-            });
-        }
-    }
+    return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
 interface PartialTimestampScore {
     timeAchieved: number;
 }
 
-router.get("/heatmap", async (req, res) => {
-    let user = req.requestedUser;
+/**
+ * Returns the data necessary to fill out profile github squares.
+ * @name GET /v1/users/:userID/scores/heatmap
+ * @param game - Limits results to only one game.
+ * @param playtype - Limits results to only those that satisfy that playtype.
+ */
+router.get("/heatmap", async (req: KTRequest, res) => {
+    let user = req.requestedUser as PublicUserDocument;
 
     // actually, its just 365 days, but you know how it is.
     const ONE_YEAR = 31536000000; // 1000 * 60 * 60 * 24 * 365
@@ -52,14 +48,28 @@ router.get("/heatmap", async (req, res) => {
     };
 
     if (req.query.game) {
+        if (!common.IsValidGame(req.query.game)) {
+            return res.status(400).json({
+                success: false,
+                description: `Invalid playtype ${req.query.game}`,
+            });
+        }
+
         queryObj.game = req.query.game;
     }
 
     if (req.query.playtype) {
+        if (!req.query.game) {
+            return res.status(400).json({
+                success: false,
+                description: "Cannot specify playtype without specifying game.",
+            });
+        }
+
         queryObj["scoreData.playtype"] = req.query.playtype;
     }
 
-    let timeData: Array<PartialTimestampScore> = await db.get("scores").find(queryObj, {
+    let timeData: PartialTimestampScore[] = await db.get("scores").find(queryObj, {
         projection: { timeAchieved: 1 },
     });
 
