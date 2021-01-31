@@ -2,8 +2,8 @@ import db from "./db";
 import Sanitise from "mongo-sanitize"; // sanitise
 import userCore from "./core/user-core";
 import apiConfig from "./apiconfig";
-import config from "./config/config";
 import { NextFunction, Request, Response } from "express";
+import common from "./core/common-core";
 
 async function AllowGuestAccess(
     req: Request,
@@ -270,7 +270,7 @@ async function RequireValidGame(
     res: Response,
     next: NextFunction
 ): MiddlewareResponse {
-    if (!config.supportedGames.includes(req.params.game as Game)) {
+    if (!common.IsValidGame(req.params.game)) {
         return res.status(400).json({
             success: false,
             description: "This game is not supported.",
