@@ -2,50 +2,48 @@ import * as express from "express";
 import dbCore from "../../../core/db-core";
 const router = express.Router({ mergeParams: true });
 import db from "../../../db";
-import apiConfig from "../../../apiconfig";
+import userCore from "../../../core/user-core";
 
-// mounted on /api/v1/user-milestones
+/**
+ * @namespace /v1/user-milestones
+ */
 
 const MAX_RETURNS = 100;
-router.get("/", async (req, res) => {
-    try {
-        let dbRes = await dbCore.FancyDBQuery("user-milestones", req.query, true, MAX_RETURNS);
 
-        if (dbRes.body.success) {
-            if (req.query.getAssocUsers) {
-                let assocUsers = await db.get("users").find(
-                    {
-                        id: { $in: dbRes.body.body.items.map((e) => e.userID) },
-                    },
-                    {
-                        projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
-                    }
-                );
+interface UserMilestoneFQReturn extends FancyQueryBody<UserMilestoneDocument> {
+    milestones?: MilestoneDocument[];
+    users?: PublicUserDocument[];
+}
 
-                dbRes.body.body.users = assocUsers;
-            }
+/**
+ * Performs a fancy query on the user-milestones database.
+ * @name GET /v1/user-milestones
+ */
+router.get("/", async (req: KTRequest, res) => {
+    let dbRes = (await dbCore.FancyDBQuery(
+        "user-milestones",
+        req.query,
+        true,
+        MAX_RETURNS
+    )) as FancyQueryPseudoResponse<UserMilestoneDocument>;
 
-            if (req.query.getAssocMilestones) {
-                let assocMilestones = await db.get("milestones").find({
-                    goalID: { $in: dbRes.body.body.items.map((e) => e.goalID) },
-                });
+    if (dbRes.body.success) {
+        if (req.query.getAssocUsers) {
+            let assocUsers = await userCore.GetUsers(dbRes.body.body.items.map((e) => e.userID));
 
-                dbRes.body.body.milestones = assocMilestones;
-            }
+            (dbRes.body.body as UserMilestoneFQReturn).users = assocUsers;
         }
-        return res.status(dbRes.statusCode).json(dbRes.body);
-    } catch (r) {
-        if (r.statusCode && r.body) {
-            return res.status(r.statusCode).json(r.body);
-        } else {
-            console.error(req.originalUrl);
-            console.error(r);
-            return res.status(500).json({
-                success: false,
-                description: "An unknown internal server error has occured.",
+
+        if (req.query.getAssocMilestones) {
+            let assocMilestones = await db.get("milestones").find({
+                goalID: { $in: dbRes.body.body.items.map((e) => e.milestoneID) },
             });
+
+            (dbRes.body.body as UserMilestoneFQReturn).milestones = assocMilestones;
         }
     }
+
+    return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
 export default router;
