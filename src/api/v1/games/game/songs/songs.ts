@@ -2,6 +2,7 @@ import * as express from "express";
 const router = express.Router({ mergeParams: true });
 import dbCore from "../../../../../core/db-core";
 import db from "../../../../../db";
+import regexSanitise from "escape-string-regexp";
 
 /**
  * @namespace /v1/games/:game/songs
@@ -39,11 +40,13 @@ router.get("/", async (req: KTRequest, res) => {
     return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
-// DO NOT WORRY ABOUT THIS
-interface TextRT extends SongDocument {
-    _ts: number;
-}
-
+/**
+ * Performs a search on the songs database for this game.
+ * @name GET /v1/games/:game/songs/search
+ * @param exact Only search for *exact* matches.
+ * @param minimalReturns Only returns minimal information about the song, for real-time
+ * search implementations.
+ */
 router.get("/search", async (req: KTRequest, res) => {
     let r: SongDocument[];
 
@@ -57,27 +60,30 @@ router.get("/search", async (req: KTRequest, res) => {
             }
         );
     } else {
-        let aggR: TextRT[] = await db.get(`songs-${req.params.game}`).aggregate([
-            {
-                $match: {
-                    $text: {
-                        $search: "hello",
-                        $language: "en",
-                    },
+        let titleRegex = new RegExp(regexSanitise(req.query.title), "i");
+        let settings = {};
+
+        if (req.query.minimalReturns === "true") {
+            settings = {
+                projection: {
+                    title: 1,
+                    artist: 1,
+                    id: 1,
                 },
-            },
+            };
+        }
+
+        r = await db.get(`songs-${req.params.game}`).find(
             {
-                $limit: 100,
-                _ts: { $meta: "textScore" },
+                $or: [
+                    { artist: titleRegex },
+                    { title: titleRegex },
+                    { "alt-titles": titleRegex },
+                    { "search-titles": titleRegex },
+                ],
             },
-        ]);
-
-        aggR.sort((a, b) => b._ts - a._ts);
-
-        r = aggR;
-
-        // todo: write some code here to remove the _ts field,
-        // however, typescript really does not like that.
+            settings
+        );
     }
 
     return res.status(200).json({
