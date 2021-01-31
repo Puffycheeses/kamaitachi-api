@@ -27,7 +27,8 @@ declare global {
         | "goals"
         | "user-goals"
         | "user-milestones"
-        | "milestones";
+        | "milestones"
+        | "users";
 
     /**
      * ValidFQDatabases: Indicates the databases expected by FQ config overrides.
@@ -73,6 +74,11 @@ declare global {
         success: true;
         description: string;
         body: Record<string, unknown>;
+    }
+
+    export interface ChartFolderLookupDocument extends MongoDBDocument {
+        chartID: string;
+        folderID: string;
     }
 
     /**
@@ -259,6 +265,39 @@ declare global {
             cellShading: "grade" | "lamp";
         };
         rivalGroupID: string;
+    }
+
+    // :(
+    interface SessionScoreInfo {
+        pbInfo: {
+            isGeneralPB: boolean;
+            isGradePB: boolean;
+            isScorePB: boolean;
+            isLampPB: boolean;
+            isNewScore: boolean;
+            lampDelta: integer;
+            percentDelta: number;
+            gradeDelta: integer;
+            scoreDelta: number;
+        };
+        scoreID: string;
+    }
+    export interface SessionDocument extends MongoDBDocument {
+        performance: number;
+        userID: integer;
+        sessionID: string;
+        name: string;
+        desc: string;
+        service: string;
+        game: Game;
+        playtype: Playtypes[Game];
+        timestamp: integer;
+        timeEnded: integer;
+        timeStarted: integer;
+        lampPerformance: number;
+        scorePerformance: number;
+        scores: SessionScoreInfo[];
+        highlight: boolean;
     }
 
     export interface ImportSessionInfo {
