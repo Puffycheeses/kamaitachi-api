@@ -5,50 +5,48 @@ const router = express.Router({ mergeParams: true });
 import db from "../../../db";
 import apiConfig from "../../../apiconfig";
 
-// mounted on /api/v1/sessions
+/**
+ * @namespace /v1/sessions
+ */
 
 const MAX_RETURNS = 100;
-router.get("/", async (req, res) => {
-    try {
-        let queryObj = {};
 
-        queryObj = await sessionCore.HandleCustomUserSelections(req, queryObj);
+interface SessionFQResponse extends FancyQueryBody<SessionDocument> {
+    users?: PublicUserDocument[];
+}
 
-        let dbRes = await dbCore.FancyDBQuery(
-            "sessions",
-            req.query,
-            true,
-            MAX_RETURNS,
-            null,
-            false,
-            queryObj
-        );
+/**
+ * Performs a fancyquery on sessions.
+ * @name GET /v1/sessions
+ */
+router.get("/", async (req: KTRequest, res) => {
+    let queryObj = {};
 
-        if (dbRes.body.success) {
-            if (req.query.getAssocData === "true") {
-                dbRes.body.body.users = await db.get("users").find(
-                    {
-                        id: { $in: dbRes.body.body.items.map((e) => e.userID) },
-                    },
-                    {
-                        projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
-                    }
-                );
-            }
-        }
-        return res.status(dbRes.statusCode).json(dbRes.body);
-    } catch (r) {
-        if (r.statusCode && r.body) {
-            return res.status(r.statusCode).json(r.body);
-        } else {
-            console.error(req.originalUrl);
-            console.error(r);
-            return res.status(500).json({
-                success: false,
-                description: "An unknown internal server error has occured.",
-            });
+    queryObj = await sessionCore.HandleCustomUserSelections(req, queryObj);
+
+    let dbRes = (await dbCore.FancyDBQuery<SessionDocument>(
+        "sessions",
+        req.query,
+        true,
+        MAX_RETURNS,
+        undefined,
+        false,
+        queryObj
+    )) as FancyQueryPseudoResponse<SessionDocument>;
+
+    if (dbRes.body.success) {
+        if (req.query.getAssocData === "true") {
+            (dbRes.body.body as SessionFQResponse).users = await db.get("users").find(
+                {
+                    id: { $in: dbRes.body.body.items.map((e) => e.userID) },
+                },
+                {
+                    projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
+                }
+            );
         }
     }
+    return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
 import sessionIDRouter from "./sessionID/sessionID";
