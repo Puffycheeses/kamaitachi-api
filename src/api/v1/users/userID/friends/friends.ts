@@ -5,14 +5,18 @@ import userCore from "../../../../../core/user-core";
 import middlewares from "../../../../../middlewares";
 import apiConfig from "../../../../../apiconfig";
 
-// mounted on /api/v1/users/:userID/friends
+/**
+ * @namespace /v1/users/:userID/friends
+ */
 
+/**
+ * Returns all of your friends' user documents.
+ * @name GET /v1/users/:userID/friends
+ */
 router.get("/", async (req, res) => {
-    let user = req.requestedUser;
+    let user = req.requestedUser as PublicUserDocument;
 
-    let friends = await db
-        .get("users")
-        .find({ id: { $in: user.friends } }, { projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS });
+    let friends = await userCore.GetUsers(user.friends);
 
     return res.status(200).json({
         success: true,
@@ -23,8 +27,12 @@ router.get("/", async (req, res) => {
     });
 });
 
+/**
+ * Returns all your online friends.
+ * @name GET /v1/users/:userID/friends/online
+ */
 router.get("/online", async (req, res) => {
-    let user = req.requestedUser;
+    let user = req.requestedUser as PublicUserDocument;
 
     let curTime = Date.now();
     let friends = await db.get("users").find(
@@ -46,6 +54,11 @@ router.get("/online", async (req, res) => {
     });
 });
 
+/**
+ * Adds a friend to your list of friends.
+ * @name PATCH /v1/users/:userID/friends/add
+ * @param friendID - The ID of the friend you want to add.
+ */
 router.patch("/add", middlewares.RequireUserKeyMatch, async (req, res) => {
     let friend = await userCore.GetUser(req.body.friendID);
 
@@ -56,7 +69,7 @@ router.patch("/add", middlewares.RequireUserKeyMatch, async (req, res) => {
         });
     }
 
-    let user = req.user;
+    let user = req.requestedUser as PublicUserDocument;
 
     if (user.friends.length > 100) {
         return res.status(400).json({
@@ -83,6 +96,11 @@ router.patch("/add", middlewares.RequireUserKeyMatch, async (req, res) => {
     });
 });
 
+/**
+ * Removes a friend from your list of friends.
+ * @name PATCH /v1/users/:userID/friends/remove
+ * @param friendID - The ID of the friend you want to remove.
+ */
 router.patch("/remove", middlewares.RequireUserKeyMatch, async (req, res) => {
     let friend = await userCore.GetUser(req.body.friendID);
 
@@ -92,7 +110,7 @@ router.patch("/remove", middlewares.RequireUserKeyMatch, async (req, res) => {
             description: `This user ${req.body.friendID} does not exist.`,
         });
     }
-    let user = req.user;
+    let user = req.requestedUser as PublicUserDocument;
 
     if (!user.friends.includes(friend.id)) {
         return res.status(400).json({
@@ -101,7 +119,7 @@ router.patch("/remove", middlewares.RequireUserKeyMatch, async (req, res) => {
         });
     }
 
-    let newFriends = user.friends.filter((f) => f !== friend.id);
+    let newFriends = user.friends.filter((f) => f !== friend!.id);
 
     await db.get("users").update({ _id: user._id }, { $set: { friends: newFriends } });
 
