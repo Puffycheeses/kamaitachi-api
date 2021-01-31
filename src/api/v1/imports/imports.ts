@@ -3,28 +3,22 @@ import dbCore from "../../../core/db-core";
 const router = express.Router({ mergeParams: true });
 import db from "../../../db";
 
-// mounted on /api/v1/imports
+/**
+ * @namespace /v1/imports
+ */
 
 const MAX_RETURNS = 100;
-router.get("/", async (req, res) => {
-    try {
-        let dbRes = await dbCore.FancyDBQuery("imports", req.query, true, MAX_RETURNS);
-        return res.status(dbRes.statusCode).json(dbRes.body);
-    } catch (r) {
-        if (r.statusCode && r.body) {
-            return res.status(r.statusCode).json(r.body);
-        } else {
-            console.error(req.originalUrl);
-            console.error(r);
-            return res.status(500).json({
-                success: false,
-                description: "An unknown internal server error has occured.",
-            });
-        }
-    }
+
+/**
+ * Performs a FancyQuery on imports.
+ * @name GET /v1/imports
+ */
+router.get("/", async (req: KTRequest, res) => {
+    let dbRes = await dbCore.FancyDBQuery("imports", req.query, true, MAX_RETURNS);
+    return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
-async function GetImportWithID(req, res, next) {
+async function GetImportWithID(req: KTRequest, res: express.Response, next: express.NextFunction) {
     let importObj = await db.get("imports").findOne({
         importID: req.params.importID,
     });
@@ -40,6 +34,10 @@ async function GetImportWithID(req, res, next) {
     next();
 }
 
+/**
+ * Returns the importID at the given ID.
+ * @name GET /v1/imports/:importID
+ */
 router.get("/:importID", GetImportWithID, async (req, res) => {
     let importObj = req.importObj;
 
@@ -50,8 +48,20 @@ router.get("/:importID", GetImportWithID, async (req, res) => {
     });
 });
 
+interface ImportScoresReturn {
+    scores: ScoreDocument[];
+    charts?: ChartDocument[];
+    songs?: SongDocument[];
+    nextStartPoint?: integer;
+}
+
+/**
+ * Retrieves the scores associated with the given import. Limited to 500 scores at a time.
+ * @name GET /v1/imports/:importID/scores
+ * @param getAssocData - Also retrieves associated song and chart data.
+ */
 router.get("/:importID/scores", GetImportWithID, async (req, res) => {
-    let importObj = req.importObj;
+    let importObj = req.importObj as ImportDocument;
 
     let start = parseInt(req.query.start) || 0;
 
@@ -72,14 +82,14 @@ router.get("/:importID/scores", GetImportWithID, async (req, res) => {
             id: { $in: scores.map((e) => e.songID) },
         });
 
-        let charts = [];
+        let charts: ChartDocument[] = [];
         if (scores.length !== 0) {
             charts = await db.get(`charts-${importObj.game}`).find({
                 chartID: { $in: scores.map((e) => e.chartID) },
             });
         }
 
-        let retBody = {
+        let retBody: ImportScoresReturn = {
             songs,
             charts,
             scores,
@@ -95,7 +105,7 @@ router.get("/:importID/scores", GetImportWithID, async (req, res) => {
             body: retBody,
         });
     } else {
-        let retBody = {
+        let retBody: ImportScoresReturn = {
             scores,
         };
 
