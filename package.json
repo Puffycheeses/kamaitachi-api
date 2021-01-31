@@ -4,7 +4,7 @@
     "description": "The public API for Kamaitachi",
     "main": "js/main.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "echo \"WARNING: WRITE TESTS YOU MUPPET\" && exit 0",
         "build": "eslint ./src --ext .ts --fix && tsc",
         "run": "eslint ./src --ext .ts --fix && tsc && node js/main.js"
     },
