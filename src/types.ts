@@ -23,7 +23,6 @@ declare global {
         | "imports"
         | "tierlistdata"
         | "tierlist"
-        | "clans"
         | "goals"
         | "user-goals"
         | "user-milestones"
@@ -226,7 +225,7 @@ declare global {
     export type Ratings = Record<Game, Record<Playtypes[Game], number>>;
 
     export interface GoalChartQuery {
-        collection: string;
+        collection: ValidDatabases;
         query: Record<string, unknown>;
     }
 
@@ -242,7 +241,7 @@ declare global {
         };
         title: string;
         goalID: string;
-        timeAdded: number;
+        timeAdded: integer;
         createdBy: integer;
         game: Game;
         playtype: Playtypes[Game];
@@ -252,7 +251,7 @@ declare global {
         name: string;
         desc: string;
         founderID: integer;
-        members: Array<integer>;
+        members: integer[];
         mutualGroup: boolean;
         isDefault: boolean;
         game: Game;
@@ -450,7 +449,7 @@ declare global {
         levelNum: number;
         difficulty: Difficulties[Game];
         playtype: string;
-        length: string;
+        length: string | number | null;
         bpmMin: number;
         bpmMax: number;
         flags: Record<string, boolean>;
@@ -470,12 +469,12 @@ declare global {
         config: {
             // I have no idea what usePrefix does.
             usePrefix?: boolean;
-            grades?: Array<[string, number]>;
+            grades?: [string, number][];
         };
     }
 
     export interface TierlistDataDocument extends MongoDBDocument {
-        playtype: Playtypes[Game];
+        playtype: Playtypes[Game]; // doesn't need to exist.
         songID: integer;
         difficulty: Difficulties[Game];
         tierlistID: string;
