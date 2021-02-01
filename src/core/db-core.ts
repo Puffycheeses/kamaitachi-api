@@ -100,8 +100,11 @@ async function UnstableFancyDBQuery<T>(
 
     let settings: FindOptions<unknown> = {
         projection: { _id: 0 },
-        sort: { [defaultSort]: query.sort === "asc" ? 1 : -1 },
     };
+
+    if (defaultSort) {
+        settings.sort = { [defaultSort]: query.sort === "asc" ? 1 : -1 };
+    }
 
     // This could be refactored to a config setting, but yeah
     // if we're querying the users database in ANY way, we need to
