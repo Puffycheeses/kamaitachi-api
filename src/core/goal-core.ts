@@ -184,16 +184,10 @@ async function GetChartIDsFromGoal(goalObj: GoalDocument): Promise<string[] | nu
     let chartIDs = charts.map((e) => e.chartID);
 
     if (goalObj.chartQuery.collection === "tierlistdata" && goalObj.game === "iidx") {
-        chartIDs = charts.filter((e) => e.flags && e.flags["IN BASE GAME"]).map((e) => e.chartID); // hack fix for iidx
+        chartIDs = charts.filter((e) => e.flags && e.flags["IN BASE GAME"]).map((e) => e.chartID); // hack fix for incorrectly implemented iidx goals
     }
     return chartIDs;
 }
-
-/**
- *
- * @param goal
- * @param userID
- */
 
 async function CreateUserGoal(goal: GoalDocument, userID: integer): Promise<UserGoalDocument> {
     let ugObj: UserGoalDocument = {
