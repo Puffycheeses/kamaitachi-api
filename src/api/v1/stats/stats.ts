@@ -3,6 +3,8 @@ import * as express from "express";
 const router = express.Router({ mergeParams: true });
 import dbCore from "../../../core/db-core";
 import apiConfig from "../../../apiconfig";
+import common from "../../../core/common-core";
+import JSum from "jsum";
 
 /**
  * @namespace /v1/stats
@@ -22,6 +24,12 @@ interface ScoreCountsAggReturn {
     count: integer;
 }
 
+interface GetScoreCountsReturn {
+    alltime: ScoreCountsAggReturn[];
+    month: ScoreCountsAggReturn[];
+    today: ScoreCountsAggReturn[];
+}
+
 /**
  * Retrieves values for alltime, this month and the past 24 hours
  * Indicating how much certain songs have been played in that time.
@@ -35,7 +43,7 @@ async function GetScoreCounts(
     skip: integer,
     limit: integer,
     queryObj = {}
-) {
+): Promise<GetScoreCountsReturn> {
     let now = new Date();
 
     // month does it from the start of this month
@@ -82,14 +90,28 @@ async function GetScoreCounts(
     };
 }
 
+interface ScoreCountsReturn {
+    scoreCounts: GetScoreCountsReturn;
+    songData: Partial<Record<Game, SongDocument[]>>;
+}
+
+interface ScoreCountCache {
+    timestamp: integer;
+    data: ScoreCountsReturn;
+}
+
+const TWELVE_HOURS = 1000 * 60 * 60 * 12;
+const SCORE_COUNT_CACHE: Record<string, ScoreCountCache> = {};
+
 /**
  * Returns the frequency at which songs have been played, as of all-time,
  * this month and past 24 hours.
- * @name GET /v1/stats/score-counts
- * @param separateCharts - Whether to separate these returns on charts or not.
- * @param getAssocData - Retrieve associated song data.
+ * @name GET /v1/stats/most-played
+ * @param start
+ * @param limit
+ * @todo Set up NGINX caching for this, as this is incredibly intensive.
  */
-router.get("/score-counts", async (req: KTRequest, res) => {
+router.get("/most-played", async (req: KTRequest, res) => {
     let queryObj = {};
 
     let validKeys = apiConfig.validKeys.scores;
@@ -108,20 +130,32 @@ router.get("/score-counts", async (req: KTRequest, res) => {
         });
     }
 
-    let skip = parseInt(req.query.skip) || 0;
-    let limit = parseInt(req.query.limit) < STAT_LIMIT ? parseInt(req.query.limit) : STAT_LIMIT;
+    let skip = common.AssertPositiveInteger(req.query.start, 0);
+    let limit = common.AssertPositiveInteger(req.query.limit, STAT_LIMIT, true);
+
+    // we lazily join this with skip and limit instead of mutating queryobj.
+    let objHash = `${JSum.digest(queryObj, "sha256", "hex")}|${skip}|${limit}`;
+
+    if (
+        SCORE_COUNT_CACHE[objHash] &&
+        SCORE_COUNT_CACHE[objHash].timestamp + TWELVE_HOURS > Date.now()
+    ) {
+        return res.status(200).json({
+            success: true,
+            description: "Successfully retrieved cached most-played score data.",
+            body: SCORE_COUNT_CACHE[objHash].data,
+        });
+    }
 
     let groupConcat: Record<string, unknown> = {
         game: "$game",
         songID: "$songID",
     };
 
-    if (req.query.separateCharts && req.query.separateCharts === "true") {
-        groupConcat.scoreData = {
-            difficulty: "$scoreData.difficulty",
-            playtype: "$scoreData.playtype",
-        };
-    }
+    groupConcat.scoreData = {
+        difficulty: "$scoreData.difficulty",
+        playtype: "$scoreData.playtype",
+    };
 
     let scoreCounts = await GetScoreCounts(groupConcat, skip, limit, queryObj);
 
@@ -130,31 +164,36 @@ router.get("/score-counts", async (req: KTRequest, res) => {
         songData: {} as Partial<Record<Game, SongDocument[]>>,
     };
 
-    if (req.query.getAssocData && req.query.getAssocData === "true") {
-        let songData: Partial<Record<Game, SongDocument[]>> = {};
-        let gameSongIDs: Partial<Record<Game, integer[]>> = {};
-        for (const v of Object.values(scoreCounts)) {
-            for (const result of v) {
-                if (!gameSongIDs[result._id.game]) {
-                    gameSongIDs[result._id.game] = [result._id.songID];
-                } else {
-                    gameSongIDs[result._id.game]!.push(result._id.songID);
-                }
+    let songData: Partial<Record<Game, SongDocument[]>> = {};
+    let gameSongIDs: Partial<Record<Game, integer[]>> = {};
+    for (const v of Object.values(scoreCounts)) {
+        let arr = v as ScoreCountsAggReturn[]; // shut up
+        for (const result of arr) {
+            if (!gameSongIDs[result._id.game]) {
+                gameSongIDs[result._id.game] = [result._id.songID];
+            } else {
+                gameSongIDs[result._id.game]!.push(result._id.songID);
             }
         }
-
-        for (const g in gameSongIDs) {
-            let game = g as Game;
-            songData[game] = await db.get(`songs-${game}`).find({
-                id: { $in: gameSongIDs[game] },
-            });
-        }
-
-        rBody.songData = songData;
     }
 
-    return res.status(200).json({
+    for (const g in gameSongIDs) {
+        let game = g as Game;
+        songData[game] = await db.get(`songs-${game}`).find({
+            id: { $in: gameSongIDs[game] },
+        });
+    }
+
+    rBody.songData = songData;
+
+    SCORE_COUNT_CACHE[objHash] = {
+        timestamp: Date.now(),
+        data: rBody,
+    };
+
+    return res.status(201).json({
         success: true,
+        description: "Successfully retrieved most-played score data.",
         body: rBody,
     });
 });
