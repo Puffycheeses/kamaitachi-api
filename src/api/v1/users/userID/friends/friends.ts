@@ -21,9 +21,7 @@ router.get("/", async (req, res) => {
     return res.status(200).json({
         success: true,
         description: `Successfully found friends of user '${req.params.userID}'`,
-        body: {
-            items: friends,
-        },
+        body: friends,
     });
 });
 
@@ -48,18 +46,16 @@ router.get("/online", async (req, res) => {
     return res.status(200).json({
         success: true,
         description: `Successfully found friends of user '${req.params.userID}'`,
-        body: {
-            items: friends,
-        },
+        body: friends,
     });
 });
 
 /**
  * Adds a friend to your list of friends.
- * @name PATCH /v1/users/:userID/friends/add
+ * @name POST /v1/users/:userID/friends/add-friend
  * @param friendID - The ID of the friend you want to add.
  */
-router.patch("/add", middlewares.RequireUserKeyMatch, async (req, res) => {
+router.post("/add-friend", middlewares.RequireUserKeyMatch, async (req, res) => {
     let friend = await userCore.GetUser(req.body.friendID);
 
     if (!friend) {
@@ -71,7 +67,7 @@ router.patch("/add", middlewares.RequireUserKeyMatch, async (req, res) => {
 
     let user = req.requestedUser as PublicUserDocument;
 
-    if (user.friends.length > 100) {
+    if (user.friends.length >= 100) {
         return res.status(400).json({
             success: false,
             description: "You have reached the friend limit.",
@@ -87,21 +83,19 @@ router.patch("/add", middlewares.RequireUserKeyMatch, async (req, res) => {
 
     await db.get("users").update({ _id: user._id }, { $push: { friends: friend.id } });
 
-    return res.status(201).json({
+    return res.status(200).json({
         success: true,
         description: `Successfully added ${friend.displayname} as a friend!`,
-        body: {
-            item: friend,
-        },
+        body: friend,
     });
 });
 
 /**
  * Removes a friend from your list of friends.
- * @name PATCH /v1/users/:userID/friends/remove
+ * @name POST /v1/users/:userID/friends/remove-friend
  * @param friendID - The ID of the friend you want to remove.
  */
-router.patch("/remove", middlewares.RequireUserKeyMatch, async (req, res) => {
+router.post("/remove-friend", middlewares.RequireUserKeyMatch, async (req, res) => {
     let friend = await userCore.GetUser(req.body.friendID);
 
     if (!friend) {
@@ -110,6 +104,7 @@ router.patch("/remove", middlewares.RequireUserKeyMatch, async (req, res) => {
             description: `This user ${req.body.friendID} does not exist.`,
         });
     }
+
     let user = req.requestedUser as PublicUserDocument;
 
     if (!user.friends.includes(friend.id)) {
@@ -126,9 +121,7 @@ router.patch("/remove", middlewares.RequireUserKeyMatch, async (req, res) => {
     return res.status(200).json({
         success: true,
         description: `Successfully removed ${friend.displayname} as a friend.`,
-        body: {
-            item: friend,
-        },
+        body: friend,
     });
 });
 
