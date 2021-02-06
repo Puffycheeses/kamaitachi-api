@@ -5,8 +5,8 @@ const router = express.Router({ mergeParams: true });
  * @namespace /v1
  */
 
-const MAJOR_VER = 4;
-const MINOR_VER = 1;
+const MAJOR_VER = 1;
+const MINOR_VER = 0;
 const PATCH_VER = 0;
 
 router.use((req, res, next) => {
@@ -27,12 +27,9 @@ router.get("/", async (req, res) =>
                 minor: MINOR_VER,
                 patch: PATCH_VER,
             },
+            serverTime: Date.now(),
         },
-        description: `Server Status OK. Running kamaitachi-api v${[
-            MAJOR_VER,
-            MINOR_VER,
-            PATCH_VER,
-        ].join(".")}`,
+        description: `Server Status OK. Running kamaitachi-api v${MAJOR_VER}.${MINOR_VER}.${PATCH_VER}.`,
     })
 );
 
