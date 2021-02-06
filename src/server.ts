@@ -1,4 +1,5 @@
 import express from "express";
+import "express-async-errors";
 import middlewares from "./middlewares";
 import { default as cookieParser } from "cookie-parser";
 
@@ -75,5 +76,16 @@ app.get("*", async (req, res) =>
         description: "404: Endpoint does not exist.",
     })
 );
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const ISE_HANDLER: express.ErrorRequestHandler = (err, _req, res, _next) => {
+    console.error(err.stack);
+    return res.status(500).json({
+        success: false,
+        description: "A fatal internal server error has occured.",
+    });
+};
+
+app.use(ISE_HANDLER);
 
 export default app;
