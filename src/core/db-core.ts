@@ -8,7 +8,7 @@ const rgxIsInt = /^[0-9]+$/;
 const DEFAULT_LIMIT = 100;
 
 /**
- * Performs a "FancyQuery", which provides a couple of utilities for allowing querystrings to make decently
+ * Performs an "NBQuery", which provides a couple of utilities for allowing querystrings to make decently
  * complex queries upon ktchi's database.
  * @param databaseName The Database/collection we are querying.
  * @param query The req.query parsed from the querystring of the user. Note that we explicitly reduce the complexity
@@ -19,27 +19,26 @@ const DEFAULT_LIMIT = 100;
  * @param useCount Use .count() instead of .find().
  * @param passedBaseQueryObj A baseQueryObject with predefined properties. For providing defaults where needed.
  */
-async function FancyDBQuery<T>(
+async function NBQuery<T>(
     databaseName: ValidDatabases,
     query: Record<string, string>,
     paginate?: boolean,
     limit?: integer,
     configOverride?: ValidFQDatabases,
-    useCount?: boolean,
     passedBaseQueryObj?: FilterQuery<unknown>
-): Promise<
-    FancyQueryPseudoResponse<T> | FancyQueryCountPseudoResponse | FancyQueryPseudoErrorResponse
-> {
+): Promise<FancyQueryPseudoResponse<T> | FancyQueryPseudoErrorResponse> {
     try {
-        let dbRes = await UnstableFancyDBQuery<T>(
+        // i tried resolving this with overloads, but at this point i'm just going to
+        // assert over typescript that i know this is of pseudoresponseT
+        let dbRes = (await UnstableNBQuery<T>(
             databaseName,
             query,
             paginate,
             limit,
             configOverride,
-            useCount,
+            false,
             passedBaseQueryObj
-        );
+        )) as FancyQueryPseudoResponse<T>;
 
         return dbRes;
     } catch (err) {
@@ -49,12 +48,12 @@ async function FancyDBQuery<T>(
                 body: err.body,
             };
         } else {
-            console.error(`==== FATAL ERROR IN FANCYDBQUERY ${databaseName} ====`);
+            console.error(`==== FATAL ERROR IN NBQ ${databaseName} ====`);
             console.error(err);
             console.error(query);
             console.error(passedBaseQueryObj);
-            console.error(paginate, limit, configOverride, useCount);
-            console.error(`==== END VARDUMP ====`);
+            console.error(paginate, limit, configOverride);
+            console.error(`==== END ERR ====`);
             return {
                 statusCode: 500,
                 body: {
@@ -66,7 +65,58 @@ async function FancyDBQuery<T>(
     }
 }
 
-async function UnstableFancyDBQuery<T>(
+/**
+ * Performs a "NBCount": Identical to NBQuery but counts results instead.
+ * This is separate to keep typescript happy.
+ * yeah, all the code is copied from the above code.
+ */
+async function NBCount(
+    databaseName: ValidDatabases,
+    query: Record<string, string>,
+    paginate?: boolean,
+    limit?: integer,
+    configOverride?: ValidFQDatabases,
+    passedBaseQueryObj?: FilterQuery<unknown>
+): Promise<FancyQueryCountPseudoResponse | FancyQueryPseudoErrorResponse> {
+    try {
+        // i tried resolving this with overloads, but at this point i'm just going to
+        // assert over typescript that i know this is of pseudoresponseT
+        let dbRes = (await UnstableNBQuery(
+            databaseName,
+            query,
+            paginate,
+            limit,
+            configOverride,
+            false,
+            passedBaseQueryObj
+        )) as FancyQueryCountPseudoResponse;
+
+        return dbRes;
+    } catch (err) {
+        if (err.statusCode && err.body) {
+            return {
+                statusCode: err.statusCode,
+                body: err.body,
+            };
+        } else {
+            console.error(`==== FATAL ERROR IN NBC ${databaseName} ====`);
+            console.error(err);
+            console.error(query);
+            console.error(passedBaseQueryObj);
+            console.error(paginate, limit, configOverride);
+            console.error(`==== END ERR ====`);
+            return {
+                statusCode: 500,
+                body: {
+                    success: false,
+                    description: "An unknown internal server error has occured.",
+                },
+            };
+        }
+    }
+}
+
+async function UnstableNBQuery<T>(
     databaseName: ValidDatabases,
     query: Record<string, string>,
     paginate?: boolean,
@@ -427,4 +477,4 @@ function ParseNumericalModifiers(value: number | number[], option: string) {
     }
 }
 
-export default { FancyDBQuery, FancyQueryValidate };
+export default { NBQuery, FancyQueryValidate, NBCount };
