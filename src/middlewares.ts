@@ -95,7 +95,7 @@ async function RequireExistingUser(
     res: Response,
     next: NextFunction
 ): MiddlewareResponse {
-    let user = await userCore.GetUser(req.params.userID);
+    let user = await userCore.GetUserWithID(parseInt(req.params.userID, 10));
 
     if (!user) {
         return res.status(404).json({
