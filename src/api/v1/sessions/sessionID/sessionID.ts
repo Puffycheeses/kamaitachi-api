@@ -52,7 +52,7 @@ router.get("/scores", GetSessionWithID, async (req, res) => {
 
     let start = common.AssertPositiveInteger(req.query.start, 0);
 
-    let limit = common.AssertPositiveInteger(req.query.start, 500);
+    let limit = common.AssertPositiveInteger(req.query.limit, 500);
 
     let scoreIDs = sessionObj.scores.map((e) => e.scoreID).slice(start, start + limit);
 
