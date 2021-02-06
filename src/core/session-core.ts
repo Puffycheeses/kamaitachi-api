@@ -27,7 +27,7 @@ async function HandleCustomUserSelections(
                 },
             };
         }
-    } else if (req.query.myFriends && req.user) {
+    } else if (req.query.myFriends === "true" && req.user) {
         queryObj.userID = { $in: req.user.friends };
     }
 
