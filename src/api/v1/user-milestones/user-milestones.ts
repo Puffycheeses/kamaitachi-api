@@ -20,12 +20,12 @@ interface UserMilestoneFQReturn extends FancyQueryBody<UserMilestoneDocument> {
  * @name GET /v1/user-milestones
  */
 router.get("/", async (req: KTRequest, res) => {
-    let dbRes = (await dbCore.FancyDBQuery(
+    let dbRes = await dbCore.NBQuery<UserMilestoneDocument>(
         "user-milestones",
         req.query,
         true,
         MAX_RETURNS
-    )) as FancyQueryPseudoResponse<UserMilestoneDocument>;
+    );
 
     if (dbRes.body.success) {
         if (req.query.getAssocUsers) {
