@@ -78,3 +78,7 @@ jspm_packages/
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 .vscode/launch.json
+
+# Ignore IDE files
+.vscode
+.idea
