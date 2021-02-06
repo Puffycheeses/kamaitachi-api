@@ -25,23 +25,23 @@ interface TierlistDataResponse extends FancyQueryBody<TierlistDataDocument> {
 router.get("/", async (req: KTRequest, res) => {
     let tierlist = null;
 
-    if (!common.IsValidGame(req.query.game)) {
-        return res.status(400).json({
-            success: false,
-            description: `Invalid value for game ${req.query.game}`,
-        });
-    }
-
-    if (!common.IsValidPlaytype(req.query.playtype, req.query.game)) {
-        return res.status(400).json({
-            success: false,
-            description: `Invalid value for playtype ${req.query.playtype} for game ${req.query.game}`,
-        });
-    }
-
     if (req.query.tierlistID) {
         tierlist = await tierlistCore.GetTierlistWithID(req.query.tierlistID);
     } else {
+        if (!common.IsValidGame(req.query.game)) {
+            return res.status(400).json({
+                success: false,
+                description: `Invalid value for game ${req.query.game}`,
+            });
+        }
+
+        if (!common.IsValidPlaytype(req.query.playtype, req.query.game)) {
+            return res.status(400).json({
+                success: false,
+                description: `Invalid value for playtype ${req.query.playtype} for game ${req.query.game}`,
+            });
+        }
+
         tierlist = await tierlistCore.GetDefaultTierlist(req.query.game, req.query.playtype);
     }
 
@@ -54,7 +54,7 @@ router.get("/", async (req: KTRequest, res) => {
 
     req.query.tierlistID = tierlist.tierlistID;
 
-    let dbRes = await dbCore.FancyDBQuery<TierlistDataDocument>(
+    let dbRes = await dbCore.NBQuery<TierlistDataDocument>(
         "tierlistdata",
         req.query,
         true,
