@@ -20,21 +20,16 @@ interface UserGoalFQReturn extends FancyQueryBody<UserGoalDocument> {
  * @name GET /v1/user-goals
  */
 router.get("/", async (req: KTRequest, res) => {
-    let dbRes = (await dbCore.FancyDBQuery(
-        "user-goals",
-        req.query,
-        true,
-        MAX_RETURNS
-    )) as FancyQueryPseudoResponse<UserGoalDocument>;
+    let dbRes = await dbCore.NBQuery<UserGoalDocument>("user-goals", req.query, true, MAX_RETURNS);
 
     if (dbRes.body.success) {
-        if (req.query.getAssocUsers) {
+        if (req.query.getAssocUsers === "true") {
             let assocUsers = await userCore.GetUsers(dbRes.body.body.items.map((e) => e.userID));
 
             (dbRes.body.body as UserGoalFQReturn).users = assocUsers;
         }
 
-        if (req.query.getAssocGoals) {
+        if (req.query.getAssocGoals === "true") {
             let assocGoals = await db.get("goals").find({
                 goalID: { $in: dbRes.body.body.items.map((e) => e.goalID) },
             });
