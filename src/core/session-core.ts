@@ -4,7 +4,7 @@ async function HandleCustomUserSelections(
     req: KTRequest,
     queryObj: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
-    if (req.query.myRivals && req.user) {
+    if (req.query.myRivals === "true" && req.user) {
         let rivalGroups = await db.get("rivals").find({
             isDefault: true,
             founderID: req.user.id,
