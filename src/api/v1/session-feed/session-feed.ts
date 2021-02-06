@@ -2,7 +2,6 @@ import * as express from "express";
 import dbCore from "../../../core/db-core";
 const router = express.Router({ mergeParams: true });
 import db from "../../../db";
-import apiConfig from "../../../apiconfig";
 import sessionCore from "../../../core/session-core";
 
 /**
@@ -26,15 +25,14 @@ router.get("/", async (req: KTRequest, res) => {
     let queryObj = {};
     queryObj = await sessionCore.HandleCustomUserSelections(req, queryObj);
 
-    let dbRes = (await dbCore.FancyDBQuery<SessionDocument>(
+    let dbRes = await dbCore.NBQuery<SessionDocument>(
         "sessions",
         req.query,
         true,
         MAX_RETURNS,
         undefined,
-        false,
         queryObj
-    )) as FancyQueryPseudoResponse<SessionDocument>;
+    );
 
     if (dbRes.body.success) {
         let users = new Set();
@@ -73,6 +71,7 @@ router.get("/", async (req: KTRequest, res) => {
                             "scoreData.score": 1,
                             "scoreData.lamp": 1,
                             "scoreData.lampIndex": 1,
+                            comment: 1,
                         },
                     }
                 )
@@ -141,7 +140,15 @@ router.get("/", async (req: KTRequest, res) => {
                 id: { $in: [...users] },
             },
             {
-                projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
+                projection: {
+                    displayname: 1,
+                    username: 1,
+                    id: 1,
+                    custompfp: 1,
+                    classes: 1,
+                    clan: 1,
+                    ratings: 1,
+                },
             }
         );
 
