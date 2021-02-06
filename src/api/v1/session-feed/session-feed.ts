@@ -23,7 +23,18 @@ interface SessionFeedReturns extends FancyQueryBody<SessionDocument> {
 const MAX_RETURNS = 50;
 router.get("/", async (req: KTRequest, res) => {
     let queryObj = {};
-    queryObj = await sessionCore.HandleCustomUserSelections(req, queryObj);
+    try {
+        queryObj = await sessionCore.HandleCustomUserSelections(req, queryObj);
+    } catch (e) {
+        if (e.statusCode && e.body) {
+            return res.status(e.statusCode).json(e.body);
+        } else {
+            console.error(`===== FATAL IN /SESSION-FEED HandleCustomUserSelections ======`);
+            console.error(e);
+            console.error(`${req.originalUrl}`);
+            console.error(`===== END ERROR LOG =====`);
+        }
+    }
 
     let dbRes = await dbCore.NBQuery<SessionDocument>(
         "sessions",
