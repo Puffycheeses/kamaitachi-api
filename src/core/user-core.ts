@@ -42,31 +42,6 @@ async function GetUsers(userIDs: integer[]): Promise<Array<PublicUserDocument>> 
     return users;
 }
 
-async function GetUserWithAPIKey(aKey: string): Promise<PublicUserDocument | null> {
-    let apiKey = await db
-        .get("public-api-keys")
-        .findOne({ apiKey: aKey }, { projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS });
-
-    if (!apiKey) {
-        console.error("apiKey removed during query.", aKey);
-        return null;
-    }
-
-    let user = await db.get("users").findOne(
-        { id: apiKey.assignedTo },
-        {
-            projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
-        }
-    );
-
-    if (!user) {
-        console.error("KEY ASSIGNED TO USER WHO DOES NOT EXIST", aKey);
-        return null;
-    }
-
-    return user;
-}
-
 async function GetAllUsers(): Promise<Array<PublicUserDocument>> {
     let users = await db
         .get("users")
@@ -120,7 +95,6 @@ export default {
     GetAllUsers,
     IsUserIDOnline,
     GetPlayersOnGame,
-    GetUserWithAPIKey,
     GetUsers,
     GetUserWithID,
 };
