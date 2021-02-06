@@ -3,9 +3,9 @@ import dbCore from "../../../core/db-core";
 const router = express.Router({ mergeParams: true });
 import db from "../../../db";
 import config from "../../../config/config";
-import apiConfig from "../../../apiconfig";
 import folderCore from "../../../core/folder-core";
 import common from "../../../core/common-core";
+import userCore from "../../../core/user-core";
 
 /**
  * @namespace /v1/folders
@@ -18,27 +18,13 @@ const MAX_RETURNS = 100;
  * @name GET /v1/folders
  */
 router.get("/", async (req: KTRequest, res) => {
-    let dbRes = await dbCore.FancyDBQuery("folders", req.query, true, MAX_RETURNS);
+    let dbRes = await dbCore.NBQuery<FolderDocument>("folders", req.query, true, MAX_RETURNS);
     return res.status(dbRes.statusCode).json(dbRes.body);
 });
 
-interface TableStat {
-    allScores: integer;
-    uniqueScores: integer;
-    totalCharts: integer;
-    lampDist: Record<string, integer>;
-    gradeDist: Record<string, integer>;
-    gradeFolderLamp?: string;
-    lampFolderLamp?: string;
-}
-
-type TableStatsObject = Record<Playtypes[Game], TableStat>;
-
 /**
- * Returns the folders inside a table (A set of folders).
- * This requires a user to be logged in, or one to specifically be passed.
- * This also returns the given users statistics on said table.
- * @name GET /v1/folders/table-folders
+ * Returns the folders inside a table.
+ * @name GET /v1/table-folders
  */
 router.get("/table-folders", async (req: KTRequest, res) => {
     if (!common.IsValidGame(req.query.game)) {
@@ -48,10 +34,57 @@ router.get("/table-folders", async (req: KTRequest, res) => {
         });
     }
 
-    if (!req.query.table) {
+    let tableName = config.defaultTable[req.query.game];
+
+    if (req.query.table) {
+        if (config.folderTables[req.query.game].includes(req.query.table)) {
+            tableName = req.query.table;
+        } else {
+            return res.status(404).json({
+                success: false,
+                description: "Table provided, but was not valid!",
+            });
+        }
+    }
+
+    let tableFolders = await db.get("folders").find({
+        game: req.query.game,
+        custom: false,
+        table: tableName,
+    });
+
+    return res.status(200).json({
+        success: true,
+        description: `Successfully returned ${tableFolders.length} folders.`,
+        body: {
+            folders: tableFolders,
+            tableName,
+        },
+    });
+});
+interface TableStat {
+    allScores: integer;
+    uniqueScores: integer;
+    totalCharts: integer;
+    lampDist: Record<string, integer>;
+    gradeDist: Record<string, integer>;
+    gradeFolderLamp: string | null;
+    lampFolderLamp: string | null;
+}
+
+type TableStatsObject = Record<Playtypes[Game], TableStat>;
+
+/**
+ * Returns the folders inside a table (A set of folders).
+ * This requires a user to be logged in, or one to specifically be passed.
+ * This also returns the given users statistics on said table.
+ * @name GET /v1/folders/table-statistics
+ */
+router.get("/table-statistics", async (req: KTRequest, res) => {
+    if (!common.IsValidGame(req.query.game)) {
         return res.status(400).json({
             success: false,
-            description: "No table given.",
+            description: "No valid game given.",
         });
     }
 
@@ -70,14 +103,7 @@ router.get("/table-folders", async (req: KTRequest, res) => {
     let userID: integer;
 
     if (parseInt(req.query.userID)) {
-        let u = await db.get("users").findOne(
-            {
-                id: parseInt(req.query.userID),
-            },
-            {
-                projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
-            }
-        );
+        let u = await userCore.GetUser(req.query.userID);
 
         if (u) {
             userID = u.id;
@@ -197,6 +223,8 @@ router.get("/table-folders", async (req: KTRequest, res) => {
                     totalCharts: data.charts.length,
                     lampDist: lampDist,
                     gradeDist: gradeDist,
+                    gradeFolderLamp: null,
+                    lampFolderLamp: null,
                 };
 
                 if (
@@ -221,6 +249,7 @@ router.get("/table-folders", async (req: KTRequest, res) => {
         body: {
             folders: tableFolders,
             stats: stats,
+            tableName,
         },
         validUntil: Date.now() + 8.64e7, // 24 hours
     });
@@ -231,6 +260,7 @@ router.get("/table-folders", async (req: KTRequest, res) => {
         body: {
             folders: tableFolders,
             stats: stats,
+            tableName,
         },
     });
 });
