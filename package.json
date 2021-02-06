@@ -5,8 +5,10 @@
     "main": "js/main.js",
     "scripts": {
         "test": "echo \"WARNING: WRITE TESTS YOU MUPPET\" && exit 0",
-        "build": "eslint ./src --ext .ts --fix && tsc",
-        "run": "eslint ./src --ext .ts --fix && tsc && node js/main.js"
+        "build": "tsc",
+        "run": "tsc && node js/main.js",
+        "lint": "eslint ./src --ext .ts --fix",
+        "devrun": "tsc && SET NODE_ENV=dev && node js/main.js"
     },
     "files": [
         "js/**/*"
