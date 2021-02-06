@@ -44,9 +44,9 @@ router.get("/", async (req, res) =>
 
 /**
  * Sets this milestone to the requesting user.
- * @name PATCH /v1/milestones/milestone/:milestoneID/set-milestone
+ * @name POST /v1/milestones/milestone/:milestoneID/set-milestone
  */
-router.patch("/set-milestone", async (req, res) => {
+router.post("/set-milestone", async (req, res) => {
     let userID = req.apikey!.assignedTo;
 
     let milestone = req.ktchiMilestone as MilestoneDocument;
@@ -153,9 +153,9 @@ router.patch("/set-milestone", async (req, res) => {
 
 /**
  * Removes (or unsets) the milestone at this given ID for the requesting user.
- * @name DELETE /v1/milestones/milestone/:milestoneID/remove-milestone
+ * @name POST /v1/milestones/milestone/:milestoneID/remove-milestone
  */
-router.delete("/remove-milestone", async (req, res) => {
+router.post("/remove-milestone", async (req, res) => {
     let userID = req.apikey!.assignedTo;
 
     let exists = await db.get("user-milestones").findOne({
