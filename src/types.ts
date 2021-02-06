@@ -231,7 +231,7 @@ declare global {
 
     export interface GoalDocument extends MongoDBDocument {
         directChartID: string | null;
-        directChartIDs: string[] | null;
+        directChartIDs?: string[] | null;
         chartQuery: GoalChartQuery | null;
         scoreQuery: Record<string, unknown>;
         criteria: {
@@ -260,13 +260,12 @@ declare global {
             scoreCompareMode: "relevant" | "folder";
             strictness: number;
             boundary: number;
-            scoreCompareFolderID: string;
+            scoreCompareFolderID: string | null;
             cellShading: "grade" | "lamp";
         };
         rivalGroupID: string;
     }
 
-    // :(
     interface SessionScoreInfo {
         pbInfo: {
             isGeneralPB: boolean;
@@ -373,7 +372,27 @@ declare global {
         byUser: integer;
         timeAdded: integer;
         timesUsed: integer;
-        forDatabase: ValidFQDatabases;
+        forDatabase: "scores";
+    }
+
+    export interface NotificationDocument extends MongoDBDocument {
+        notifID: string;
+        title: string;
+        read: boolean;
+        body: string;
+        toUserID: integer;
+        fromUserID: integer;
+        type: string;
+        data: Record<string, unknown>;
+    }
+
+    export interface FunFactDocument extends MongoDBDocument {
+        text: string;
+        nsfw: boolean;
+        anonymous: boolean;
+        userID: integer;
+        funfactID: string;
+        timestamp: integer;
     }
 
     /**
@@ -407,11 +426,33 @@ declare global {
         ratings: Ratings;
         lampRatings: Ratings;
         customRatings: CustomRatings;
+        classes?: UserClasses;
         permissions: {
             admin?: boolean;
         };
         clan: string | null;
     }
+
+    // the bottom set of types are horrifically confusing.
+    // to ease this a bit, an example of what they're representing is below.
+
+    /* 
+        "classes" : {
+            "iidx" : {
+                "SP" : {
+                    "dan" : "kaiden"
+                }
+            }
+        }
+    */
+
+    type UserClasses = Partial<Record<Game, PlaytypeClasses>>;
+
+    type PlaytypeClasses = Partial<Record<Playtypes[Game], ClassInfo>>;
+
+    // this one is just flat out wrong btw, there are very strict requirements
+    // on what strings can go in here.
+    type ClassInfo = Partial<Record<string, string>>;
 
     /**
      * PrivateUserDocument is the document indicating that we've returned everything about the user
@@ -541,8 +582,8 @@ declare global {
             rating: number;
             lampRating: number;
             gameSpecific: Record<string, number>;
-            ranking: integer;
-            outOf: integer;
+            ranking: integer | null;
+            outOf: integer | null;
         };
         timeAchieved: integer | null;
         importType: string;
@@ -557,6 +598,7 @@ declare global {
         timeAdded: integer;
         isScorePB: boolean;
         isLampPB: boolean;
+        scoreID: string;
     }
 
     type KTRequest = Request<
