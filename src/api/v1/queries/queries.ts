@@ -20,18 +20,13 @@ interface QueryFQReturns extends FancyQueryBody<unknown> {
 /**
  * Performs a query for query documents.
  * haha - zkldi
- * @name GET /v1/queries/query
+ * @name GET /v1/queries
  */
-router.get("/query", async (req: KTRequest, res) => {
-    let dbr = (await dbCore.FancyDBQuery<QueryDocument>(
-        "queries",
-        req.query,
-        true,
-        RETURN_LIMIT
-    )) as FancyQueryPseudoResponse<QueryDocument>;
+router.get("/", async (req: KTRequest, res) => {
+    let dbr = await dbCore.NBQuery<QueryDocument>("queries", req.query, true, RETURN_LIMIT);
 
     if (dbr.body.success) {
-        if (req.query.getAssocData) {
+        if (req.query.getAssocUsers) {
             let users = await db.get("users").find(
                 {
                     id: { $in: dbr.body.body.items.map((e) => e.byUser) },
