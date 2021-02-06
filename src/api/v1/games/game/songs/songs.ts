@@ -20,13 +20,13 @@ interface SongsReturn extends FancyQueryBody<SongDocument> {
  * @param getAssocCharts - If present, also retrives all charts from the songs.
  */
 router.get("/", async (req: KTRequest, res) => {
-    let dbRes = (await dbCore.FancyDBQuery<SongDocument>(
+    let dbRes = await dbCore.NBQuery<SongDocument>(
         `songs-${req.params.game}` as ValidDatabases,
         req.query,
         true,
         MAX_RETURNS,
         "songs"
-    )) as FancyQueryPseudoResponse<SongDocument>;
+    );
 
     if (dbRes.body.success) {
         if (req.query.getAssocCharts) {
@@ -46,45 +46,35 @@ router.get("/", async (req: KTRequest, res) => {
  * @param exact Only search for *exact* matches.
  * @param minimalReturns Only returns minimal information about the song, for real-time
  * search implementations.
+ * @param title - The song.
  */
 router.get("/search", async (req: KTRequest, res) => {
     let r: SongDocument[];
 
-    if (req.query.exact) {
-        r = await db.get(`songs-${req.params.game}`).find(
-            {
-                title: req.query.title,
-            },
-            {
-                limit: 100,
-            }
-        );
-    } else {
-        let titleRegex = new RegExp(regexSanitise(req.query.title), "i");
-        let settings = {};
+    let titleRegex = new RegExp(regexSanitise(req.query.title), "i");
+    let settings = {};
 
-        if (req.query.minimalReturns === "true") {
-            settings = {
-                projection: {
-                    title: 1,
-                    artist: 1,
-                    id: 1,
-                },
-            };
-        }
-
-        r = await db.get(`songs-${req.params.game}`).find(
-            {
-                $or: [
-                    { artist: titleRegex },
-                    { title: titleRegex },
-                    { "alt-titles": titleRegex },
-                    { "search-titles": titleRegex },
-                ],
+    if (req.query.minimalReturns === "true") {
+        settings = {
+            projection: {
+                title: 1,
+                artist: 1,
+                id: 1,
             },
-            settings
-        );
+        };
     }
+
+    r = await db.get(`songs-${req.params.game}`).find(
+        {
+            $or: [
+                { artist: titleRegex },
+                { title: titleRegex },
+                { "alt-titles": titleRegex },
+                { "search-titles": titleRegex },
+            ],
+        },
+        settings
+    );
 
     return res.status(200).json({
         success: true,
