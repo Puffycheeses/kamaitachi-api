@@ -66,7 +66,7 @@ async function ValidateUserID(req: KTRequest, res: express.Response, next: expre
             });
         }
     } else {
-        if (!req.apikey) {
+        if (!req.user) {
             return res.status(400).json({
                 success: false,
                 description: "No user given, and no credentials to default to.",
@@ -212,7 +212,7 @@ router.get("/scores", ValidateUserID, ValidateRivalGroupID, async (req, res) => 
     } else if (req.query.beforeTimestamp) {
         // because we're not using isScorePB/isLampPB anymore, we need to do some INTERESTING aggregate pipelining
 
-        let scPipe = await db.get("scores").aggregate([
+        let scPipe = (await db.get("scores").aggregate([
             {
                 // step 1: Filter all the scores to only those we care about
                 $match: {
@@ -238,7 +238,7 @@ router.get("/scores", ValidateUserID, ValidateRivalGroupID, async (req, res) => 
                     lampPB: { $max: "$scoreData.lampIndex" },
                 },
             },
-        ]);
+        ])) as { _id: string; scorePB: ScoreDocument; lampPB: integer }[];
 
         for (const scoreData of scPipe) {
             let scDoc: ScoreDocument = scoreData.scorePB;
@@ -247,6 +247,11 @@ router.get("/scores", ValidateUserID, ValidateRivalGroupID, async (req, res) => 
             }
             scDoc.scoreData.lampIndex = scoreData.lampPB;
             scDoc.scoreData.lamp = config.lamps[scDoc.game][scoreData.lampPB];
+
+            // if bms, we're completely screwed btw
+            // since the users best rating is actually their best lamp.
+            // known bug.
+
             scores.push(scDoc);
         }
     } else {
@@ -261,7 +266,13 @@ router.get("/scores", ValidateUserID, ValidateRivalGroupID, async (req, res) => 
         scores = await scoreCore.AutoCoerce(scorePBs);
     }
 
-    let users = await userCore.GetUsers(scores.map((e) => e.userID));
+    let users: PublicUserDocument[] = [];
+
+    if (req.rivalGroup) {
+        users = await userCore.GetUsers(req.rivalGroup.members);
+    } else {
+        users = [(await userCore.GetUserWithID(requestedUserID)) as PublicUserDocument];
+    }
 
     return res.status(200).json({
         success: true,
@@ -291,11 +302,17 @@ router.get("/goals", ValidateUserID, async (req, res) => {
         $or: [{ directChartID: { $in: chartIDs } }, { directChartIDs: { $in: chartIDs } }],
     };
 
-    let goals = await db.get("goals").find(queryObj);
+    // this is incredibly inefficent btw and WILL NOT LAST.
+    let goals = (await db.get("goals").find(queryObj)) as GoalDocument[];
+
     let userGoals = await db.get("user-goals").find({
         goalID: { $in: goals.map((e) => e.goalID) },
         userID: requestedUserID,
     });
+
+    let userGoalIDs = userGoals.map((e) => e.goalID);
+
+    goals = goals.filter((e) => userGoalIDs.includes(e.goalID)) as GoalDocument[];
 
     return res.status(200).json({
         success: true,
@@ -386,9 +403,13 @@ function ValidateTimelineValues(req: KTRequest, res: express.Response, next: exp
             let elementActuallyExists =
                 targetName === "lamp" ? config.lamps[game][tVal] : config.grades[game][tVal];
 
-            if (elementActuallyExists) {
-                targetVal = tVal;
+            if (!elementActuallyExists) {
+                return res.status(400).json({
+                    success: false,
+                    description: `Invalid value of ${tVal} for target ${targetName}`,
+                });
             }
+            targetVal = tVal;
         } else {
             targetVal = tVal;
         }
@@ -412,6 +433,8 @@ const INTERNAL_TARGET_NAME = {
  * @name GET /v1/folders/:folderID/timeline
  * @param targetName - lamp, grade, percent or score depending on what the timeline pivots on.
  * @param targetVal - a number representing the target in question.
+ * @param playtype
+ * @param difficulty
  */
 router.get("/timeline", ValidateTimelineValues, ValidateUserID, async (req, res) => {
     let targetVal = parseFloat(req.query.targetVal);
