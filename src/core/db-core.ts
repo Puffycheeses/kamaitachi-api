@@ -79,15 +79,13 @@ async function NBCount(
     passedBaseQueryObj?: FilterQuery<unknown>
 ): Promise<FancyQueryCountPseudoResponse | FancyQueryPseudoErrorResponse> {
     try {
-        // i tried resolving this with overloads, but at this point i'm just going to
-        // assert over typescript that i know this is of pseudoresponseT
         let dbRes = (await UnstableNBQuery(
             databaseName,
             query,
             paginate,
             limit,
             configOverride,
-            false,
+            true,
             passedBaseQueryObj
         )) as FancyQueryCountPseudoResponse;
 
