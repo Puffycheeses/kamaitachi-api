@@ -119,6 +119,6 @@ router.post("/create-group", async (req: KTRequest, res) => {
 });
 
 import rgRouter from "./rivalGroupID/rivalGroupID";
-router.use("/rival-group/:rivalGroupID", rgRouter);
+router.use("/:rivalGroupID", rgRouter);
 
 export default router;

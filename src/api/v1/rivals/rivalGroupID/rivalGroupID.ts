@@ -7,7 +7,7 @@ import scoreHelpers from "../../../../core/score-core";
 import common from "../../../../core/common-core";
 
 /**
- * @namespace /v1/rivals/rival-group/:rivalGroupID
+ * @namespace /v1/rivals/:rivalGroupID
  */
 
 async function CheckRivalGroupExists(
@@ -31,7 +31,7 @@ async function CheckRivalGroupExists(
 }
 
 /**
- * @name GET /v1/rivals/rival-group/:rivalGroupID
+ * @name GET /v1/rivals/:rivalGroupID
  */
 router.get("/", CheckRivalGroupExists, async (req, res) => {
     let rg = req.rivalGroup as RivalGroupDocument;
@@ -89,7 +89,7 @@ async function ValidateRivalGroupModification(
 
 /**
  * Deletes the requested group.
- * @name DELETE /v1/rivals/rival-group/:rivalGroupID
+ * @name DELETE /v1/rivals/:rivalGroupID
  */
 router.delete("/", ValidateRivalGroupModification, async (req, res) => {
     let rg = req.rivalGroup as RivalGroupDocument;
@@ -105,7 +105,7 @@ router.delete("/", ValidateRivalGroupModification, async (req, res) => {
 
 /**
  * Modifies the requested group.
- * @name PATCH /v1/rivals/rival-group/:rivalGroupID
+ * @name PATCH /v1/rivals/:rivalGroupID
  * @param name
  * @param desc
  * @param boundary - Overrides the boundary for the rivalGroup, affects how
@@ -217,7 +217,7 @@ router.patch("/", ValidateRivalGroupModification, async (req, res) => {
 
 /**
  * Adds a user to the rival group.
- * @name POST /v1/rivals/rival-group/:rivalGroupID/add-member
+ * @name POST /v1/rivals/:rivalGroupID/add-member
  */
 router.post("/add-member", ValidateRivalGroupModification, async (req, res) => {
     if (!req.body.userID) {
@@ -279,7 +279,7 @@ router.post("/add-member", ValidateRivalGroupModification, async (req, res) => {
 
 /**
  * Removes a user from the rival group.
- * @name POST /v1/rivals/rival-group/:rivalGroupID/members
+ * @name POST /v1/rivals/:rivalGroupID/members
  */
 router.post("/remove-member", ValidateRivalGroupModification, async (req, res) => {
     if (!req.body.userID) {
@@ -332,7 +332,7 @@ router.post("/remove-member", ValidateRivalGroupModification, async (req, res) =
 
 /**
  * Retrieves the user documents for the members inside the rival group.
- * @name GET /v1/rivals/rival-group/:rivalGroupID/members
+ * @name GET /v1/rivals/:rivalGroupID/members
  */
 router.get("/members", CheckRivalGroupExists, async (req, res) => {
     let rg = req.rivalGroup as RivalGroupDocument;
@@ -350,7 +350,7 @@ router.get("/members", CheckRivalGroupExists, async (req, res) => {
 
 /**
  * Retrieves scores from the rival group on the given folderID.
- * @name GET /v1/rivals/rival-group/:rivalGroupID/folder-scores
+ * @name GET /v1/rivals/:rivalGroupID/folder-scores
  * @param folderID - The ID of the folder to pull scores from.
  */
 router.get("/folder-scores", CheckRivalGroupExists, async (req: KTRequest, res) => {
@@ -483,7 +483,7 @@ router.get("/score-feed", CheckRivalGroupExists, async (req, res) => {
 
 /**
  * Retrieves "relevant" scores from the rival group.
- * @name GET /v1/rivals/rival-group/:rivalGroupID/relevant-scores
+ * @name GET /v1/rivals/:rivalGroupID/relevant-scores
  * @param boundary - Between 0 and 0.2, determines how lenient to be with relevancy.
  * @param autoCoerce - if exactly "false", scores will NOT be auto-coerced.
  */
