@@ -17,7 +17,7 @@ router.get("/", async (req: KTRequest, res) => {
     // this needs to be fixed sometime.
     // (TODO)
 
-    let dbRes = await dbCore.FancyDBQuery("tierlist", req.query, true, RETURN_LIMIT);
+    let dbRes = await dbCore.NBQuery<TierlistDocument>("tierlist", req.query, true, RETURN_LIMIT);
 
     return res.status(dbRes.statusCode).json(dbRes.body);
 });
