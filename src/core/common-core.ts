@@ -20,9 +20,24 @@ function IsValidCustomRating(rating: string, game: Game, playtype: Playtypes[Gam
     return !!config.gameSpecificCalc[game]?.[playtype]?.includes(rating);
 }
 
+function AssertPositiveInteger(n: string, df: integer, bound?: boolean): integer {
+    let num = parseInt(n, 10);
+
+    if (num < 0) {
+        return df;
+    } else if (!Number.isSafeInteger(num)) {
+        return df;
+    } else if (bound && num > df) {
+        return df;
+    }
+
+    return num;
+}
+
 export default {
     IsValidGame,
     IsValidPlaytype,
     IsValidDifficulty,
     IsValidCustomRating,
+    AssertPositiveInteger,
 };
