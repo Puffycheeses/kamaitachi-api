@@ -16,9 +16,7 @@ router.get("/", async (req, res) =>
     res.status(200).json({
         success: true,
         description: `Successfully found user '${req.requestedUser}'`,
-        body: {
-            item: req.requestedUser,
-        },
+        body: req.requestedUser,
     })
 );
 
