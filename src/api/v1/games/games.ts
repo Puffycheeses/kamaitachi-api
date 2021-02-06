@@ -8,9 +8,6 @@ import config from "../../../config/config";
  */
 
 interface GameStats {
-    game: Game;
-    playtypes: Playtypes[Game][];
-    gameHuman: string;
     scoreCount: integer;
     songCount: integer;
     chartCount: integer;
@@ -74,9 +71,6 @@ router.get("/", async (req, res) => {
         totalChartCount += chartCount;
 
         let gameObj = {
-            game: game,
-            playtypes: config.validPlaytypes[game],
-            gameHuman: config.gameHuman[game],
             scoreCount: scoreCount,
             songCount: songCount,
             chartCount: chartCount,
