@@ -4,6 +4,7 @@ import * as express from "express";
 import folderCore from "../../../../core/folder-core";
 const router = express.Router({ mergeParams: true });
 import scoreHelpers from "../../../../core/score-core";
+import common from "../../../../core/common-core";
 
 /**
  * @namespace /v1/rivals/rival-group/:rivalGroupID
@@ -88,9 +89,9 @@ async function ValidateRivalGroupModification(
 
 /**
  * Deletes the requested group.
- * @name DELETE /v1/rivals/rival-group/:rivalGroupID/delete-group
+ * @name DELETE /v1/rivals/rival-group/:rivalGroupID
  */
-router.delete("/delete-group", ValidateRivalGroupModification, async (req, res) => {
+router.delete("/", ValidateRivalGroupModification, async (req, res) => {
     let rg = req.rivalGroup as RivalGroupDocument;
 
     await db.get("rivals").remove({ _id: rg._id });
@@ -98,18 +99,19 @@ router.delete("/delete-group", ValidateRivalGroupModification, async (req, res) 
     return res.status(200).json({
         success: true,
         description: "Successfully deleted group.",
+        body: rg,
     });
 });
 
 /**
  * Modifies the requested group.
- * @name PATCH /v1/rivals/rival-group/:rivalGroupID/modify-group
+ * @name PATCH /v1/rivals/rival-group/:rivalGroupID
  * @param name
  * @param desc
  * @param boundary - Overrides the boundary for the rivalGroup, affects how
  * scores are retrieved
  */
-router.patch("/modify-group", ValidateRivalGroupModification, async (req, res) => {
+router.patch("/", ValidateRivalGroupModification, async (req, res) => {
     let rg = req.rivalGroup as RivalGroupDocument;
 
     if (req.body.name) {
@@ -123,7 +125,7 @@ router.patch("/modify-group", ValidateRivalGroupModification, async (req, res) =
     }
 
     if (req.body.desc) {
-        if (req.body.desc.length > 200) {
+        if (req.body.desc.length > 240) {
             return res.status(400).json({
                 success: false,
                 description: "Group descriptions must be less than 200 characters.",
@@ -215,10 +217,10 @@ router.patch("/modify-group", ValidateRivalGroupModification, async (req, res) =
 
 /**
  * Adds a user to the rival group.
- * @name PATCH /v1/rivals/rival-group/:rivalGroupID/add-member
+ * @name POST /v1/rivals/rival-group/:rivalGroupID/add-member
  */
-router.patch("/add-member", ValidateRivalGroupModification, async (req, res) => {
-    if (!req.body.addUserID) {
+router.post("/add-member", ValidateRivalGroupModification, async (req, res) => {
+    if (!req.body.userID) {
         return res.status(400).json({
             success: false,
             description: "Please provide an addUserID",
@@ -234,7 +236,7 @@ router.patch("/add-member", ValidateRivalGroupModification, async (req, res) => 
         });
     }
 
-    let addingUser = await userCore.GetUser(req.body.addUserID);
+    let addingUser = await userCore.GetUser(req.body.userID);
 
     if (!addingUser) {
         return res.status(400).json({
@@ -277,10 +279,10 @@ router.patch("/add-member", ValidateRivalGroupModification, async (req, res) => 
 
 /**
  * Removes a user from the rival group.
- * @name PATCH /v1/rivals/rival-group/:rivalGroupID/add-member
+ * @name POST /v1/rivals/rival-group/:rivalGroupID/members
  */
-router.patch("/remove-member", ValidateRivalGroupModification, async (req, res) => {
-    if (!req.body.removeUserID) {
+router.post("/remove-member", ValidateRivalGroupModification, async (req, res) => {
+    if (!req.body.userID) {
         return res.status(400).json({
             success: false,
             description: "Please provide an removeUserID",
@@ -289,7 +291,7 @@ router.patch("/remove-member", ValidateRivalGroupModification, async (req, res) 
 
     let rivalGroup = req.rivalGroup as RivalGroupDocument;
 
-    let removingUser = await userCore.GetUser(req.body.removeUserID);
+    let removingUser = await userCore.GetUser(req.body.userID);
 
     if (!removingUser) {
         return res.status(400).json({
@@ -393,15 +395,18 @@ router.get("/folder-scores", CheckRivalGroupExists, async (req: KTRequest, res) 
             charts,
             songs,
             members,
-            rivalGroup: rg,
         },
     });
 });
 
+/**
+ * Returns a feed of scores determined to be impressive for the group.
+ * @name GET /v1/rivals/:rivalGroupID/score-feed
+ */
 router.get("/score-feed", CheckRivalGroupExists, async (req, res) => {
     let rg = req.rivalGroup as RivalGroupDocument;
 
-    if (!req.query.includeSelf) {
+    if (!req.query.includeFounder) {
         rg.members = rg.members.filter((e) => e !== rg.founderID);
     }
 
@@ -420,9 +425,10 @@ router.get("/score-feed", CheckRivalGroupExists, async (req, res) => {
 
     let members = await userCore.GetUsers(rg.members);
     let impressiveness = parseFloat(req.query.impressiveness) || 0.95;
-    let lim = parseInt(req.query.limit) < 100 ? parseInt(req.query.limit) : 100;
-    let start = parseInt(req.query.start) || 0;
+    let lim = common.AssertPositiveInteger(req.query.limit, 100, true);
+    let start = common.AssertPositiveInteger(req.query.start, 0);
 
+    // can be optimised by using rival group average then going from there?
     let importantScores = await db.get("scores").find(
         {
             game: rg.game,
@@ -499,7 +505,6 @@ router.get("/relevant-scores", CheckRivalGroupExists, async (req, res) => {
         boundary = floatBound;
     }
 
-    // sort members in rating order so we know what bounds to go for
     let avgRating =
         members.reduce((a, b) => a + (b.ratings[rg.game][rg.playtype] || 0), 0) / members.length;
 
