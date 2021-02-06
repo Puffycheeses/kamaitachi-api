@@ -93,7 +93,7 @@ async function GetAssocData(fqr: FancyQueryBody<ScoreDocument>): Promise<ScoreAs
 
         let charts = await db.get(`charts-${key}`).find(
             {
-                $in: chartQuery[key],
+                chartID: { $in: chartQuery[key] },
             },
             {
                 projection: { _id: 0 },
