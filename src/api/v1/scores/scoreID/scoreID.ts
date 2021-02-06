@@ -64,9 +64,9 @@ router.get("/", async (req, res) =>
 /**
  * Changes the highlight status of the requested score document.
  * @access Requesting user must be the creator of the given score.
- * @name PATCH /v1/scores/:scoreID/toggle-highlight
+ * @name POST /v1/scores/:scoreID/toggle-highlight
  */
-router.patch("/toggle-highlight", ScoreUserKeyMatch, async (req, res) => {
+router.post("/toggle-highlight", ScoreUserKeyMatch, async (req, res) => {
     let score = req.score as ScoreDocument;
 
     await db.get("scores").update(
@@ -90,12 +90,66 @@ router.patch("/toggle-highlight", ScoreUserKeyMatch, async (req, res) => {
 });
 
 /**
+ * Sets a score as highlighted.
+ * @name POST /v1/scores/:scoreID/set-highlight
+ */
+router.post("/set-highlight", ScoreUserKeyMatch, async (req, res) => {
+    let score = req.score as ScoreDocument;
+
+    await db.get("scores").update(
+        {
+            _id: score._id,
+        },
+        {
+            $set: {
+                highlight: true,
+            },
+        }
+    );
+
+    return res.status(200).json({
+        success: true,
+        description: "Highlighted score!",
+        body: {
+            highlightStatus: true,
+        },
+    });
+});
+
+/**
+ * Sets a score as unhighlighted.
+ * @name POST /v1/scores/:scoreID/unset-highlight
+ */
+router.post("/unset-highlight", ScoreUserKeyMatch, async (req, res) => {
+    let score = req.score as ScoreDocument;
+
+    await db.get("scores").update(
+        {
+            _id: score._id,
+        },
+        {
+            $set: {
+                highlight: false,
+            },
+        }
+    );
+
+    return res.status(200).json({
+        success: true,
+        description: "Unhighlighted score.",
+        body: {
+            highlightStatus: false,
+        },
+    });
+});
+
+/**
  * Edits the comment of the requested score document.
  * @access Requesting user must be the creator of the given score.
- * @name PATCH /v1/scores/:scoreID/edit-comment
+ * @name PUT /v1/scores/:scoreID/comment
  * @param comment - a 240 characters or less string representing the comment to add to the score.
  */
-router.patch("/edit-comment", ScoreUserKeyMatch, async (req, res) => {
+router.put("/comment", ScoreUserKeyMatch, async (req, res) => {
     if (!req.body.comment) {
         return res.status(400).json({
             success: false,
@@ -136,11 +190,11 @@ router.patch("/edit-comment", ScoreUserKeyMatch, async (req, res) => {
 });
 
 /**
- * Edits the comment of the requested score document.
+ * Deletes the comment on the given score.
  * @access Requesting user must be the creator of the given score.
- * @name PATCH /v1/scores/:scoreID/remove-comment
+ * @name DELETE /v1/scores/:scoreID/comment
  */
-router.patch("/remove-comment", ScoreUserKeyMatch, async (req, res) => {
+router.delete("/comment", ScoreUserKeyMatch, async (req, res) => {
     let score = req.score as ScoreDocument;
 
     await db.get("scores").update(
