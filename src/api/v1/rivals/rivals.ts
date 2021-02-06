@@ -1,6 +1,5 @@
 import db from "../../../db";
 import dbCore from "../../../core/db-core";
-import userHelpers from "../../../core/user-core";
 import * as express from "express";
 import crypto from "crypto";
 import config from "../../../config/config";
@@ -15,10 +14,15 @@ const RETURN_LIMIT = 50;
 
 /**
  * Performs a fancyquery on the rivals database.
- * @name GET /v1/rivals/
+ * @name GET /v1/rivals
  */
 router.get("/", async (req: KTRequest, res) => {
-    let rivalsBody = await dbCore.FancyDBQuery("rivals", req.query, true, RETURN_LIMIT);
+    let rivalsBody = await dbCore.NBQuery<RivalGroupDocument>(
+        "rivals",
+        req.query,
+        true,
+        RETURN_LIMIT
+    );
 
     return res.status(rivalsBody.statusCode).json(rivalsBody.body);
 });
@@ -26,7 +30,6 @@ router.get("/", async (req: KTRequest, res) => {
 /**
  * Creates a new rival group.
  * @name POST /v1/rivals/create-group
- * @todo Investigate why the hell this is POST and not PUT?
  */
 router.post("/create-group", async (req: KTRequest, res) => {
     if (!req.body.name || req.body.name.length > 40) {
@@ -36,10 +39,10 @@ router.post("/create-group", async (req: KTRequest, res) => {
         });
     }
 
-    if (req.body.desc && req.body.desc.length > 200) {
+    if (req.body.desc && req.body.desc.length > 240) {
         return res.status(400).json({
             success: false,
-            description: "Invalid rival group description (>200 chars).",
+            description: "Invalid rival group description (>240 chars).",
         });
     }
 
@@ -61,9 +64,7 @@ router.post("/create-group", async (req: KTRequest, res) => {
 
     let desc = req.body.desc ? req.body.desc : "No Description Provided";
 
-    let apiKey = req.body.key ? req.body.key : req.cookies.apikey;
-
-    let founder = await userHelpers.GetUserWithAPIKey(apiKey);
+    let founder = req.user;
 
     if (!founder) {
         return res.status(500).json({
@@ -73,7 +74,7 @@ router.post("/create-group", async (req: KTRequest, res) => {
         });
     }
 
-    if (!founder.ratings[req.body.game] || !founder.ratings[req.body.game][playtype]) {
+    if (!founder.ratings[req.body.game]?.[playtype]) {
         return res.status(400).json({
             success: false,
             description: "You cannot create rival groups for games you haven't played.",
@@ -103,7 +104,7 @@ router.post("/create-group", async (req: KTRequest, res) => {
             strictness: 0.5,
             boundary: 0.1,
             cellShading: config.gameRelevantScoreBucket[req.body.game],
-            scoreCompareFolderID: "",
+            scoreCompareFolderID: null,
         },
         rivalGroupID: crypto.randomBytes(20).toString("hex"),
     };
