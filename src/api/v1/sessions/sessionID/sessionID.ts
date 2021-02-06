@@ -1,6 +1,7 @@
 import * as express from "express";
 const router = express.Router({ mergeParams: true });
 import db from "../../../../db";
+import common from "../../../../core/common-core";
 
 /**
  * @namespace /v1/sessions/:sessionID
@@ -26,15 +27,13 @@ async function GetSessionWithID(req: KTRequest, res: express.Response, next: exp
  * Returns the session at the given ID.
  * @name GET /v1/sessions/:sessionID
  */
-router.get("/", GetSessionWithID, async (req, res) => {
-    let sessionObj = req.ktchiSession;
-
-    return res.status(200).json({
+router.get("/", GetSessionWithID, async (req, res) =>
+    res.status(200).json({
         success: true,
         description: "Found session successfully.",
-        body: sessionObj,
-    });
-});
+        body: req.ktchiSession,
+    })
+);
 
 interface SessionScoresReturn {
     songs?: SongDocument[];
@@ -51,13 +50,9 @@ interface SessionScoresReturn {
 router.get("/scores", GetSessionWithID, async (req, res) => {
     let sessionObj = req.ktchiSession as SessionDocument;
 
-    let start = parseInt(req.query.start) || 0;
+    let start = common.AssertPositiveInteger(req.query.start, 0);
 
-    let limit = parseInt(req.query.limit) || 500;
-
-    if (limit > 500) {
-        limit = 500;
-    }
+    let limit = common.AssertPositiveInteger(req.query.start, 500);
 
     let scoreIDs = sessionObj.scores.map((e) => e.scoreID).slice(start, start + limit);
 
@@ -65,7 +60,7 @@ router.get("/scores", GetSessionWithID, async (req, res) => {
         scoreID: { $in: scoreIDs },
     });
 
-    if (req.query.getAssocData) {
+    if (req.query.getAssocData === "true") {
         let songs = await db.get(`songs-${sessionObj.game}`).find({
             id: { $in: scores.map((e) => e.songID) },
         });
@@ -168,10 +163,10 @@ async function ValidateUser(req: KTRequest, res: express.Response, next: express
 
 /**
  * Sets the name of a session.
- * @name PATCH /v1/sessions/:sessionID/set-name
+ * @name POST /v1/sessions/:sessionID/set-name
  * @param name - A 140 character or less string.
  */
-router.patch("/set-name", GetSessionWithID, ValidateUser, async (req, res) => {
+router.post("/set-name", GetSessionWithID, ValidateUser, async (req, res) => {
     if (!req.body.name) {
         return res.status(400).json({
             success: false,
@@ -201,10 +196,10 @@ router.patch("/set-name", GetSessionWithID, ValidateUser, async (req, res) => {
 
 /**
  * Sets the description of a session.
- * @name PATCH /v1/sessions/:sessionID/set-desc
+ * @name POST /v1/sessions/:sessionID/set-desc
  * @param desc - A 280 character or less string.
  */
-router.patch("/set-desc", GetSessionWithID, ValidateUser, async (req, res) => {
+router.post("/set-desc", GetSessionWithID, ValidateUser, async (req, res) => {
     if (!req.body.desc) {
         return res.status(400).json({
             success: false,
@@ -234,9 +229,9 @@ router.patch("/set-desc", GetSessionWithID, ValidateUser, async (req, res) => {
 
 /**
  * Toggles the highlighted status of a session.
- * @name PATCH /v1/sessions/:sessionID/toggle-highlight
+ * @name POST /v1/sessions/:sessionID/toggle-highlight
  */
-router.patch("/toggle-highlight", GetSessionWithID, ValidateUser, async (req, res) => {
+router.post("/toggle-highlight", GetSessionWithID, ValidateUser, async (req, res) => {
     let session = req.ktchiSession as SessionDocument;
 
     await db
