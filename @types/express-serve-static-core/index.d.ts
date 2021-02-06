@@ -21,6 +21,7 @@ declare global {
             importObj?: ImportDocument;
             ktchiMilestone?: MilestoneDocument;
             ktchiSession?: SessionDocument;
+            ktchiNotification?: NotificationDocument;
         }
     }
 }
