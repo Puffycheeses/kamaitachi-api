@@ -4,7 +4,7 @@ async function HandleCustomUserSelections(
     req: KTRequest,
     queryObj: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
-    if (req.query.myRivals === "true" && req.user) {
+    if (req.query.customUserSelection === "rivals" && req.user) {
         let rivalGroups = await db.get("rivals").find({
             isDefault: true,
             founderID: req.user.id,
@@ -27,7 +27,7 @@ async function HandleCustomUserSelections(
                 },
             };
         }
-    } else if (req.query.myFriends === "true" && req.user) {
+    } else if (req.query.customUserSelection === "friends" && req.user) {
         queryObj.userID = { $in: req.user.friends };
     }
 
