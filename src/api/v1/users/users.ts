@@ -18,12 +18,12 @@ const MAX_USER_RETURN_LIMIT = 100;
  * @name GET /v1/users
  */
 router.get("/", async (req: KTRequest, res) => {
-    let dbRes = (await dbCore.FancyDBQuery(
+    let dbRes = await dbCore.NBQuery<PublicUserDocument>(
         "users",
         req.query,
         true,
         MAX_USER_RETURN_LIMIT
-    )) as FancyQueryPseudoResponse<PublicUserDocument>;
+    );
 
     return res.status(dbRes.statusCode).json(dbRes.body);
 });
@@ -68,24 +68,6 @@ router.get("/search", async (req: KTRequest, res) => {
         return res.status(400).json({
             success: false,
             description: "No Username provided.",
-        });
-    }
-
-    if (req.query.exact) {
-        let user = await userCore.GetUser(req.query.username);
-
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                description: `User '${req.query.username}' not found.`,
-            });
-        }
-        return res.status(200).json({
-            success: true,
-            description: `Successfully found user '${req.query.username}'.`,
-            body: {
-                user: user,
-            },
         });
     }
 
