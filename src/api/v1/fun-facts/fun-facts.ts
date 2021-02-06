@@ -2,6 +2,7 @@ import * as express from "express";
 const router = express.Router({ mergeParams: true });
 import db from "../../../db";
 import crypto from "crypto";
+import userCore from "../../../core/user-core";
 import apiConfig from "../../../apiconfig";
 
 /**
@@ -54,14 +55,7 @@ router.get("/", async (req, res) => {
     if (ffact.anonymous) {
         delete ffact.userID;
     } else {
-        user = await db.get("users").findOne(
-            {
-                id: ffact.userID,
-            },
-            {
-                projection: apiConfig.REMOVE_PRIVATE_USER_RETURNS,
-            }
-        );
+        user = await userCore.GetUserWithID(ffact.userID);
     }
 
     return res.status(200).json({
@@ -76,12 +70,12 @@ router.get("/", async (req, res) => {
 
 /**
  * Submits a fun fact.
- * @name PUT /v1/fun-facts/submit-fun-fact
+ * @name PUT /v1/fun-facts
  * @param funfact - A 280 characters or less string containing the fun fact.
  * @param nsfw - If this fun fact is nsfw.
  * @param anonymous - If this fun fact should be anonymous.
  */
-router.put("/submit-fun-fact", async (req, res) => {
+router.put("/", async (req, res) => {
     if (!req.body.funfact) {
         return res.status(400).json({
             success: false,
