@@ -25,12 +25,7 @@ interface GoalsReturn extends FancyQueryBody<GoalDocument> {
  * @param getAsocUserGoalCounts - Gets the amount of users who have this goal set.
  */
 router.get("/", async (req: KTRequest, res) => {
-    let dbRes = (await dbCore.FancyDBQuery<GoalDocument>(
-        "goals",
-        req.query,
-        true,
-        MAX_RETURNS
-    )) as FancyQueryPseudoResponse<GoalDocument>;
+    let dbRes = await dbCore.NBQuery<GoalDocument>("goals", req.query, true, MAX_RETURNS);
 
     if (dbRes.body.success) {
         if (req.query.getAssocUsers) {
@@ -117,11 +112,12 @@ const HUMAN_SCORE_GOAL_KEY: Record<ValidGoalKey, string> = {
 
 /**
  * Creates a "simple" chart goal, which takes one chart, a target name and a target val
- * @name PUT /v1/goals/create-simple-chart-goal
+ * @name POST /v1/goals/create-simple-chart-goal
  * @param scoreGoalKey - See ValidGoalKey
  * @param scoreGoalValue - A float which sets the target of the key.
+ * @param chartID - The chart you're setting the goal on.
  */
-router.put("/create-simple-chart-goal", RequireValidGame, async (req: KTRequest, res) => {
+router.post("/create-simple-chart-goal", RequireValidGame, async (req: KTRequest, res) => {
     if (!req.body.chartID) {
         return res.status(400).json({
             success: false,
