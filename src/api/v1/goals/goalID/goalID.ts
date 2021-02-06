@@ -40,9 +40,9 @@ router.get("/", async (req, res) =>
 
 /**
  * Assigns a given goal id to the requesting user.
- * @name PATCH /v1/goals/goal/:goalID/assign-goal
+ * @name POST /v1/goals/goal/:goalID/assign-goal
  */
-router.patch("/assign-goal", async (req, res) => {
+router.post("/assign-goal", async (req, res) => {
     let goal = req.ktchiGoal as GoalDocument;
     let exists = await db.get("user-goals").findOne({
         userID: req.apikey!.assignedTo,
@@ -68,9 +68,9 @@ router.patch("/assign-goal", async (req, res) => {
 
 /**
  * Removes the given goalID from the requesting user.
- * @name DELETE /v1/goals/goal/:goalID/remove-goal
+ * @name POST /v1/goals/goal/:goalID/remove-goal
  */
-router.delete("/remove-goal", async (req, res) => {
+router.post("/remove-goal", async (req, res) => {
     let exists = await db.get("user-goals").findOne({
         userID: req.apikey!.assignedTo,
         goalID: req.params.goalID,
