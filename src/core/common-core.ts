@@ -20,10 +20,26 @@ function IsValidCustomRating(rating: string, game: Game, playtype: Playtypes[Gam
     return !!config.gameSpecificCalc[game]?.[playtype]?.includes(rating);
 }
 
+/** @deprecated May have side effect with zero values
+ * @see AssertPositiveIntegerNonZero */
 function AssertPositiveInteger(n: string, df: integer, bound?: boolean): integer {
     let num = parseInt(n, 10);
 
     if (num < 0) {
+        return df;
+    } else if (!Number.isSafeInteger(num)) {
+        return df;
+    } else if (bound && num > df) {
+        return df;
+    }
+
+    return num;
+}
+
+function AssertPositiveIntegerNonZero(n: string, df: integer, bound?: boolean): integer {
+    let num = parseInt(n, 10);
+
+    if (num <= 0) {
         return df;
     } else if (!Number.isSafeInteger(num)) {
         return df;
@@ -40,4 +56,5 @@ export default {
     IsValidDifficulty,
     IsValidCustomRating,
     AssertPositiveInteger,
+    AssertPositiveIntegerNonZero,
 };

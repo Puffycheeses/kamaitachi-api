@@ -48,7 +48,7 @@ router.get("/best", async (req: KTRequest, res) => {
 
     let startPoint = common.AssertPositiveInteger(req.query.start, 0);
 
-    let limit = common.AssertPositiveInteger(req.query.limit, 100, true);
+    let limit = common.AssertPositiveIntegerNonZero(req.query.limit, 100, true);
 
     // else if we get here we're all good
 
